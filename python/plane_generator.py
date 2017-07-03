@@ -146,8 +146,8 @@ camera_matrix[2,2]=1.0
 distCoeffs= np.zeros(4)
 
 
-ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, (cam.img_width,cam.img_height),None,None)
-#ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, (cam.img_width,cam.img_height), camera_matrix.astype('float32'),distCoeffs, flags=cv2.CALIB_USE_INTRINSIC_GUESS)
+#ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, (cam.img_width,cam.img_height),None,None)
+ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, (cam.img_width,cam.img_height), camera_matrix.astype('float32'),distCoeffs, flags=cv2.CALIB_USE_INTRINSIC_GUESS)
 
 print mtx
 print cam_points1[:,0]

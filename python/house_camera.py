@@ -5,7 +5,8 @@ Created on Wed Apr  5 14:58:52 2017
 @author: lracuna
 """
 
-from camera_calibration import *
+from vision.camera import Camera
+from vision.rt_matrix import *
 
 #%%
 # load points
