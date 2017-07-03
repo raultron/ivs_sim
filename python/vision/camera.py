@@ -75,6 +75,16 @@ class Camera(object):
         self.set_t(t[0], t[1],  t[2])
         self.Rt = dot(self.t,self.R)
     
+    def get_normalized_pixel_coordinates(self, X):
+        """
+        These are in normalised pixel coordinates. That is, the effects of the 
+        camera's intrinsic matrix and lens distortion are corrected, so that 
+        the Q projects with a perfect pinhole model.
+        """
+        return dot(inv(self.K), X)
+    
+    
+    
     def get_world_position(self):
         t = dot(inv(self.Rt), array([0,0,0,1]))
         return t

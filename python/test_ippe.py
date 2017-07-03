@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jun 30 15:30:20 2017
+Created on Mon Jul  3 17:44:51 2017
 
 @author: racuna
 """
 
-from vision.camera import *
-from vision.plane import Plane
-from vision.screen import Screen
-from ippe import homo2d
-
 import numpy as np
 import matplotlib.pyplot as plt
 
+from vision.camera import Camera
+from vision.plane import Plane
+from ippe import homo2d, ippe
 
 #%% Create a camera
 
 cam = Camera()
 ## Test matrix functions
 cam.set_K(794,781,640,480)
-cam.set_R(1.0,  0.0,  0.0, deg2rad(170.0))
+cam.set_R(1.0,  0.0,  0.0, np.deg2rad(170.0))
 
-cam_world = transpose(array([0.0,0.0,5,1]))
-cam_t = dot(cam.R,-cam_world)
+cam_world = np.array([0.0,0.0,5,1]).T
+cam_t = np.dot(cam.R,-cam_world)
 
 cam.set_t(cam_t[0], cam_t[1],  cam_t[2])
 cam.set_P()
@@ -40,7 +38,7 @@ pl.update()
 
 
 #Project points in camera
-cam_points = array(cam.project(pl.get_points()))
+cam_points = np.array(cam.project(pl.get_points()))
 
 
 #%% plot
@@ -54,18 +52,14 @@ plt.gca().invert_yaxis()
 plt.show()
 
 #%%
-#Calculate the homography
+#Calculate the pose using ippe
 x1 = pl.get_points()
 x1 = np.delete(x1, 2, axis=0)
 x2 = cam_points
 H = homo2d.homography2d(x1,x2)
 
-#Confirm homography
-x_test = dot(H,x1)
 
-#Normalize points
-for i in range(shape(x_test)[1]):
-    x_test[:,i] = x_test[:,i]/x_test[2,i]
+x2 = cam.get_normalized_pixel_coordinates(x2)
+out = ippe.mat_run(pl.get_points()[:3,:],x2[:2,:])
 
-error = x_test - x2
-print(error)
+

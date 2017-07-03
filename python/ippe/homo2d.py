@@ -77,7 +77,7 @@ def normalise2dpts(pts):
         newp1 = pts[0,i]-c[0]
         newp2 = pts[1,i]-c[1]
     
-    	dist.append(np.sqrt(newp1**2 + newp2**2))
+    dist.append(np.sqrt(newp1**2 + newp2**2))
 
     meandist = np.mean(dist[:])
     

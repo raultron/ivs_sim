@@ -6,7 +6,7 @@ Created on Fri May 12 11:04:45 2017
 @author: lracuna
 """
 import numpy as np
-from rt_matrix import *
+from vision.rt_matrix import *
 
 class Plane(object):
     """ Class for representing a 3D grid plane based on a point and a normal."""

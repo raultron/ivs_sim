@@ -175,11 +175,13 @@ def estT(R,psPlane,Q):
 
     Ax[:,0] = 1
     Ax[:,2] = -Q[0,:]
-    bx[:] = (Q[0,:]*Ps[2,:] -  Ps[0,:]).reshape(4, 1)
+    print (Q[0,:]*Ps[2,:] -  Ps[0,:]).shape
+    
+    bx[:] = (Q[0,:]*Ps[2,:] -  Ps[0,:]).reshape(numPts, 1)
 
     Ay[:,1] = 1
     Ay[:,2] = -Q[1,:]
-    by[:] = (Q[1,:]*Ps[2,:] -  Ps[1,:]).reshape(4, 1)
+    by[:] = (Q[1,:]*Ps[2,:] -  Ps[1,:]).reshape(numPts, 1)
 
     A = np.vstack((Ax,Ay))
     b = np.vstack((bx,by))

@@ -49,7 +49,7 @@ class Screen(Plane):
             super(Screen, self).update()
         else:
             self.update_curved()
-            print "curved screen"
+            print("curved screen")
             
     
     def update_curved(self):
