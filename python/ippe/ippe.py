@@ -175,8 +175,6 @@ def estT(R,psPlane,Q):
 
     Ax[:,0] = 1
     Ax[:,2] = -Q[0,:]
-    print (Q[0,:]*Ps[2,:] -  Ps[0,:]).shape
-    
     bx[:] = (Q[0,:]*Ps[2,:] -  Ps[0,:]).reshape(numPts, 1)
 
     Ay[:,1] = 1
