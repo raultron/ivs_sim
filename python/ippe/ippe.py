@@ -17,7 +17,7 @@ def mat_run(U, Q, hEstMethod='DLT'):
     The solution to Perspective IPPE with point correspondences computed
     between points in world coordinates on the plane z=0, and normalised points in the
     camera's image.
-    
+
     Parameters
     ----------
     U: 2xN or 3xN matrix holding the model points in world coordinates. If U
@@ -27,11 +27,11 @@ def mat_run(U, Q, hEstMethod='DLT'):
         pixel coordinates. That is, the effects of the camera's intrinsic matrix
         and lens distortion are corrected, so that the Q projects with a perfect
         pinhole model.
-    
-    hEstMethod: the homography estimation method, by default Direct Linear Transform is used, 
+
+    hEstMethod: the homography estimation method, by default Direct Linear Transform is used,
         from Peter Kovesi's implementation at http://www.csse.uwa.edu.au/~pk.
-    
-        
+
+
     Return
     ---------
     IPPEPoses: A Python dictionary that contains 2 sets of pose solution from IPPE including rotation matrix
@@ -75,8 +75,10 @@ def mat_run(U, Q, hEstMethod='DLT'):
         _U = np.vstack((U, np.ones((1, n))))
         _Q = np.vstack((Q, np.ones((1, n))))
         H = homography2d(_U, _Q)
-
-    H = H/H[2,2]
+        H = H/H[2,2]
+    elif hEstMethod == "OpenCV":
+        H, mask = cv2.findHomography(_U[:2,:].T, _Q[:2,:].T)
+        #H, mask = cv2.findHomography(_U[:2,:].T, _Q[:2,:].T, method = cv2.RANSAC )
 
     # Compute the Jacobian J of the homography at (0,0)
     J = np.zeros((2,2))
@@ -115,9 +117,9 @@ def mat_run(U, Q, hEstMethod='DLT'):
 
     IPPEPoses = {}
     IPPEPoses["R1"] = R1
-    IPPEPoses["t1"] = t1    
-    IPPEPoses["R2"] = R2    
-    IPPEPoses["t2"] = t2    
+    IPPEPoses["t1"] = t1
+    IPPEPoses["R2"] = R2
+    IPPEPoses["t2"] = t2
     IPPEPoses["reprojError1"] = reprojErr1
     IPPEPoses["reprojError2"] = reprojErr2
 
@@ -237,7 +239,7 @@ def IPPE_dec(v, J):
 
     Parameters
     ----------
-    v: 2x1 vector holding the point in normalised pixel coordinates which maps by H^-1 to 
+    v: 2x1 vector holding the point in normalised pixel coordinates which maps by H^-1 to
         the point (0,0,0) in world coordinates.
     J: 2x2 Jacobian matrix of H at (0,0).
 
@@ -250,7 +252,7 @@ def IPPE_dec(v, J):
 
     # Calculate the correction rotation Rv
     t = np.linalg.norm(v)
-    
+
     if t<np.finfo(float).eps:
         #the plane is fronto-parallel to the camera, so set the corrective rotation Rv to identity. There will be only one solution to pose.
         Rv = np.eye(3)
