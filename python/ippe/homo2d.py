@@ -11,12 +11,14 @@ def homography2d(x1, x2):
     Returns:
     H: the 3x3 homography such that x2 = H*x1
     """
+    x1 = np.copy(x1)
+    x2 = np.copy(x2)
     [x1, T1] = normalise2dpts(x1)
     [x2, T2] = normalise2dpts(x2)
 
     Npts = x1.shape[1]
 
-    A = np.zeros((3*Npts,9))
+    A = np.zeros((2*Npts,9))
 
     O = np.zeros(3);
 
@@ -25,19 +27,21 @@ def homography2d(x1, x2):
         x = x2[0,i]
         y = x2[1,i]
         w = x2[2,i]
-        A[3*i,:] = np.array([O, -w*X, y*X]).reshape(1, 9)
-        A[3*i+1,:] = np.array([w*X, O, -x*X]).reshape(1, 9)
-        A[3*i+2,:] = np.array([-y*X, x*X, O]).reshape(1, 9)
+        A[2*i,:] = np.array([O, -w*X, y*X]).reshape(1, 9)
+        A[2*i+1,:] = np.array([w*X, O, -x*X]).reshape(1, 9)
+        #A[3*i+2,:] = np.array([-y*X, x*X, O]).reshape(1, 9) #omitted since only two equations are independent
 
     [U,D,Vh] = np.linalg.svd(A)
     V = Vh.T
 
     H = V[:,8].reshape(3,3)
+    inter_H= H
 
     H = np.linalg.solve(T2, H)
     H = H.dot(T1)
 
-    return H
+
+    return H, A,inter_H
 
 
 def normalise2dpts(pts):
@@ -61,10 +65,10 @@ def normalise2dpts(pts):
     if pts.shape[0] != 3:
         print("Input shoud be 3")
 
-    finiteind = np.nonzero(abs(pts[2,:]) > np.spacing(1));
+    finiteind = np.nonzero(abs(pts[2,:]) > np.spacing(1))
 
-    #if len(finiteind) != pts.shape[1]:
-    #    print('Some points are at infinity')
+    if len(finiteind[0]) != pts.shape[1]:
+        print('Some points are at infinity')
 
     dist = []
     for i in finiteind:

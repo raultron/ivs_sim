@@ -73,6 +73,9 @@ def plot3D(cams, planes):
 
     mlab.show()
 
+def run_single_wrapper(args):
+  return run_single(*args)
+
 def run_single(cam, objectPoints, noise = 0, quant_error = False, plot = False, debug = False):
     #Project points in camera
 
@@ -130,6 +133,8 @@ def run_single(cam, objectPoints, noise = 0, quant_error = False, plot = False, 
       #cams = [cam, ippeCam1, ippeCam2, pnpCam]
       #planes = [pl]
       #plot3D(cams, planes)
+    del imagePoints, pnp_tvec, pnp_rmat, pnpCam, normalizedimagePoints, ippe_tvec, ippe_rmat,ippeCam
+
 
     return ippe_tvec_error, ippe_rmat_error, pnp_tvec_error, pnp_rmat_error
 

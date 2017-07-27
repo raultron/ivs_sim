@@ -88,8 +88,8 @@ def pose_ippe_best(objectPoints, normalizedimagePoints, debug = False):
 
     #hack to correct sign (check why does it happen)
     #a rotation matrix has determinant with value equal to 1
-    if np.linalg.det(ippe_rmat) < 0:
-        ippe_rmat[:3,2] = -ippe_rmat[:3,2]
+    #if np.linalg.det(ippe_rmat) < 0:
+    #    ippe_rmat[:3,2] = -ippe_rmat[:3,2]
 
 
     return ippe_tvec,ippe_rmat

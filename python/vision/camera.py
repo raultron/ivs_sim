@@ -121,6 +121,7 @@ class Camera(object):
         mean: zero mean
         sd: pixels of standard deviation
         """
+        imagePoints = np.copy(imagePoints)
         gaussian_noise = np.random.normal(mean,sd,(2,imagePoints.shape[1]))
         imagePoints[:2,:] = imagePoints[:2,:] + gaussian_noise
         return imagePoints
@@ -233,6 +234,12 @@ class Camera(object):
       self.Rt = np.dot(R,t)
       self.t = np.eye(4, dtype=np.float32)
       self.t[:3,3] = self.Rt[:3,3]
+
+    def homography_from_Rt(self):
+      rt_reduced = self.Rt[:3,[0,1,3]]
+      H = np.dot(self.K,rt_reduced)
+      H = H/H[2,2]
+      return H
 
       #%%
 

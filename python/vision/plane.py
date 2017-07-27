@@ -21,6 +21,20 @@ class Plane(object):
         self.angle = 0.
         self.R = np.eye(4)
 
+    def clone(self):
+        new_plane = Plane()
+
+        new_plane.origin = self.origin
+        new_plane.normal = self.normal
+        new_plane.size = self.size
+        new_plane.nx = self.nx
+        new_plane.ny = self.ny
+        new_plane.color = self.color
+        new_plane.angle = self.angle
+        new_plane.R = self.R
+        return new_plane
+
+
     def random(self, n = 4, r = 0.05, min_sep = 0.01):
         """
         n: ammount of features on the plane
