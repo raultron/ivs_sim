@@ -78,8 +78,8 @@ cam.img_width = 1280
 cam.img_height = 960
 
 ## DEFINE CAMERA POSE LOOKING STRAIGTH DOWN INTO THE PLANE MODEL
-cam.set_R_axisAngle(0.0,  1.0,  0.0, np.deg2rad(170.0))
-cam_world = np.array([0.0,0.0,0.5,1]).T
+cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(160.0))
+cam_world = np.array([0.0,-0.2,0.4,1]).T
 cam_t = np.dot(cam.R,-cam_world)
 cam.set_t(cam_t[0], cam_t[1],  cam_t[2])
 cam.set_P()
@@ -89,14 +89,14 @@ H_cam = cam.homography_from_Rt()
 
 
 #Create a plane with 4 points to start
-#pl =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.2,0.2), n = (2,2))
-#pl.uniform()
+pl =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.2,0.2), n = (2,2))
+pl.uniform()
 #pl.uniform_with_distortion(mean = 0, sd = 0.01)
 
 
 ## OBTAIN PLANE MODEL POINTS
-#objectPoints = pl.get_points()
-objectPoints = np.load('objectPoints_test_ippe.npy')
+objectPoints = pl.get_points()
+objectPoints = np.load('objectPoints_test_ippe4.npy')
 
 ## CREATE AN IDEAL SET OF POINTS IN IMAGE COORDINATES (A SQUARE)
 ## FROM THE DESIRED IMAGE POINTS AND THE CAMERA MATRIX OBTAIN THE COORDINATES IN
@@ -134,6 +134,12 @@ y = np.linspace(235+dy,752+dy-300,2)
 #x = np.linspace(185+dx,1200+dx,2)
 #y = np.linspace(235+dy,900+dy,2)
 
+#Example 5: Ref worst than desired in all metrics except the volker_metric
+dx = -0
+dy = -0
+x = np.linspace(350+dx,952+dx,2)#952
+y = np.linspace(107+dy,771+dy,2)#771
+
 xx,yy = np.meshgrid(x,y)
 desired_imageCoordinates = np.array([xx.ravel(),yy.ravel(), np.ones_like(yy.ravel())])
 
@@ -147,6 +153,9 @@ for i in range(desired_objectPoints.shape[1]):
   desired_objectPoints[1,i] = desired_objectPoints[1,i]/desired_objectPoints[3,i]
   desired_objectPoints[2,i] = 0
   desired_objectPoints[3,i] = 1
+
+pl.uniform_with_distortion(mean = 0, sd = 0.02)
+desired_objectPoints = pl.get_points()
 
 
 ## CREATE A SET OF IMAGE POINTS FOR VALIDATION OF THE HOMOGRAPHY ESTIMATION
@@ -195,13 +204,17 @@ for i in range(max_iters):
   desired_imagePoints_noisy = cam.addnoise_imagePoints(desired_imagePoints, mean = 0, sd = 4)
 
   ## SHOW THE PROJECTIONS IN IMAGE PLANE
-  plt.ion()
-  plt.figure('Image Points')
-  plt.plot(imagePoints_noisy[0],imagePoints_noisy[1],'.',color = 'r',)
-  plt.plot(desired_imagePoints_noisy[0],desired_imagePoints_noisy[1],'x',color = 'b',)
-  plt.xlim(0,1280)
-  plt.ylim(0,960)
-  plt.gca().invert_yaxis()
+  if i/10 ==0:
+      plt.ion()
+      plt.figure('Image Points')
+      plt.plot(imagePoints_noisy[0],imagePoints_noisy[1],'.',color = 'r',  label='Reference',)
+      plt.plot(desired_imagePoints_noisy[0],desired_imagePoints_noisy[1],'x',color = 'b',  label='Desired',)
+      plt.xlim(0,1280)
+      plt.ylim(0,960)
+      #if i==0:
+      #    plt.legend()
+      
+      plt.gca().invert_yaxis()
   #plt.pause(0.05)
 
   ## NOW FOR EACH SET OF POINTS WE CALCULATE THE HOMOGRAPHY USING THE DLT ALGORITHM
@@ -296,120 +309,158 @@ matrix_cond_des = np.array(matrix_cond_des)
 
 comp = error_normal < error_desired
 print "Error in homography estimation"
-print "Times normal pattern was better than ideal pattern: ", np.count_nonzero(comp)
-print "error normal : ", np.sum(error_normal)/len(error_normal)
-print "error desired: ", (np.sum(error_desired)/len(error_desired))
+print "Times reference pattern was better than desired pattern: ", np.count_nonzero(comp)
+print "error normal : ", np.mean(error_normal)
+print "error desired: ", np.mean(error_desired)
 
 print "Symmetric transfer error for the validation points"
-print "sym transfer error ref: ", np.sum(sym_transfer_error1)/len(sym_transfer_error1)
-print "sym transfer error des: ", np.sum(sym_transfer_error2)/len(sym_transfer_error2)
+print "sym transfer error ref: ", np.mean(sym_transfer_error1)
+print "sym transfer error des: ", np.mean(sym_transfer_error2)
 
 print "Matrix conditioning ref: ", np.mean(matrix_cond_ref)
 print "Matrix conditioning des: ", np.mean(matrix_cond_des)
 
+#print 'Volker metric  normal: ', metric_base/max_iters
+#print 'Volker metric desired: ', metric_desired/max_iters
+
+if np.mean(matrix_cond_ref) < np.mean(matrix_cond_des) and   np.mean(sym_transfer_error1) < np.mean(sym_transfer_error2): 
+     print "Reference (red) is better"
+elif np.mean(matrix_cond_ref) > np.mean(matrix_cond_des) and  np.mean(sym_transfer_error1) > np.mean(sym_transfer_error2):
+        print "Desired (blue) is better"
+else:
+    print "Contradiction in the metrics"
 
 
+#%%
+from sympy import *
+init_printing(use_unicode=True)
+
+#Projection matrix (in symbolic py)
+P = Matrix(cam.P)
 
 
-print 'metric  normal: ', metric_base/max_iters
-print 'metric desired: ', metric_desired/max_iters
+#fx = Symbol('fx')
+#fy = Symbol('fy')
+#cx = Symbol('cx')
+#cy = Symbol('cy')
+#
+#K = Matrix([[fx, 0, cx],
+#            [0,fy,cy],
+#            [0,0,1]],)
+#
+#
+#tx = Symbol('tx')
+#ty = Symbol('ty')
+#tz = Symbol('tz')
+#
+#r00 = Symbol('r00')
+#r01 = Symbol('r01')
+#r02 = Symbol('r02')
+#
+#r10 = Symbol('r10')
+#r11 = Symbol('r11')
+#r12 = Symbol('r12')
+#
+#r20 = Symbol('r20')
+#r21 = Symbol('r21')
+#r22 = Symbol('r22')
+#
+#Rt = Matrix([[r00, r01, r02, tx],
+#             [r10, r11, r12, ty],
+#            [r20, r21, r22, tz]])
+#
+#P = K*Rt
 
+#points in model plane
 
-##%%
-#from sympy import *
-#init_printing(use_unicode=True)
+x1 = Symbol('x1')
+y1 = Symbol('y1')
+l1 = Symbol('l1')
+X = Matrix([x1,y1,0,l1])
+X = Matrix([x1,y1,0,1])
+U = P*X
+u1 = U[0]/U[2]
+v1 = U[1]/U[2]
+w1 = U[2]/U[2]
+
+x2 = Symbol('x2')
+y2 = Symbol('y2')
+l2 = Symbol('l2')
+X = Matrix([x2,y2,0,l2])
+X = Matrix([x2,y2,0,1])
+U = P*X
+u2 = U[0]/U[2]
+v2 = U[1]/U[2]
+w2 = U[2]/U[2]
+
+x3 = Symbol('x3')
+y3 = Symbol('y3')
+l3 = Symbol('l3')
+X = Matrix([x3,y3,0,l3])
+X = Matrix([x3,y3,0,1])
+U = P*X
+u3 = U[0]/U[2]
+v3 = U[1]/U[2]
+w3 = U[2]/U[2]
+
+x4 = Symbol('x4')
+y4 = Symbol('y4')
+l4 = Symbol('l4')
+X = Matrix([x4,y4,0,l4])
+X = Matrix([x4,y4,0,1])
+U = P*X
+u4 = U[0]/U[2]
+v4 = U[1]/U[2]
+w4 = U[2]/U[2]
+
+#      X = x1[:,i].T
+#      x = x2[0,i]
+#      y = x2[1,i]
+#      w = x2[2,i]
+#      A2[2*i,:] = np.array([O, -w*X, y*X]).reshape(1, 9)
+#      A2[2*i+1,:] = np.array([w*X, O, -x*X]).reshape(1, 9)
+
+#Asymb = Matrix([[   0,    0,     0, -w1*x1, -w1*y1, -w1*l1,  v1*x1,  v1*y1,  v1*l1],
+#                [w1*x1, w1*y1, w1*l1,      0,      0,      0, -u1*x1, -u1*y1, -u1*l1],
 #
-##Projection matrix (in symbolic py)
-#P = Matrix(cam.P)
+#                [   0,    0,     0, -w2*x2, -w2*y2, -w2*l2,  v2*x2,  v2*y2,  v2*l2],
+#                [w2*x2, w2*y2, w2*l2,      0,      0,      0, -u2*x2, -u2*y2, -u2*l2],
 #
-##points in model plane
-#x1 = Symbol('x1')
-#y1 = Symbol('y1')
-#l1 = Symbol('l1')
-#X = Matrix([x1,y1,0,l1])
-#X = Matrix([x1,y1,0,1])
-#U = P.dot(X)
-#u1 = U[0]/U[2]
-#v1 = U[1]/U[2]
-#w1 = U[2]/U[2]
+#                [   0,    0,     0, -w3*x3, -w3*y3, -w3*l3,  v3*x3,  v3*y3,  v3*l3],
+#                [w3*x3, w3*y3, w3*l3,      0,      0,      0, -u3*x3, -u3*y3, -u3*l3],
 #
-#x2 = Symbol('x2')
-#y2 = Symbol('y2')
-#l2 = Symbol('l2')
-#X = Matrix([x2,y2,0,l2])
-#X = Matrix([x2,y2,0,1])
-#U = P.dot(X)
-#u2 = U[0]/U[2]
-#v2 = U[1]/U[2]
-#w2 = U[2]/U[2]
-#
-#x3 = Symbol('x3')
-#y3 = Symbol('y3')
-#l3 = Symbol('l3')
-#X = Matrix([x3,y3,0,l3])
-#X = Matrix([x3,y3,0,1])
-#U = P.dot(X)
-#u3 = U[0]/U[2]
-#v3 = U[1]/U[2]
-#w3 = U[2]/U[2]
-#
-#x4 = Symbol('x4')
-#y4 = Symbol('y4')
-#l4 = Symbol('l4')
-#X = Matrix([x4,y4,0,l4])
-#X = Matrix([x4,y4,0,1])
-#U = P.dot(X)
-#u4 = U[0]/U[2]
-#v4 = U[1]/U[2]
-#w4 = U[2]/U[2]
-#
-##      X = x1[:,i].T
-##      x = x2[0,i]
-##      y = x2[1,i]
-##      w = x2[2,i]
-##      A2[2*i,:] = np.array([O, -w*X, y*X]).reshape(1, 9)
-##      A2[2*i+1,:] = np.array([w*X, O, -x*X]).reshape(1, 9)
-#
-##Asymb = Matrix([[   0,    0,     0, -w1*x1, -w1*y1, -w1*l1,  v1*x1,  v1*y1,  v1*l1],
-##                [w1*x1, w1*y1, w1*l1,      0,      0,      0, -u1*x1, -u1*y1, -u1*l1],
-##
-##                [   0,    0,     0, -w2*x2, -w2*y2, -w2*l2,  v2*x2,  v2*y2,  v2*l2],
-##                [w2*x2, w2*y2, w2*l2,      0,      0,      0, -u2*x2, -u2*y2, -u2*l2],
-##
-##                [   0,    0,     0, -w3*x3, -w3*y3, -w3*l3,  v3*x3,  v3*y3,  v3*l3],
-##                [w3*x3, w3*y3, w3*l3,      0,      0,      0, -u3*x3, -u3*y3, -u3*l3],
-##
-##                [   0,    0,     0, -w4*x4, -w4*y4, -w4*l4,  v4*x4,  v4*y4,  v4*l4],
-##                [w4*x4, w4*y4, w4*l4,      0,      0,      0, -u4*x4, -u4*y4, -u4*l4],
-##
-##                [0, 0, 0,      0,      0,      0, 0, 0, 0],
-##        ])
-#
-#
-## If we assume that object and image coordinates are normalized
-#Asymb = Matrix([[   0,    0,     0, -x1, -y1, -1,  v1*x1,  v1*y1,  v1],
-#                [x1, y1, 1,      0,      0,      0, -u1*x1, -u1*y1, -u1],
-#
-#                [   0,    0,     0, -x2, -y2, -1,  v2*x2,  v2*y2,  v2],
-#                [x2, y2, 1,      0,      0,      0, -u2*x2, -u2*y2, -u2],
-#
-#                [   0,    0,     0, -x3, -y3, -1,  v3*x3,  v3*y3,  v3],
-#                [x3, y3, 1,      0,      0,      0, -u3*x3, -u3*y3, -u3],
-#
-#                [   0,    0,     0, -x4, -y4, -1,  v4*x4,  v4*y4,  v4],
-#                [x4, y4, 1,      0,      0,      0, -u4*x4, -u4*y4, -u4],
+#                [   0,    0,     0, -w4*x4, -w4*y4, -w4*l4,  v4*x4,  v4*y4,  v4*l4],
+#                [w4*x4, w4*y4, w4*l4,      0,      0,      0, -u4*x4, -u4*y4, -u4*l4],
 #
 #                [0, 0, 0,      0,      0,      0, 0, 0, 0],
 #        ])
-#
-#
-#
-#do = desired_objectPoints
-#A_test = np.array(Asymb.evalf(subs={x1: do[0,0], y1: do[1,0], l1: do[3,0],
-#                           x2: do[0,1], y2: do[1,1], l2: do[3,1],
-#                           x3: do[0,2], y3: do[1,2], l3: do[3,2],
-#                           x4: do[0,3], y4: do[1,3], l4: do[3,3]})).astype(np.float64)
-#
+
+
+# If we assume that object and image coordinates are normalized
+Asymb = Matrix([[   0,    0,     0, -x1, -y1, -1,  v1*x1,  v1*y1,  v1],
+                [x1, y1, 1,      0,      0,      0, -u1*x1, -u1*y1, -u1],
+
+                [   0,    0,     0, -x2, -y2, -1,  v2*x2,  v2*y2,  v2],
+                [x2, y2, 1,      0,      0,      0, -u2*x2, -u2*y2, -u2],
+
+                [   0,    0,     0, -x3, -y3, -1,  v3*x3,  v3*y3,  v3],
+                [x3, y3, 1,      0,      0,      0, -u3*x3, -u3*y3, -u3],
+
+                [   0,    0,     0, -x4, -y4, -1,  v4*x4,  v4*y4,  v4],
+                [x4, y4, 1,      0,      0,      0, -u4*x4, -u4*y4, -u4],
+
+
+        ])
+
+               # [0, 0, 0,      0,      0,      0, 0, 0, 0],
+
+#%%
+do = desired_objectPoints
+A_test = np.array(Asymb.evalf(subs={x1: do[0,0], y1: do[1,0], l1: do[3,0],
+                           x2: do[0,1], y2: do[1,1], l2: do[3,1],
+                           x3: do[0,2], y3: do[1,2], l3: do[3,2],
+                           x4: do[0,3], y4: do[1,3], l4: do[3,3]})).astype(np.float64)
+
 #
 #Bs_sym = Matrix(Asymb.T.dot(Asymb)).reshape(9,9)
 #Bs_sym_test = np.array(Bs_sym.evalf(subs={x1: do[0,0], y1: do[1,0], l1: do[3,0],
@@ -420,7 +471,7 @@ print 'metric desired: ', metric_desired/max_iters
 ##points in image coordinates
 #print np.allclose(A2, A_test[:8,:])
 #print np.allclose(Bs2, Bs_sym_test)
-#
+
 #
 #metric_base = 0
 #start = 1
@@ -429,95 +480,102 @@ print 'metric desired: ', metric_desired/max_iters
 #  for j in range(start,stop):
 #    metric_base = metric_base + sqrt(Bs_sym[i,j]**2)
 #  start = start +1
-#
-#
-#op = np.copy(objectPoints)
-#
-#print metric_base.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#
-#d_x1 = diff(metric_base,x1)
-#d_y1 = diff(metric_base,y1)
-#d_x2 = diff(metric_base,x2)
-#d_y2 = diff(metric_base,y2)
-#d_x3 = diff(metric_base,x3)
-#d_y3 = diff(metric_base,y3)
-#d_x4 = diff(metric_base,x4)
-#d_y4 = diff(metric_base,y4)
-#
-##print d_x1.evalf(subs={x1: do[0,0], y1: do[1,0],
-##                           x2: do[0,1], y2: do[1,1],
-##                           x3: do[0,2], y3: do[1,2],
-##                           x4: do[0,3], y4: do[1,3]})
-#
-#op = np.copy(objectPoints)
-#d_x1_eval = d_x1.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#
-#d_y1_eval = d_y1.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#
-#d_x2_eval = d_x2.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#d_y2_eval = d_y2.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#d_x3_eval = d_x3.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#d_y3_eval = d_y3.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#d_x4_eval = d_x4.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#d_y4_eval = d_y4.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#
-#
-#
-#
-#op = np.copy(objectPoints)
-#
-#alpha = 1E-8
-#op[0,0] = op[0,0] - d_x1_eval*alpha
-#op[1,0] = op[1,0] - d_y1_eval*alpha
-#
-#op[0,1] = op[0,1] - d_x2_eval*alpha
-#op[1,1] = op[1,1] - d_y2_eval*alpha
-#
-#op[0,2] = op[0,2] - d_x3_eval*alpha
-#op[1,2] = op[1,2] - d_y3_eval*alpha
-#
-#op[0,3] = op[0,3] - d_x4_eval*alpha
-#op[1,2] = op[1,3] - d_y4_eval*alpha
-#
-#print (d_x1_eval*alpha, d_y1_eval*alpha)
-#print (d_x2_eval*alpha, d_y2_eval*alpha)
-#print (d_x3_eval*alpha, d_y3_eval*alpha)
-#print (d_x4_eval*alpha, d_y4_eval*alpha)
-#
-#
-#print metric_base.evalf(subs={x1: op[0,0], y1: op[1,0],
-#                           x2: op[0,1], y2: op[1,1],
-#                           x3: op[0,2], y3: op[1,2],
-#                           x4: op[0,3], y4: op[1,3]})
-#
-#imagePoints2 = np.array(cam.project(op, False))
-#
-#plt.plot(imagePoints2[0],imagePoints2[1],'.',color = 'g',)
-#plt.pause(0.05)
+#Asymb_pinv = Asymb.H * (Asymb * Asymb.H) ** -1
+
+Asymb_vec = Asymb.vec()
+vals = list(Asymb_vec.values()) or [0]
+matrix_cond_sym = Add(*(i**2 for i in vals))
+
+#matrix_cond_sym = Asymb.norm()**2#norm((Asymb_pinv),2)
+#%%
+op = np.copy(objectPoints)
+
+print matrix_cond_sym.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+
+d_x1 = diff(matrix_cond_sym,x1)
+d_y1 = diff(matrix_cond_sym,y1)
+d_x2 = diff(matrix_cond_sym,x2)
+d_y2 = diff(matrix_cond_sym,y2)
+d_x3 = diff(matrix_cond_sym,x3)
+d_y3 = diff(matrix_cond_sym,y3)
+d_x4 = diff(matrix_cond_sym,x4)
+d_y4 = diff(matrix_cond_sym,y4)
+
+#print d_x1.evalf(subs={x1: do[0,0], y1: do[1,0],
+#                           x2: do[0,1], y2: do[1,1],
+#                           x3: do[0,2], y3: do[1,2],
+#                           x4: do[0,3], y4: do[1,3]})
+
+op = np.copy(objectPoints)
+d_x1_eval = d_x1.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+
+d_y1_eval = d_y1.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+
+d_x2_eval = d_x2.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+d_y2_eval = d_y2.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+d_x3_eval = d_x3.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+d_y3_eval = d_y3.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+d_x4_eval = d_x4.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+d_y4_eval = d_y4.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+
+
+
+
+op = np.copy(objectPoints)
+
+alpha = 1E-8
+op[0,0] = op[0,0] - d_x1_eval*alpha
+op[1,0] = op[1,0] - d_y1_eval*alpha
+
+op[0,1] = op[0,1] - d_x2_eval*alpha
+op[1,1] = op[1,1] - d_y2_eval*alpha
+
+op[0,2] = op[0,2] - d_x3_eval*alpha
+op[1,2] = op[1,2] - d_y3_eval*alpha
+
+op[0,3] = op[0,3] - d_x4_eval*alpha
+op[1,2] = op[1,3] - d_y4_eval*alpha
+
+print (d_x1_eval*alpha, d_y1_eval*alpha)
+print (d_x2_eval*alpha, d_y2_eval*alpha)
+print (d_x3_eval*alpha, d_y3_eval*alpha)
+print (d_x4_eval*alpha, d_y4_eval*alpha)
+
+
+print matrix_cond_sym.evalf(subs={x1: op[0,0], y1: op[1,0],
+                           x2: op[0,1], y2: op[1,1],
+                           x3: op[0,2], y3: op[1,2],
+                           x4: op[0,3], y4: op[1,3]})
+
+imagePoints2 = np.array(cam.project(op, False))
+
+plt.plot(imagePoints2[0],imagePoints2[1],'.',color = 'g',)
+plt.plot(imagePoints[0],imagePoints[1],'.',color = 'r',)
+plt.pause(0.05)
