@@ -7,9 +7,10 @@ This is a temporary script file.
 
 from scipy.linalg import expm, rq, det, inv
 import matplotlib.pyplot as plt
-import numpy as np
+
 from math import atan
 from vision.rt_matrix import rotation_matrix
+import autograd.numpy as np
 
 
 class Camera(object):
@@ -160,6 +161,20 @@ class Camera(object):
         plt.gca().invert_yaxis()
         plt.show()
 
+    def plot_plane(self, plane):
+        # show Image
+        # plot projection
+        #plt.figure("Camera Projection")
+        corners = plane.get_corners()
+        img_corners = np.array(self.project(corners))
+        img_corners =np.c_[img_corners,img_corners[:,0]]
+        plt.plot(img_corners[0],img_corners[1])
+        #we add a key point to help us see orientation of the points
+#        plt.xlim(0,self.img_width)
+#        plt.ylim(0,self.img_height)
+#        plt.gca().invert_yaxis()
+#        plt.show()
+
 
     def factor(self):
         """  Factorize the camera matrix into K,R,t as P = K[R|t]. """
@@ -242,13 +257,6 @@ class Camera(object):
       return H
 
       #%%
-
-
-
-
-cam = Camera()
-
-
 #cam = Camera()
 
 ##Test that projection matrix doesnt change rotation and translation

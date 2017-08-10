@@ -5,8 +5,9 @@ Created on Fri May 12 11:04:45 2017
 
 @author: lracuna
 """
-import numpy as np
+import autograd.numpy as np
 from vision.rt_matrix import *
+import matplotlib.pyplot as plt
 
 class Plane(object):
     """ Class for representing a 3D grid plane based on a point and a normal."""
@@ -34,7 +35,14 @@ class Plane(object):
         new_plane.R = self.R
         return new_plane
 
-
+    def get_corners(self):
+        x = self.size[0]/2.
+        y = self.size[1]/2.
+        corners = np.array([[x,  x, -x, -x],
+                            [y, -y, -y,  y],
+                            [0,  0,  0,  0],
+                            [1,  1,  1,  1]])
+        return corners
     def random(self, n = 4, r = 0.05, min_sep = 0.01):
         """
         n: ammount of features on the plane
@@ -44,8 +52,8 @@ class Plane(object):
         # create a equally spaced grid. Each cell with the size of a feature plus its min_separation
         cell_size = r + min_sep/2.0
 
-        grid_size_x = int(round(self.size[0]/cell_size))
-        grid_size_y = int(round(self.size[1]/cell_size))
+        grid_size_x = int(round(self.size[0]/cell_size))+1
+        grid_size_y = int(round(self.size[1]/cell_size))+1
 
         x_range = range(grid_size_x)
         y_range = range(grid_size_y)
@@ -98,8 +106,8 @@ class Plane(object):
            nx: ammount of points in x
            ny: ammount of points in y
         """
-        wx = self.size[0]
-        wy = self.size[1]
+        wx = self.size[0]/2.0
+        wy = self.size[1]/2.0
         nx = self.nx
         ny = self.ny
 
@@ -157,8 +165,14 @@ class Plane(object):
         gaussian_noise = np.random.normal(mean,sd,(2,self.plane_points.shape[1]))
         self.plane_points[:2,:] += gaussian_noise
 
+        min_max_x = self.size[0]/2.
+        min_max_y = self.size[1]/2.
+
+        self.plane_points[0,:] = np.clip(self.plane_points[0,:],-min_max_x,min_max_x)
+        self.plane_points[1,:] = np.clip(self.plane_points[1,:],-min_max_y,min_max_y)
+
     def get_points(self):
-        return self.plane_points
+        return np.copy(self.plane_points)
 
     def get_points_basis(self):
         return self.plane_points_basis
@@ -204,6 +218,18 @@ class Plane(object):
 
     def rotate_z(self,angle):
         self.rotate(np.array([0,0,1],dtype=np.float32), angle)
+
+    def plot_points(self):
+        # show Image
+        # plot projection
+        plt.figure("Plane points")
+        plt.plot(self.plane_points[0],self.plane_points[1],'.', color = 'blue')
+        #we add a key point to help us see orientation of the points
+        plt.plot(self.plane_points[0,0],self.plane_points[1,0],'.',color = 'red')
+        #plt.xlim(0,self.img_width)
+        #plt.ylim(0,self.img_height)
+        #plt.gca().invert_yaxis()
+        plt.show()
 
 
 

@@ -34,4 +34,4 @@ def uniform_sphere(theta_range, phi_range, r, n_theta = 10, n_phi = 10, plot = F
 
   return x, y, z
 
-x, y, z = uniform_sphere((0,360), (0,40), 10, 5,5, True)
+#x, y, z = uniform_sphere((0,360), (0,40), 10, 5,5, True)
