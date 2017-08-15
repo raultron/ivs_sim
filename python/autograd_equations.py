@@ -530,8 +530,16 @@ pl.random(n =4, r = 0.01, min_sep = 0.01)
 
 
 
+## CREATE A SET OF IMAGE POINTS FOR VALIDATION OF THE HOMOGRAPHY ESTIMATION
+validation_plane =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.3,0.3), n = (4,4))
+validation_plane.uniform()
+x = np.linspace(10, cam.img_width-10, 10)
+y = np.linspace(10, cam.img_height-10, 10)
+xx,yy = np.meshgrid(x,y)
+validation_imagePoints = np.array([xx.ravel(),yy.ravel(), np.ones_like(yy.ravel())])
 
-gradient = create_gradient1()
+
+gradient = create_gradient()
 
 
 #%%
@@ -540,7 +548,8 @@ imagePoints_des = np.array(cam.project(objectPoints_des, False))
 objectPoints_list = list()
 imagePoints_list = list()
 new_objectPoints = objectPoints_des
-alpha = 0.00000001
+alpha = 0.01
+#alpha = 0.0000000001
 for i in range(10000):
   objectPoints = np.copy(new_objectPoints)
   gradient = evaluate_gradient(gradient,objectPoints, np.array(cam.P))
@@ -555,6 +564,7 @@ for i in range(10000):
   #plt.cla()
   plt.figure('Image Points')
   if i==0:
+    plt.cla()
     cam.plot_plane(pl)
     plt.plot(imagePoints_des[0],imagePoints_des[1],'x',color = 'black',)
   plt.plot(new_imagePoints[0],new_imagePoints[1],'.',color = 'blue',)

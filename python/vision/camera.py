@@ -149,6 +149,11 @@ class Camera(object):
             x = np.around(x, decimals=0)
         return x
 
+    def project_circle(self, circle):
+        C = circle.get_C
+        H = self.homography_from_Rt()
+        Q = None
+
     def plot_image(self, imgpoints, points_color = 'blue'):
         # show Image
         # plot projection
@@ -253,7 +258,8 @@ class Camera(object):
     def homography_from_Rt(self):
       rt_reduced = self.Rt[:3,[0,1,3]]
       H = np.dot(self.K,rt_reduced)
-      H = H/H[2,2]
+      if H[2,2] != 0.:
+        H = H/H[2,2]
       return H
 
       #%%
