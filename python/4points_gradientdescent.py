@@ -539,7 +539,7 @@ xx,yy = np.meshgrid(x,y)
 validation_imagePoints = np.array([xx.ravel(),yy.ravel(), np.ones_like(yy.ravel())])
 
 
-gradient = create_gradient1()
+gradient = create_gradient()
 
 
 
@@ -548,7 +548,7 @@ imagePoints_des = np.array(cam.project(objectPoints_des, False))
 objectPoints_list = list()
 imagePoints_list = list()
 new_objectPoints = objectPoints_des
-alpha = 0.0000000001
+alpha = 0.0001
 for i in range(10000):
   objectPoints = np.copy(new_objectPoints)
   gradient = evaluate_gradient(gradient,objectPoints, np.array(cam.P))
