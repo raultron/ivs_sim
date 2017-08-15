@@ -59,10 +59,9 @@ class Camera(object):
         # P = K[R|t]
         # P is a 3x4 Projection Matrix (from 3d euclidean to image)
         #self.Rt = hstack((self.R, self.t))
-        self.update_Rt()
         self.P = np.dot(self.K, self.Rt[:3,:4])
 
-    def set_K(self, fx, fy, cx,cy):
+    def set_K(self, fx = 1, fy = 1, cx = 0,cy = 0):
         # K is the 3x3 Camera matrix
         # fx, fy are focal lenghts expressed in pixel units
         # cx, cy is a principal point usually at image center
@@ -73,8 +72,16 @@ class Camera(object):
         self.K = np.mat([[fx, 0, cx],
                       [0,fy,cy],
                       [0,0,1.]], dtype=np.float32)
+        self.set_P()
+
+    def set_width_heigth(self,width, heigth):
+        self.img_width = width
+        self.img_height = heigth
+
+
     def update_Rt(self):
         self.Rt = np.dot(self.t,self.R)
+        self.set_P()
 
     def set_R_axisAngle(self,x,y,z, alpha):
         """  Creates a 3D [R|t] matrix for rotation
@@ -96,16 +103,15 @@ class Camera(object):
         self.update_Rt()
 
 
-    def set_t(self, x,y,z):
+    def set_t(self, x,y,z, frame = 'camera'):
         #self.t = array([[x],[y],[z]])
         self.t = np.eye(4)
-        self.t[:3,3] = np.array([x,y,z])
-        self.update_Rt()
-
-    def set_world_position(self, x,y,z):
-        cam_world = np.array([-x,-y,-z,1]).T
-        t = np.dot(self.R,cam_world)
-        self.set_t(t[0], t[1],  t[2])
+        if frame=='world':
+          cam_world = np.array([x,y,z,1]).T
+          cam_t = np.dot(self.R,-cam_world)
+          self.t[:3,3] = cam_t[:3]
+        else:
+          self.t[:3,3] = np.array([x,y,z])
         self.update_Rt()
 
     def get_normalized_pixel_coordinates(self, X):

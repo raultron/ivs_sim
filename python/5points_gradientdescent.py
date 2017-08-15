@@ -7,7 +7,7 @@ Created on Fri Aug  4 11:52:11 2017
 """
 from vision.camera import *
 from vision.plane import Plane
-import gdescent.hpoints_gradient as gd
+import gdescent.hpoints_gradient5 as gd5
 from error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix
 
 
@@ -22,7 +22,7 @@ cam.set_t(0.0,-0.2,1.0, frame='world')
 
 ## Define a Display plane
 pl =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.3,0.3), n = (2,2))
-pl.random(n =4, r = 0.01, min_sep = 0.01)
+pl.random(n =5, r = 0.01, min_sep = 0.01)
 
 ## CREATE A SET OF IMAGE POINTS FOR VALIDATION OF THE HOMOGRAPHY ESTIMATION
 validation_plane =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.3,0.3), n = (4,4))
@@ -30,7 +30,7 @@ validation_plane.uniform()
 
 
 ## we create the gradient for the point distribution
-gradient = gd.create_gradient(metric='condition_number')
+gradient = gd5.create_gradient(metric='condition_number')
 
 
 
@@ -39,13 +39,13 @@ imagePoints_des = np.array(cam.project(objectPoints_des, False))
 objectPoints_list = list()
 imagePoints_list = list()
 new_objectPoints = objectPoints_des
-alpha = 0.00000000001
+alpha = 0.001
 for i in range(10000):
   objectPoints = np.copy(new_objectPoints)
-  gradient = gd.evaluate_gradient(gradient,objectPoints, np.array(cam.P))
-  #gradient = normalize_gradient(gradient)
+  gradient = gd5.evaluate_gradient(gradient,objectPoints, np.array(cam.P))
+  gradient = gd5.normalize_gradient(gradient)
 
-  new_objectPoints = gd.update_points(alpha, gradient, objectPoints)
+  new_objectPoints = gd5.update_points(alpha, gradient, objectPoints)
   new_imagePoints = np.array(cam.project(new_objectPoints, False))
 
   objectPoints_list.append(new_objectPoints)
@@ -68,15 +68,11 @@ for i in range(10000):
   Xi = np.copy(new_imagePoints)
   Aideal = calculate_A_matrix(Xo, Xi)
 
-  #x1,y1,x2,y2,x3,y3,x4,y4,x5,y5 = extract_objectpoints_vars5(new_objectPoints)
-  #mat_cond = matrix_conditioning_number_autograd5(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,np.array(cam.P))
-
-  x1,y1,x2,y2,x3,y3,x4,y4 = gd.extract_objectpoints_vars(new_objectPoints)
-  mat_cond = gd.matrix_conditioning_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,np.array(cam.P))
+  x1,y1,x2,y2,x3,y3,x4,y4,x5,y5 = gd5.extract_objectpoints_vars(new_objectPoints)
+  mat_cond,s = gd5.matrix_conditioning_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,np.array(cam.P))
+  print s
 
   volkerMetric = volker_metric(Aideal)
-
-  alpha += 0.0000000001
 
   print "Iteration: ", i
   print "Mat cond:", mat_cond
