@@ -15,6 +15,7 @@ from ippe import homo2d
 from vision.rt_matrix import rot_matrix_error
 from vision.camera import Camera
 from vision.plane import Plane
+from vision.camera_distribution import plot3D, plot3D_cam
 
 from mayavi import mlab
 from solve_pnp import pose_pnp
@@ -40,38 +41,9 @@ def calc_estimated_pose_error(tvec_ref, rmat_ref, tvec_est, rmat_est):
     #rmat_error = rot_matrix_error(rmat_ref,rmat_est)
     return tvec_error, rmat_error
 
-def plot3D_cam(cam, axis_scale = 0.2):
-    #Coordinate Frame of real camera
-    #Camera axis
-    cam_axis_x = np.array([1,0,0,1]).T
-    cam_axis_y = np.array([0,1,0,1]).T
-    cam_axis_z = np.array([0,0,1,1]).T
-
-    cam_axis_x = np.dot(cam.R.T, cam_axis_x)
-    cam_axis_y = np.dot(cam.R.T, cam_axis_y)
-    cam_axis_z = np.dot(cam.R.T, cam_axis_z)
-
-    cam_world = cam.get_world_position()
-
-    mlab.quiver3d(cam_world[0], cam_world[1], cam_world[2], cam_axis_x[0], cam_axis_x[1], cam_axis_x[2], line_width=3, scale_factor=axis_scale, color=(1-axis_scale,0,0))
-    mlab.quiver3d(cam_world[0], cam_world[1], cam_world[2], cam_axis_y[0], cam_axis_y[1], cam_axis_y[2], line_width=3, scale_factor=axis_scale, color=(0,1-axis_scale,0))
-    mlab.quiver3d(cam_world[0], cam_world[1], cam_world[2], cam_axis_z[0], cam_axis_z[1], cam_axis_z[2], line_width=3, scale_factor=axis_scale, color=(0,0,1-axis_scale))
 
 
-def plot3D(cams, planes):
-    #mlab.figure(figure=None, bgcolor=(0.1,0.5,0.5), fgcolor=None, engine=None, size=(400, 350))
-    axis_scale = 0.05
-    for cam in cams:
-        plot3D_cam(cam, axis_scale)
-        #axis_scale = axis_scale - 0.1
 
-    for plane in planes:
-        #Plot plane points in 3D
-        plane_points = plane.get_points()
-        mlab.points3d(plane_points[0], plane_points[1], plane_points[2], scale_factor=0.05, color = plane.get_color())
-        mlab.points3d(plane_points[0,0], plane_points[1,0], plane_points[2,0], scale_factor=0.05, color = (0.,0.,1.))
-
-    mlab.show()
 
 def run_single_wrapper(args):
   return run_single(*args)

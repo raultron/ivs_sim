@@ -39,36 +39,81 @@ class Gradient:
   dy5_eval = None
 
 
-def calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):
+def calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):   
+    
   """ Calculate the A matrix for the DLT algorithm:  A.H = 0
   all coordinates are in object plane
   """
-  X1 = np.array([[x1],[y1],[0.],[1.]])
-  X2 = np.array([[x2],[y2],[0.],[1.]])
-  X3 = np.array([[x3],[y3],[0.],[1.]])
-  X4 = np.array([[x4],[y4],[0.],[1.]])
-  X5 = np.array([[x5],[y5],[0.],[1.]])
+  X1 = np.array([[x1],[y1],[0.],[1.]]).reshape(4,1)
+  X2 = np.array([[x2],[y2],[0.],[1.]]).reshape(4,1)
+  X3 = np.array([[x3],[y3],[0.],[1.]]).reshape(4,1)
+  X4 = np.array([[x4],[y4],[0.],[1.]]).reshape(4,1)
+  X5 = np.array([[x5],[y5],[0.],[1.]]).reshape(4,1)
+  
+  
 
-  U1 = np.array(np.dot(P,X1))
-  U2 = np.array(np.dot(P,X2))
-  U3 = np.array(np.dot(P,X3))
-  U4 = np.array(np.dot(P,X4))
-  U5 = np.array(np.dot(P,X5))
+  U1 = np.array(np.dot(P,X1)).reshape(3,1)
+  U2 = np.array(np.dot(P,X2)).reshape(3,1)
+  U3 = np.array(np.dot(P,X3)).reshape(3,1)
+  U4 = np.array(np.dot(P,X4)).reshape(3,1)
+  U5 = np.array(np.dot(P,X5)).reshape(3,1)
+  
+  object_pts = np.hstack([X1,X2,X3,X4,X5])
+  
+  
+  image_pts = np.hstack([U1,U2,U3,U4,U5])
+  
+ 
+  object_pts_norm,T1 = normalise_points(object_pts)
+  image_pts_norm,T2 = normalise_points(image_pts)
+  
+  #object_pts_norm = object_pts[[0,1,3],:]
+  #image_pts_norm = image_pts
+  
+  x1 = object_pts_norm[0,0]/object_pts_norm[2,0]
+  y1 = object_pts_norm[1,0]/object_pts_norm[2,0]
+  
+  x2 = object_pts_norm[0,1]/object_pts_norm[2,1]
+  y2 = object_pts_norm[1,1]/object_pts_norm[2,1]
+  
+  x3 = object_pts_norm[0,2]/object_pts_norm[2,2]
+  y3 = object_pts_norm[1,2]/object_pts_norm[2,2]
+  
+  x4 = object_pts_norm[0,3]/object_pts_norm[2,3]
+  y4 = object_pts_norm[1,3]/object_pts_norm[2,3]
+  
+  x5 = object_pts_norm[0,4]/object_pts_norm[2,4]
+  y5 = object_pts_norm[1,4]/object_pts_norm[2,4]
 
-  u1 = U1[0,0]/U1[2,0]
-  v1 = U1[1,0]/U1[2,0]
+#  u1 = U1[0,0]/U1[2,0]
+#  v1 = U1[1,0]/U1[2,0]
+#
+#  u2 = U2[0,0]/U2[2,0]
+#  v2 = U2[1,0]/U2[2,0]
+#
+#  u3 = U3[0,0]/U3[2,0]
+#  v3 = U3[1,0]/U3[2,0]
+#
+#  u4 = U4[0,0]/U4[2,0]
+#  v4 = U4[1,0]/U4[2,0]
+#
+#  u5 = U5[0,0]/U5[2,0]
+#  v5 = U5[1,0]/U5[2,0]
+  u1 = image_pts_norm[0,0]/image_pts_norm[2,0]
+  v1 = image_pts_norm[1,0]/image_pts_norm[2,0]
+  
+  u2 = image_pts_norm[0,1]/image_pts_norm[2,1]
+  v2 = image_pts_norm[1,1]/image_pts_norm[2,1]
+  
+  u3 = image_pts_norm[0,2]/image_pts_norm[2,2]
+  v3 = image_pts_norm[1,2]/image_pts_norm[2,2]
+  
+  u4 = image_pts_norm[0,3]/image_pts_norm[2,3]
+  v4 = image_pts_norm[1,3]/image_pts_norm[2,3]
+  
+  u5 = image_pts_norm[0,4]/image_pts_norm[2,4]
+  v5 = image_pts_norm[1,4]/image_pts_norm[2,4]
 
-  u2 = U2[0,0]/U2[2,0]
-  v2 = U2[1,0]/U2[2,0]
-
-  u3 = U3[0,0]/U3[2,0]
-  v3 = U3[1,0]/U3[2,0]
-
-  u4 = U4[0,0]/U4[2,0]
-  v4 = U4[1,0]/U4[2,0]
-
-  u5 = U5[0,0]/U5[2,0]
-  v5 = U5[1,0]/U5[2,0]
 
   A = np.array([    [ 0,  0, 0, -x1, -y1, -1,  v1*x1,  v1*y1,  v1],
                     [x1, y1, 1,   0,   0,  0, -u1*x1, -u1*y1, -u1],
@@ -127,30 +172,133 @@ def volker_metric_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):
   #metric = metric + np.sum(As[[1,1,1,3,3,5],[3,5,7,5,7,7]]**2)
 
   return  metric
+def matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):
+    A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P)
+    A = np.conjugate(A)
+    U, s, Vt = np.linalg.svd(A,0)
+    m = U.shape[0]
+    n = Vt.shape[1]
+    rcond=1e-2
+    cutoff = rcond*np.max(s)
+
+    #    for i in range(min(n, m)):
+    #        if s[i] > cutoff:
+    #            s[i] = 1./s[i]
+    #        else:
+    #            s[i] = 0.
+    new_s = list()
+    for i in range(min(n, m)):
+        if s[i] > cutoff:
+            new_s.append(1./s[i])
+        else:
+            new_s.append(0.)
+    new_s = np.array(new_s)
+    pinv = np.dot(Vt.T, np.multiply(s[:, np.newaxis], U.T))
+    #https://de.mathworks.com/help/symbolic/cond.html?requestedDomain=www.mathworks.com
+    return np.linalg.norm(A)*np.linalg.norm(pinv)
 
 
-def matrix_conditioning_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):
+def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):
   A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P)
 
   # nomarlize each row
   #A = A/np.linalg.norm(A,axis=1, ord = 1, keepdims=True)
-  row_sums = list()
-  for i in range(A.shape[0]):
-    squared_sum = 0
-    for j in range(A.shape[1]):
-      squared_sum += np.sqrt(A[i,j]**2)
-    #A[i,:] = A[i,:] / squared_sum
-    row_sums.append(squared_sum)
-
-  row_sums = np.array(row_sums).reshape(1,10)
-
-  A = A/(row_sums.T)
+#  row_sums = list()
+#  for i in range(A.shape[0]):
+#    squared_sum = 0
+#    for j in range(A.shape[1]):
+#      squared_sum += np.sqrt(A[i,j]**2)
+#    #A[i,:] = A[i,:] / squared_sum
+#    row_sums.append(squared_sum)
+#
+#  row_sums = np.array(row_sums).reshape(1,10)
+#
+#  A = A/(row_sums.T)
 
   #A = np.vstack([A,np.array([1,1,1,1,1,1,1,1,1])])
   #return  np.linalg.norm(A)*np.linalg.norm(np.linalg.inv(A))
+  A = np.conjugate(A)
+  U, s, Vt = np.linalg.svd(A,0)
+  
+  m = U.shape[0]
+  n = Vt.shape[1]
+  rcond=1e-15 
+#  cutoff = rcond*maximum.reduce(s)
+#    for i in range(min(n, m)):
+#        if s[i] > cutoff:
+#            s[i] = 1./s[i]
+#        else:
+#            s[i] = 0.
+  pinv = np.dot(Vt.T, np.multiply(s[:, np.newaxis], U.T))
 
-  U, s, V = np.linalg.svd(A,full_matrices=False)
-  return s[0]/s[-1],s
+  #return s[0]/s[-1]
+  return np.linalg.norm(A)*np.linalg.norm(pinv)
+
+
+def hom_3d_to_2d(pts):
+    pts = pts[[0,1,3],:]
+    return pts
+    
+def hom_2d_to_3d(pts):
+    pts = np.insert(pts,2,np.zeros(pts.shape[1]),0)
+    return pts
+
+def normalise_points(pts):
+    """
+    Function translates and normalises a set of 2D or 3d homogeneous points
+    so that their centroid is at the origin and their mean distance from
+    the origin is sqrt(2).  This process typically improves the
+    conditioning of any equations used to solve homographies, fundamental
+    matrices etc.
+
+
+    Inputs:
+    pts: 3xN array of 2D homogeneous coordinates
+
+    Returns:
+    newpts: 3xN array of transformed 2D homogeneous coordinates.  The
+            scaling parameter is normalised to 1 unless the point is at
+            infinity.
+    T: The 3x3 transformation matrix, newpts = T*pts
+    """
+    if pts.shape[0] == 4:
+        pts = hom_3d_to_2d(pts)
+        
+    if pts.shape[0] != 3 and pts.shape[0] != 4  :
+        print "Shape error" 
+            
+
+    finiteind = np.nonzero(abs(pts[2,:]) > np.spacing(1))
+
+    if len(finiteind[0]) != pts.shape[1]:
+        print('Some points are at infinity')
+
+    dist = []
+    pts = pts/pts[2,:]
+    for i in finiteind:
+#        pts[0,i] = pts[0,i]/pts[2,i]
+#        pts[1,i] = pts[1,i]/pts[2,i]
+#        pts[2,i] = 1;
+
+        c = np.mean(pts[0:2,i].T, axis=0).T
+
+        newp1 = pts[0,i]-c[0]
+        newp2 = pts[1,i]-c[1]
+
+        dist.append(np.sqrt(newp1**2 + newp2**2))
+    
+    dist = np.array(dist)
+
+    meandist = np.mean(dist)
+
+    scale = np.sqrt(2)/meandist
+
+    T = np.array([[scale, 0, -scale*c[0]], [0, scale, -scale*c[1]], [0, 0, 1]])
+
+    newpts = np.dot(T,pts)
+    
+   
+    return newpts, T
 
 
 def create_gradient(metric='condition_number'):
@@ -159,7 +307,9 @@ def create_gradient(metric='condition_number'):
           'volker_metric
   """
   if metric == 'condition_number':
-    metric_function = matrix_conditioning_number_autograd
+    metric_function = matrix_condition_number_autograd
+  elif metric == 'pnorm_condition_number':
+    metric_function = matrix_pnorm_condition_number_autograd
   elif metric == 'volker_metric':
     metric_function = volker_metric_autograd
 
@@ -252,20 +402,20 @@ def normalize_gradient(gradient):
 
 
 
-  gradient.dx1_eval = np.sign(gradient.dx1_eval)
-  gradient.dy1_eval = np.sign(gradient.dy1_eval)
-
-  gradient.dx2_eval = np.sign(gradient.dx2_eval)
-  gradient.dy2_eval = np.sign(gradient.dy2_eval)
-
-  gradient.dx3_eval = np.sign(gradient.dx3_eval)
-  gradient.dy3_eval = np.sign(gradient.dy3_eval)
-
-  gradient.dx4_eval = np.sign(gradient.dx4_eval)
-  gradient.dy4_eval = np.sign(gradient.dy4_eval)
-
-  gradient.dx5_eval = np.sign(gradient.dx5_eval)
-  gradient.dy5_eval = np.sign(gradient.dy5_eval)
+#  gradient.dx1_eval = np.sign(gradient.dx1_eval)
+#  gradient.dy1_eval = np.sign(gradient.dy1_eval)
+#
+#  gradient.dx2_eval = np.sign(gradient.dx2_eval)
+#  gradient.dy2_eval = np.sign(gradient.dy2_eval)
+#
+#  gradient.dx3_eval = np.sign(gradient.dx3_eval)
+#  gradient.dy3_eval = np.sign(gradient.dy3_eval)
+#
+#  gradient.dx4_eval = np.sign(gradient.dx4_eval)
+#  gradient.dy4_eval = np.sign(gradient.dy4_eval)
+#
+#  gradient.dx5_eval = np.sign(gradient.dx5_eval)
+#  gradient.dy5_eval = np.sign(gradient.dy5_eval)
   return gradient
 
 def update_points(alpha, gradient, objectPoints, limit=0.15):

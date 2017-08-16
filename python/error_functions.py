@@ -7,8 +7,16 @@ Created on Wed Aug  2 14:58:01 2017
 """
 import autograd.numpy as np
 
-def get_matrix_conditioning_number(M):
- return  np.linalg.norm(M,2)*np.linalg.norm(np.linalg.pinv(M),2)
+def validation_points_error(Xi, Xo, Hestimated):
+    Xi = np.copy(Xi)
+    Xo = np.copy(Xo)
+    sum = 0
+    for i in range(Xo.shape[1]):
+        sum += geometric_distance(Xo[:,i],Xi[:,i],Hestimated)
+    return sum/Xo.shape[1]
+    
+def homography_matrix_error(Htrue, Hestimated):
+    return np.sqrt(np.sum(np.abs(Htrue - Hestimated)**2))
 
 def h_norm2d(x):
   #Normalize points
@@ -104,10 +112,10 @@ def volker_metric(A):
   #metric = np.sqrt(np.sum(As[[0,2,4,6],[1,3,5,7]]**2))
 
   #X vs X
-  metric = np.sum(As[[0,0,0,2,2,4],[2,4,6,4,6,6]]**2)
+  #metric = np.sum(As[[0,0,0,2,2,4],[2,4,6,4,6,6]]**2)
 
   #Y vs Y
-  metric = metric + np.sum(As[[1,1,1,3,3,5],[3,5,7,5,7,7]]**2)
+  #metric = metric + np.sum(As[[1,1,1,3,3,5],[3,5,7,5,7,7]]**2)
 
   return  metric
 
@@ -119,6 +127,8 @@ def calculate_A_matrix(Xo, Xi):
 
     Xi: Image points in 2D Homogeneous Coordinates (3xn)
   """
+  Xo = np.copy(Xo)
+  Xi = np.copy(Xi)
   Npts = Xo.shape[1]
   A = np.zeros((2*Npts,9))
   O = np.zeros(3)
@@ -131,3 +141,11 @@ def calculate_A_matrix(Xo, Xi):
       A[2*i,:] = np.array([O, -w*X, v*X]).reshape(1, 9)
       A[2*i+1,:] = np.array([w*X, O, -u*X]).reshape(1, 9)
   return A
+
+def get_matrix_conditioning_number(M):
+ #return  np.linalg.norm(M,2)*np.linalg.norm(np.linalg.pinv(M),2)
+ return  np.linalg.cond(M)
+ 
+def get_matrix_pnorm_condition_number(M):
+    #https://de.mathworks.com/help/symbolic/cond.html?requestedDomain=www.mathworks.com
+    return np.linalg.norm(M,2)*np.linalg.norm(np.linalg.pinv(M),2)

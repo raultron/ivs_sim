@@ -8,7 +8,7 @@ Created on Fri Aug  4 11:52:11 2017
 from vision.camera import *
 from vision.plane import Plane
 import gdescent.hpoints_gradient as gd
-from error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix
+from error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix,get_matrix_pnorm_condition_number
 
 
 ## CREATE A SIMULATED CAMERA
@@ -73,6 +73,8 @@ for i in range(10000):
 
   x1,y1,x2,y2,x3,y3,x4,y4 = gd.extract_objectpoints_vars(new_objectPoints)
   mat_cond = gd.matrix_conditioning_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,np.array(cam.P))
+  
+  mat_cond = get_matrix_pnorm_condition_number(Aideal)
 
   volkerMetric = volker_metric(Aideal)
 

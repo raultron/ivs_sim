@@ -129,8 +129,9 @@ class Camera(object):
         sd: pixels of standard deviation
         """
         imagePoints = np.copy(imagePoints)
-        gaussian_noise = np.random.normal(mean,sd,(2,imagePoints.shape[1]))
-        imagePoints[:2,:] = imagePoints[:2,:] + gaussian_noise
+        if sd > 0:
+            gaussian_noise = np.random.normal(mean,sd,(2,imagePoints.shape[1]))
+            imagePoints[:2,:] = imagePoints[:2,:] + gaussian_noise
         return imagePoints
 
 

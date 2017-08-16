@@ -74,7 +74,7 @@ def mat_run(U, Q, hEstMethod='DLT'):
     if hEstMethod == "DLT":
         _U = np.vstack((U, np.ones((1, n))))
         _Q = np.vstack((Q, np.ones((1, n))))
-        H = homography2d(_U, _Q)
+        H,_,_ = homography2d(_U, _Q)
         H = H/H[2,2]
     elif hEstMethod == "OpenCV":
         H, mask = cv2.findHomography(_U[:2,:].T, _Q[:2,:].T)

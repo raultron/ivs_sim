@@ -134,7 +134,7 @@ if __name__ == '__main__':
     #Camera looking straight down to the world center
     #cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(180.0))
     #World position is defined after rotation matrix
-    cam.set_world_position(x,y,z)
+    cam.set_t(x,y,z, frame='world')
     cam.set_P() # create projection matrix
 
     #We Create a plane with 4 points with a uniform distribution

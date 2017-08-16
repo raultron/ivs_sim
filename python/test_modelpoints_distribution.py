@@ -29,7 +29,7 @@ if __name__ == '__main__':
     #Camera looking straight down to the world center
     cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(160.0))
     #World position is defined after rotation matrix
-    cam.set_world_position(x,y,z)
+    cam.set_t(x,y,z,frame='world')
     cam.set_P() # create projection matrix
 
     #Create a plane with 4 points
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     plt.title("Effect of the distribution of points on the translation estimation")
     plt.xlabel("Amount of deviation from uniform pattern (noise pixels)")
     plt.ylabel("percent error in t")
-    plt.plot(n_range, ippe_tvec_error_avg, label = "ippe")
+    #plt.plot(n_range, ippe_tvec_error_avg, label = "ippe")
     plt.plot(n_range, pnp_tvec_error_avg, label = "solvepnp")
     plt.legend()
 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     plt.title("Effect of the distribution of points on the rotation estimation")
     plt.xlabel("Amount of deviation from uniform pattern (noise pixels)")
     plt.ylabel("rotation angle error (degrees)")
-    plt.plot(n_range, ippe_rmat_error_avg, label = "ippe")
+    #plt.plot(n_range, ippe_rmat_error_avg, label = "ippe")
     plt.plot(n_range, pnp_rmat_error_avg, label = "solvepnp")
     plt.legend()
 

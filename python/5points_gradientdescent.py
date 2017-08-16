@@ -8,7 +8,7 @@ Created on Fri Aug  4 11:52:11 2017
 from vision.camera import *
 from vision.plane import Plane
 import gdescent.hpoints_gradient5 as gd5
-from error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix
+from error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix, get_matrix_pnorm_condition_number
 
 
 ## CREATE A SIMULATED CAMERA
@@ -17,8 +17,8 @@ cam.set_K(fx = 800,fy = 800,cx = 640,cy = 480)
 cam.set_width_heigth(1280,960)
 
 ## DEFINE CAMERA POSE LOOKING STRAIGTH DOWN INTO THE PLANE MODEL
-cam.set_R_axisAngle(1.0,  1.0,  0.0, np.deg2rad(165.0))
-cam.set_t(0.0,-0.2,1.0, frame='world')
+cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(165.0))
+cam.set_t(0.0,-0.2,0.5, frame='world')
 
 ## Define a Display plane
 pl =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.3,0.3), n = (2,2))
@@ -30,22 +30,36 @@ validation_plane.uniform()
 
 
 ## we create the gradient for the point distribution
-gradient = gd5.create_gradient(metric='condition_number')
+gradient = gd5.create_gradient(metric='pnorm_condition_number')
+gradient = gd5.create_gradient(metric='volker_metric')
+
 
 
 
 objectPoints_des = pl.get_points()
+
+# we now replace the first 4 points with the border positions
+pl.uniform()
+objectPoints_des[:,0:4] = pl.get_points()
+
+
+
 imagePoints_des = np.array(cam.project(objectPoints_des, False))
 objectPoints_list = list()
 imagePoints_list = list()
 new_objectPoints = objectPoints_des
-alpha = 0.001
-for i in range(10000):
+#alpha = 0.1
+alpha = -0.000000000000000000001
+alpha = 0.01
+for i in range(150):
   objectPoints = np.copy(new_objectPoints)
+  
   gradient = gd5.evaluate_gradient(gradient,objectPoints, np.array(cam.P))
   gradient = gd5.normalize_gradient(gradient)
 
-  new_objectPoints = gd5.update_points(alpha, gradient, objectPoints)
+  new_objectPoints = gd5.update_points(alpha, gradient, objectPoints)#, limit = 3)
+  
+
   new_imagePoints = np.array(cam.project(new_objectPoints, False))
 
   objectPoints_list.append(new_objectPoints)
@@ -67,14 +81,18 @@ for i in range(10000):
   Xo = np.copy(new_objectPoints[[0,1,3],:]) #without the z coordinate (plane)
   Xi = np.copy(new_imagePoints)
   Aideal = calculate_A_matrix(Xo, Xi)
-
+  
   x1,y1,x2,y2,x3,y3,x4,y4,x5,y5 = gd5.extract_objectpoints_vars(new_objectPoints)
-  mat_cond,s = gd5.matrix_conditioning_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,np.array(cam.P))
-  print s
+  mat_cond_autrograd = gd5.matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,np.array(cam.P))
 
+  
   volkerMetric = volker_metric(Aideal)
+  
+  mat_cond = get_matrix_pnorm_condition_number(Aideal) 
+  #mat_cond = get_matrix_conditioning_number(Aideal)
 
   print "Iteration: ", i
+  print "Mat cond Autograd: ", mat_cond_autrograd
   print "Mat cond:", mat_cond
   print "Volker Metric:", volkerMetric
   print "dx1,dy1 :", gradient.dx1_eval,gradient.dy1_eval
@@ -84,3 +102,4 @@ for i in range(10000):
   print "dx5,dy5 :", gradient.dx5_eval,gradient.dy5_eval
   print "------------------------------------------------------"
 
+plt.plot(new_imagePoints[0],new_imagePoints[1],'.',color = 'red',)
