@@ -7,7 +7,7 @@ Created on Fri Aug  4 11:52:11 2017
 """
 from vision.camera import *
 from vision.plane import Plane
-import gdescent.hpoints_gradient5 as gd5
+import gdescent.hpoints_gradient6 as gd6
 import error_functions as ef
 from ippe import homo2d
 
@@ -18,15 +18,15 @@ cam.set_K(fx = 800,fy = 800,cx = 640,cy = 480)
 cam.set_width_heigth(1280,960)
 
 ## DEFINE CAMERA POSE LOOKING STRAIGTH DOWN INTO THE PLANE MODEL
-#cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(180.0))
-#cam.set_t(0.0,-0.0,0.5, frame='world')
+cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(179.0))
+cam.set_t(0.0,-0.0,0.5, frame='world')
 
-cam.set_R_axisAngle(1.0,  1.0,  0.0, np.deg2rad(130.0))
-cam.set_t(0.0,-0.4,2.0, frame='world')
+#cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(140.0))
+#cam.set_t(0.0,-0.4,0.4, frame='world')
 
 ## Define a Display plane
-pl =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.3,0.3), n = (2,2))
-pl.random(n =5, r = 0.001, min_sep = 0.001)
+pl =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.3,0.2), n = (2,2))
+pl.random(n =6, r = 0.001, min_sep = 0.001)
 
 ## CREATE A SET OF IMAGE POINTS FOR VALIDATION OF THE HOMOGRAPHY ESTIMATION
 validation_plane =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.5,0.5), n = (4,4))
@@ -37,9 +37,9 @@ validation_plane.uniform()
 
 ## we create the gradient for the point distribution
 
-gradient = gd5.create_gradient(metric='condition_number')
-#gradient = gd5.create_gradient(metric='volker_metric')
-#gradient = gd5.create_gradient(metric='pnorm_condition_number')
+gradient = gd6.create_gradient(metric='condition_number')
+#gradient = gd6.create_gradient(metric='volker_metric')
+#gradient = gd6.create_gradient(metric='pnorm_condition_number')
 
 
 
@@ -47,7 +47,7 @@ gradient = gd5.create_gradient(metric='condition_number')
 objectPoints_des = pl.get_points()
 
 # we now replace the first 4 points with the border positions
-pl.uniform()
+#pl.uniform()
 #objectPoints_des[:,0:4] = pl.get_points()
 
 
@@ -60,10 +60,10 @@ new_objectPoints = objectPoints_des
 for i in range(1000):
   objectPoints = np.copy(new_objectPoints)
 
-  gradient = gd5.evaluate_gradient(gradient,objectPoints, np.array(cam.P))
+  gradient = gd6.evaluate_gradient(gradient,objectPoints, np.array(cam.P))
   #gradient = gd5.normalize_gradient(gradient)
 
-  new_objectPoints = gd5.update_points(alpha, gradient, objectPoints)#, limit = 3)
+  new_objectPoints = gd6.update_points(alpha, gradient, objectPoints, limitx = 100,limity=100)#limitx = 0.15,limity=0.10)
   new_imagePoints = np.array(cam.project(new_objectPoints, False))
 
 
@@ -78,14 +78,17 @@ for i in range(1000):
     plt.cla()
     cam.plot_plane(pl)
     plt.plot(imagePoints_des[0],imagePoints_des[1],'x',color = 'black',)
-    plt.xlim(0,1280)
-    plt.ylim(0,960)
-    plt.gca().invert_yaxis()
+
+
     plt.axes().set_aspect('equal', 'datalim')
 
   plt.cla()
+
   cam.plot_plane(pl)
   plt.plot(new_imagePoints[0],new_imagePoints[1],'.',color = 'blue',)
+  plt.xlim(0,1280)
+  plt.ylim(0,960)
+  plt.gca().invert_yaxis()
   plt.pause(0.01)
 
 
@@ -106,8 +109,8 @@ for i in range(1000):
   Xi = np.copy(new_imagePoints)
   Aideal = ef.calculate_A_matrix(Xo, Xi)
 
-  x1,y1,x2,y2,x3,y3,x4,y4,x5,y5 = gd5.extract_objectpoints_vars(new_objectPoints)
-  mat_cond_autrograd = gd5.matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,np.array(cam.P))
+  x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6 = gd6.extract_objectpoints_vars(new_objectPoints)
+  mat_cond_autrograd = gd6.matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6,np.array(cam.P))
 
 
   volkerMetric = ef.volker_metric(Aideal)
@@ -120,11 +123,11 @@ for i in range(1000):
   ##HOMOGRAPHY ERRORS
   ## TRUE VALUE OF HOMOGRAPHY OBTAINED FROM CAMERA PARAMETERS
   Hcam = cam.homography_from_Rt()
-  homography_iters = 100
+  homography_iters = 1000
   ##We add noise to the image points and calculate the noisy homography
   transfer_error_sum = 0
   for j in range(homography_iters):
-    new_imagePoints_noisy = cam.addnoise_imagePoints(new_imagePoints, mean = 0, sd = 2)
+    new_imagePoints_noisy = cam.addnoise_imagePoints(new_imagePoints, mean = 0, sd = 1)
     #Noisy homography calculation
     Xo = new_objectPoints[[0,1,3],:]
     Xi = new_imagePoints_noisy

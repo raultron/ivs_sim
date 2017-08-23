@@ -30,7 +30,8 @@ validation_plane.uniform()
 
 
 ## we create the gradient for the point distribution
-gradient = gd.create_gradient(metric='condition_number')
+gradient = gd.create_gradient(metric='pnorm_condition_number')
+#gradient = gd.create_gradient(metric='volker_metric')
 
 
 
@@ -39,11 +40,11 @@ imagePoints_des = np.array(cam.project(objectPoints_des, False))
 objectPoints_list = list()
 imagePoints_list = list()
 new_objectPoints = objectPoints_des
-alpha = 0.00000000001
-for i in range(10000):
+alpha = 0.001
+for i in range(300):
   objectPoints = np.copy(new_objectPoints)
   gradient = gd.evaluate_gradient(gradient,objectPoints, np.array(cam.P))
-  #gradient = normalize_gradient(gradient)
+  gradient = gd.normalize_gradient(gradient)
 
   new_objectPoints = gd.update_points(alpha, gradient, objectPoints)
   new_imagePoints = np.array(cam.project(new_objectPoints, False))
@@ -72,13 +73,13 @@ for i in range(10000):
   #mat_cond = matrix_conditioning_number_autograd5(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,np.array(cam.P))
 
   x1,y1,x2,y2,x3,y3,x4,y4 = gd.extract_objectpoints_vars(new_objectPoints)
-  mat_cond = gd.matrix_conditioning_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,np.array(cam.P))
-  
-  mat_cond = get_matrix_pnorm_condition_number(Aideal)
+  mat_cond = gd.matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,np.array(cam.P))
+
+  #mat_cond = get_matrix_pnorm_condition_number(Aideal)
 
   volkerMetric = volker_metric(Aideal)
 
-  alpha += 0.0000000001
+  #alpha += 0.0000000001
 
   print "Iteration: ", i
   print "Mat cond:", mat_cond
