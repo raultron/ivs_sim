@@ -1,3 +1,6 @@
 [submodule "python/ippe_py"]
 	path = python/ippe_py
 	url = https://github.com/royxue/ippe_py.git
+[submodule "python/homographyHarker"]
+	path = python/homographyHarker
+	url = https://github.com/raultron/homographyHarker.git
