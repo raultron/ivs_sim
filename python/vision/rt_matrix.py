@@ -37,8 +37,6 @@ def rotation_matrix_from_two_vectors(a,b):
     R[:3,:3] = np.array(np.eye(3) + ssc + (ssc**2)*(1.0/(1.0+np.dot(a,b))))
     return R
 
-
-
 def rot_matrix_error(R0, R1, method = 'unit_quaternion_product'):
     """ R0, R1 are 3x3 or 4x4 homogeneous Rotation matrixes
         returns: the value of the error depending on the method """
@@ -105,6 +103,8 @@ def rot_matrix_error(R0, R1, method = 'unit_quaternion_product'):
 #        rot_error = phi
 
     return rot_error
+
+
 
 
 

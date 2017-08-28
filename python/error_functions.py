@@ -14,7 +14,7 @@ def validation_points_error(Xi, Xo, Hestimated):
     for i in range(Xo.shape[1]):
         sum += geometric_distance(Xo[:,i],Xi[:,i],Hestimated)
     return sum/Xo.shape[1]
-    
+
 def homography_matrix_error(Htrue, Hestimated):
     return np.sqrt(np.sum(np.abs(Htrue - Hestimated)**2))
 
@@ -145,7 +145,86 @@ def calculate_A_matrix(Xo, Xi):
 def get_matrix_conditioning_number(M):
  #return  np.linalg.norm(M,2)*np.linalg.norm(np.linalg.pinv(M),2)
  return  np.linalg.cond(M)
- 
+
 def get_matrix_pnorm_condition_number(M):
     #https://de.mathworks.com/help/symbolic/cond.html?requestedDomain=www.mathworks.com
     return np.linalg.norm(M,2)*np.linalg.norm(np.linalg.pinv(M),2)
+
+
+def rot_matrix_error(R0, R1, method = 'unit_quaternion_product'):
+    """ R0, R1 are 3x3 or 4x4 homogeneous Rotation matrixes
+        returns: the value of the error depending on the method """
+
+    if ((R0.shape != (4,4)) and (R0.shape != (3,3))):
+        print ("Error in the R0 input rotation matrix shape, must be 3x3 or 4x4")
+        print R0
+        return -1
+    if ((R1.shape != (4,4)) and (R1.shape != (3,3))):
+        print ("Error in the R1 input rotation matrix shape, must be 3x3 or 4x4")
+        print R1
+        return -1
+
+    if R0.shape == (3,3):
+        R = np.eye(4)
+        R[:3,:3] = R0
+        R0 = R
+
+    if R1.shape == (3,3):
+        R = np.eye(4)
+        R[:3,:3] = R1
+        R1 = R
+
+
+
+    if(method == 'unit_quaternion_product' ):
+        ## From the paper "Metrics for 3D Rotations: Comparison and Analysis" D. Huynh
+        # The 3D rotation error is computed using the inner product of unit quaterions
+
+
+        #We use the ros library TF to convert rotation matrix into unit quaternions
+        from tf import transformations
+        q0 = transformations.quaternion_from_matrix(R0)
+        q1 = transformations.quaternion_from_matrix(R1)
+
+        # We convert into unit quaternions
+        q0 = q0 / np.linalg.norm(q0)
+        q1 = q1 / np.linalg.norm(q1)
+
+        #Find the error as defined in the paper
+        rot_error = 1 - np.linalg.norm(np.dot(q0,q1))
+
+    if(method == 'angle'):
+        #option 2 find the angle of this rotation. In particular, the above is invalid
+        #for very large error angles (error > 90 degrees) and is imprecise for large
+        #error angles (angle > 45 degrees).
+
+        E = R1.dot(R0.T)
+        from cv2 import Rodrigues
+        rot_vector, J = Rodrigues(E[:3,:3])
+
+        angle = np.linalg.norm(rot_vector)
+
+        rot_error = np.rad2deg(angle)
+#        d = np.zeros(3)
+#        d[0] = E[1,2] - E[2,1]
+#        d[1] = E[2,0] - E[0,2]
+#        d[2] = E[0,1] - E[1,0]
+#
+#        dmag = sqrt(d[0]*d[0] + d[1]*d[1] + d[2]*d[2])
+#
+#        phi = np.rad2deg(asin(dmag/2))
+#
+#        rot_error = phi
+
+    return rot_error
+
+def calc_estimated_pose_error(tvec_ref, rmat_ref, tvec_est, rmat_est):
+    # Translation error percentual
+    tvec_error = np.linalg.norm(tvec_est[:3] - tvec_ref[:3])/np.linalg.norm(tvec_ref[:3])*100.
+
+    #tvec_error = np.sqrt((np.sum((tvec_est[:3]- tvec_ref[:3])**2))
+
+    #Rotation matrix error
+    rmat_error = rot_matrix_error(rmat_ref,rmat_est, method = 'angle')
+    #rmat_error = rot_matrix_error(rmat_ref,rmat_est)
+    return tvec_error, rmat_error

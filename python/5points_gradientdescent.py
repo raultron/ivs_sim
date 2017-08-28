@@ -56,6 +56,8 @@ imagePoints_des = np.array(cam.project(objectPoints_des, False))
 objectPoints_list = list()
 imagePoints_list = list()
 transfer_error_list = list()
+condition_number_list = list()
+normalized_condition_number_list = list()
 new_objectPoints = objectPoints_des
 for i in range(1000):
   objectPoints = np.copy(new_objectPoints)
@@ -104,7 +106,10 @@ for i in range(1000):
 
   Xo = np.copy(new_objectPoints[[0,1,3],:]) #without the z coordinate (plane)
   Xi = np.copy(new_imagePoints)
-  Aideal = ef.calculate_A_matrix(Xo, Xi)
+
+  Hnoisy,A_t_ref,H_t = homo2d.homography2d(Xo,Xi)
+
+  Aideal_norm = ef.calculate_A_matrix()
 
   x1,y1,x2,y2,x3,y3,x4,y4,x5,y5 = gd5.extract_objectpoints_vars(new_objectPoints)
   mat_cond_autrograd = gd5.matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,np.array(cam.P))
@@ -114,6 +119,8 @@ for i in range(1000):
 
   mat_cond = ef.get_matrix_pnorm_condition_number(Aideal)
   #mat_cond = get_matrix_conditioning_number(Aideal)
+
+  condition_number_list.append()
 
 
 

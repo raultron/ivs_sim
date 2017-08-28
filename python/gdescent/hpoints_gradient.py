@@ -11,75 +11,92 @@ import autograd.numpy as np
 from autograd import grad
 from error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix
 
-class Gradient:
-  dx1 = None
-  dy1 = None
-  dx2 = None
-  dy2 = None
-  dx3 = None
-  dy3 = None
-  dx4 = None
-  dy4 = None
-  dx5 = None
-  dy5 = None
+class Gradient(object):
+  def __init__(self):
+    self.dx1 = None
+    self.dy1 = None
+    self.dx2 = None
+    self.dy2 = None
+    self.dx3 = None
+    self.dy3 = None
+    self.dx4 = None
+    self.dy4 = None
 
-  dx1_eval = None
-  dy1_eval = None
+    self.dx1_eval = 0
+    self.dy1_eval = 0
 
-  dx2_eval = None
-  dy2_eval = None
+    self.dx2_eval = 0
+    self.dy2_eval = 0
 
-  dx3_eval = None
-  dy3_eval = None
+    self.dx3_eval = 0
+    self.dy3_eval = 0
 
-  dx4_eval = None
-  dy4_eval = None
+    self.dx4_eval = 0
+    self.dy4_eval = 0
 
-  dx5_eval = None
-  dy5_eval = None
+    self.dx1_eval_old = 0
+    self.dy1_eval_old = 0
 
-  dx1_eval_old = 0
-  dy1_eval_old = 0
+    self.dx2_eval_old = 0
+    self.dy2_eval_old = 0
 
-  dx2_eval_old = 0
-  dy2_eval_old = 0
+    self.dx3_eval_old = 0
+    self.dy3_eval_old = 0
 
-  dx3_eval_old = 0
-  dy3_eval_old = 0
+    self.dx4_eval_old = 0
+    self.dy4_eval_old = 0
 
-  dx4_eval_old = 0
-  dy4_eval_old = 0
+    self.n = 0.0001 #step in gradient descent
+    self.n_increment = 0.5*self.n #step increment for SuperSab
 
-  dx5_eval_old = 0
-  dy5_eval_old = 0
+    self.n_x1 = self.n
+    self.n_x2 = self.n
+    self.n_x3 = self.n
+    self.n_x4 = self.n
 
-  n1 = 0.01
-  n2 = 0.01
-  n3 = 0.01
-  n4 = 0.01
-  n5 = 0.01
+    self.n_y1 = self.n
+    self.n_y2 = self.n
+    self.n_y3 = self.n
+    self.n_y4 = self.n
+
+  def set_n(self,n):
+    self.n = n
+    self.n_increment = 20.*self.n
+    self.n_x1 = n
+    self.n_x2 = n
+    self.n_x3 = n
+    self.n_x4 = n
+
+    self.n_y1 = n
+    self.n_y2 = n
+    self.n_y3 = n
+    self.n_y4 = n
 
 
 
-def calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
+def calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P,normalize=False):
   """ Calculate the A matrix for the DLT algorithm:  A.H = 0
   all coordinates are in object plane
   """
-  X1 = np.array([[x1],[y1],[0.],[1.]])
-  X2 = np.array([[x2],[y2],[0.],[1.]])
-  X3 = np.array([[x3],[y3],[0.],[1.]])
-  X4 = np.array([[x4],[y4],[0.],[1.]])
+  X1 = np.array([[x1],[y1],[0.],[1.]]).reshape(4,1)
+  X2 = np.array([[x2],[y2],[0.],[1.]]).reshape(4,1)
+  X3 = np.array([[x3],[y3],[0.],[1.]]).reshape(4,1)
+  X4 = np.array([[x4],[y4],[0.],[1.]]).reshape(4,1)
 
-  U1 = np.array(np.dot(P,X1))
-  U2 = np.array(np.dot(P,X2))
-  U3 = np.array(np.dot(P,X3))
-  U4 = np.array(np.dot(P,X4))
+  U1 = np.array(np.dot(P,X1)).reshape(3,1)
+  U2 = np.array(np.dot(P,X2)).reshape(3,1)
+  U3 = np.array(np.dot(P,X3)).reshape(3,1)
+  U4 = np.array(np.dot(P,X4)).reshape(3,1)
 
   object_pts = np.hstack([X1,X2,X3,X4])
   image_pts = np.hstack([U1,U2,U3,U4])
 
-  object_pts_norm,T1 = normalise_points(object_pts)
-  image_pts_norm,T2 = normalise_points(image_pts)
+  if normalize:
+    object_pts_norm,T1 = normalise_points(object_pts)
+    image_pts_norm,T2 = normalise_points(image_pts)
+  else:
+    object_pts_norm = object_pts[[0,1,3],:]
+    image_pts_norm = image_pts
 
   x1 = object_pts_norm[0,0]/object_pts_norm[2,0]
   y1 = object_pts_norm[1,0]/object_pts_norm[2,0]
@@ -93,18 +110,6 @@ def calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
   x4 = object_pts_norm[0,3]/object_pts_norm[2,3]
   y4 = object_pts_norm[1,3]/object_pts_norm[2,3]
 
-
-#  u1 = U1[0,0]/U1[2,0]
-#  v1 = U1[1,0]/U1[2,0]
-#
-#  u2 = U2[0,0]/U2[2,0]
-#  v2 = U2[1,0]/U2[2,0]
-#
-#  u3 = U3[0,0]/U3[2,0]
-#  v3 = U3[1,0]/U3[2,0]
-#
-#  u4 = U4[0,0]/U4[2,0]
-#  v4 = U4[1,0]/U4[2,0]
 
   u1 = image_pts_norm[0,0]/image_pts_norm[2,0]
   v1 = image_pts_norm[1,0]/image_pts_norm[2,0]
@@ -136,19 +141,16 @@ def calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
 def volker_metric_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
   A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P)
 
-  # nomarlize each row
-  #A = A/np.linalg.norm(A,axis=1, ord = 1, keepdims=True)
   row_sums = list()
   for i in range(A.shape[0]):
     squared_sum = 0
     for j in range(A.shape[1]):
       squared_sum += np.sqrt(A[i,j]**2)
-    #A[i,:] = A[i,:] / squared_sum
     row_sums.append(squared_sum)
 
   row_sums = np.array(row_sums).reshape(1,8)
-
   A = A/(row_sums.T)
+
   # compute the dot product
   As = np.dot(A,A.T)
 
@@ -160,17 +162,6 @@ def volker_metric_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
       metric = metric +  As[i,j]**2
     start = start +1
 
-
-  #An alternative would be to use only the coefficients which correspond
-  # to different points.
-  #metric = np.sqrt(np.sum(As[[0,2,4,6],[1,3,5,7]]**2))
-
-  #X vs X
-  #metric = np.sum(As[[0,0,0,2,2,4],[2,4,6,4,6,6]]**2)
-
-  #Y vs Y
-  #metric = metric + np.sum(As[[1,1,1,3,3,5],[3,5,7,5,7,7]]**2)
-
   return  metric
 
 def matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
@@ -179,7 +170,7 @@ def matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
     U, s, Vt = np.linalg.svd(A,0)
     m = U.shape[0]
     n = Vt.shape[1]
-    rcond=1e-2
+    rcond=1e-10
     cutoff = rcond*np.max(s)
 
     #    for i in range(min(n, m)):
@@ -198,12 +189,19 @@ def matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
     #https://de.mathworks.com/help/symbolic/cond.html?requestedDomain=www.mathworks.com
     return np.linalg.norm(A)*np.linalg.norm(pinv)
 
-def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
-  A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P)
-  #A = np.vstack([A,np.array([1,1,1,1,1,1,1,1,1])])
-  #return  np.linalg.norm(A)*np.linalg.norm(np.linalg.inv(A))
+def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, normalize = False):
+  A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, normalize)
+
   U, s, V = np.linalg.svd(A,full_matrices=False)
-  return s[0]/s[-1]
+
+  greatest_singular_value = s[0]
+  rcond=1e-5
+  if s[-1] > rcond:
+    smalles_singular_value = s[-1]
+  else:
+    smalles_singular_value = s[-2]
+
+  return np.sqrt(greatest_singular_value)/np.sqrt(smalles_singular_value)
 
 def hom_3d_to_2d(pts):
     pts = pts[[0,1,3],:]
@@ -270,7 +268,7 @@ def normalise_points(pts):
 
     return newpts, T
 
-def create_gradient(metric='condition_number'):
+def create_gradient(metric='condition_number', n = 0.000001):
   """"
   metric: 'condition_number' (default)
           'volker_metric
@@ -283,6 +281,7 @@ def create_gradient(metric='condition_number'):
     metric_function = volker_metric_autograd
 
   gradient = Gradient()
+  gradient.set_n(n)
   gradient.dx1 = grad(metric_function,0)
   gradient.dy1 = grad(metric_function,1)
 
@@ -310,113 +309,93 @@ def extract_objectpoints_vars(objectPoints):
   x4 = objectPoints[0,3]
   y4 = objectPoints[1,3]
 
-  return x1,y1,x2,y2,x3,y3,x4,y4
+  return [x1,y1,x2,y2,x3,y3,x4,y4]
 
-def normalize_gradient(gradient):
-  maximum = np.max(np.abs([gradient.dx1_eval,
-                gradient.dy1_eval,
-
-                gradient.dx2_eval,
-                gradient.dy2_eval,
-
-                gradient.dx3_eval,
-                gradient.dy3_eval,
-
-                gradient.dx4_eval,
-                gradient.dy4_eval]))
-
-  gradient.dx1_eval /= maximum
-  gradient.dy1_eval /= maximum
-
-  gradient.dx2_eval /= maximum
-  gradient.dy2_eval /= maximum
-
-  gradient.dx3_eval /= maximum
-  gradient.dy3_eval /= maximum
-
-  gradient.dx4_eval /= maximum
-  gradient.dy4_eval /= maximum
-
-
-
-#  gradient.dx1_eval = np.sign(gradient.dx1_eval)
-#  gradient.dy1_eval = np.sign(gradient.dy1_eval)
-#
-#  gradient.dx2_eval = np.sign(gradient.dx2_eval)
-#  gradient.dy2_eval = np.sign(gradient.dy2_eval)
-#
-#  gradient.dx3_eval = np.sign(gradient.dx3_eval)
-#  gradient.dy3_eval = np.sign(gradient.dy3_eval)
-#
-#  gradient.dx4_eval = np.sign(gradient.dx4_eval)
-#  gradient.dy4_eval = np.sign(gradient.dy4_eval)
-  return gradient
-
-def evaluate_gradient(gradient, objectPoints, P):
+def evaluate_gradient(gradient, objectPoints, P, normalize = False):
   x1,y1,x2,y2,x3,y3,x4,y4 = extract_objectpoints_vars(objectPoints)
-  gradient.dx1_eval = gradient.dx1(x1,y1,x2,y2,x3,y3,x4,y4, P)
-  gradient.dy1_eval = gradient.dy1(x1,y1,x2,y2,x3,y3,x4,y4, P)
 
-  gradient.dx2_eval = gradient.dx2(x1,y1,x2,y2,x3,y3,x4,y4, P)
-  gradient.dy2_eval = gradient.dy2(x1,y1,x2,y2,x3,y3,x4,y4, P)
+  gradient.dx1_eval_old = gradient.dx1_eval
+  gradient.dy1_eval_old = gradient.dy1_eval
 
-  gradient.dx3_eval = gradient.dx3(x1,y1,x2,y2,x3,y3,x4,y4, P)
-  gradient.dy3_eval = gradient.dy3(x1,y1,x2,y2,x3,y3,x4,y4, P)
+  gradient.dx2_eval_old = gradient.dx2_eval
+  gradient.dy2_eval_old = gradient.dy2_eval
 
-  gradient.dx4_eval = gradient.dx4(x1,y1,x2,y2,x3,y3,x4,y4, P)
-  gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4, P)
+  gradient.dx3_eval_old = gradient.dx3_eval
+  gradient.dy3_eval_old = gradient.dy3_eval
+
+  gradient.dx4_eval_old = gradient.dx4_eval
+  gradient.dy4_eval_old = gradient.dy4_eval
+
+
+  gradient.dx1_eval = gradient.dx1(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x1
+  gradient.dy1_eval = gradient.dy1(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y1
+
+  gradient.dx2_eval = gradient.dx2(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x2
+  gradient.dy2_eval = gradient.dy2(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y2
+
+  gradient.dx3_eval = gradient.dx3(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x3
+  gradient.dy3_eval = gradient.dy3(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y3
+
+  gradient.dx4_eval = gradient.dx4(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x4
+  gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x4
+
+  ## Limit
+  limit = 0.01
+  gradient.dx1_eval = np.clip(gradient.dx1_eval, -limit, limit)
+  gradient.dy1_eval = np.clip(gradient.dy1_eval, -limit, limit)
+
+  gradient.dx2_eval = np.clip(gradient.dx2_eval, -limit, limit)
+  gradient.dy2_eval = np.clip(gradient.dy2_eval, -limit, limit)
+
+  gradient.dx3_eval = np.clip(gradient.dx3_eval, -limit, limit)
+  gradient.dy3_eval = np.clip(gradient.dy3_eval, -limit, limit)
+
+  gradient.dx4_eval = np.clip(gradient.dx4_eval, -limit, limit)
+  gradient.dy4_eval = np.clip(gradient.dy4_eval, -limit, limit)
+
+
+  increment = gradient.n_increment
+  gradient.n_x1 = supersab(gradient.n_x1,gradient.dx1_eval,gradient.dx1_eval_old,increment)
+  gradient.n_x2 = supersab(gradient.n_x2,gradient.dx2_eval,gradient.dx2_eval_old,increment)
+  gradient.n_x3 = supersab(gradient.n_x3,gradient.dx3_eval,gradient.dx3_eval_old,increment)
+  gradient.n_x4 = supersab(gradient.n_x4,gradient.dx4_eval,gradient.dx4_eval_old,increment)
+
+  gradient.n_y1 = supersab(gradient.n_y1,gradient.dy1_eval,gradient.dy1_eval_old,increment)
+  gradient.n_y2 = supersab(gradient.n_y2,gradient.dy2_eval,gradient.dy2_eval_old,increment)
+  gradient.n_y3 = supersab(gradient.n_y3,gradient.dy3_eval,gradient.dy3_eval_old,increment)
+  gradient.n_y4 = supersab(gradient.n_y4,gradient.dy4_eval,gradient.dy4_eval_old,increment)
 
   return gradient
 
-def update_points(alpha, gradient, objectPoints, limit=0.15):
+def supersab(n, gradient_eval_current, gradient_eval_old, increment):
+  if np.sign(gradient_eval_current*gradient_eval_old) < 0:
+    n = n-increment
+  else:
+    n = n+increment
+  return n
+
+def update_points(gradient, objectPoints, limitx=0.15,limity=0.15):
   op = np.copy(objectPoints)
-  op[0,0] += - gradient.dx1_eval*alpha
-  op[1,0] += - gradient.dy1_eval*alpha
+  op[0,0] += - gradient.dx1_eval
+  op[1,0] += - gradient.dy1_eval
 
-  op[0,1] += - gradient.dx2_eval*alpha
-  op[1,1] += - gradient.dy2_eval*alpha
+  op[0,1] += - gradient.dx2_eval
+  op[1,1] += - gradient.dy2_eval
 
-  op[0,2] += - gradient.dx3_eval*alpha
-  op[1,2] += - gradient.dy3_eval*alpha
+  op[0,2] += - gradient.dx3_eval
+  op[1,2] += - gradient.dy3_eval
 
-  op[0,3] += - gradient.dx4_eval*alpha
-  op[1,3] += - gradient.dy4_eval*alpha
+  op[0,3] += - gradient.dx4_eval
+  op[1,3] += - gradient.dy4_eval
 
-  op[0:3,:] = np.clip(op[0:3,:], -limit, limit)
+  circle = True
+  radius = 0.15
+  if (circle):
+      for i in range(op.shape[1]):
+          distance = np.sqrt(op[0,i]**2+op[1,i]**2)
+          if distance > radius:
+              op[:3,i] = op[:3,i]*radius/distance
+  else:
+      op[0,:] = np.clip(op[0,:], -limitx, limitx)
+      op[1,:] = np.clip(op[1,:], -limity, limity)
   return op
-
-def test():
-
-  ## CREATE A SIMULATED CAMERA
-  cam = Camera()
-  fx = fy =  800
-  cx = 640
-  cy = 480
-  cam.set_K(fx,fy,cx,cy)
-  cam.img_width = 1280
-  cam.img_height = 960
-
-  ## DEFINE CAMERA POSE LOOKING STRAIGTH DOWN INTO THE PLANE MODEL
-  cam.set_R_axisAngle(1.0,  1.0,  0.0, np.deg2rad(165.0))
-  cam_world = np.array([0.0,-0.2,1,1]).T
-  cam_t = np.dot(cam.R,-cam_world)
-  cam.set_t(cam_t[0], cam_t[1],  cam_t[2])
-  cam.set_P()
-  o_points = np.array([[1,-1,1,-1],[1,1,-1,-1],[0,0,0,0],[1,1,1,1]])
-  i_points = cam.project(o_points)
-  Anormal = calculate_A_matrix(o_points[[0,1,3],:],i_points)
-  Aautograd = calculate_A_matrix_autograd(1,1,-1,1,1,-1,-1,-1,cam.P)
-  print np.allclose(Anormal,Aautograd)
-
-
-  metric_autograd = volker_metric_autograd(1,1,-1,1,1,-1,-1,-1,np.array(cam.P))
-
-  metric_normal = volker_metric(Anormal)
-
-  print metric_normal,metric_autograd
-
-  f_der_x1 = grad(calculate_A_matrix_autograd_Test,0)
-  print f_der_x1(1,1,-1,1,1,-1,-1,-1)
-
-  f_der_x1 = grad(volker_metric_autograd,1)
-  print f_der_x1(0.1,0.1,-0.1,0.1,0.1,-0.1,-0.1,-0.1,np.array(cam.P))

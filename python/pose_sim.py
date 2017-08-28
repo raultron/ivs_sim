@@ -10,9 +10,9 @@ import numpy as np
 import cv2
 
 import matplotlib.pyplot as plt
+import error_functions as ef
 from ippe import homo2d
 
-from vision.rt_matrix import rot_matrix_error
 from vision.camera import Camera
 from vision.plane import Plane
 from vision.camera_distribution import plot3D, plot3D_cam
@@ -29,20 +29,6 @@ def show_homo2d_normalization(imagePoints):
     plt.plot(imagePoints_normalized[0,0],imagePoints_normalized[1,0],'.',color = 'blue')
     plt.gca().invert_yaxis()
     plt.show()
-
-def calc_estimated_pose_error(tvec_ref, rmat_ref, tvec_est, rmat_est):
-    # Translation error percentual
-    tvec_error = np.linalg.norm(tvec_est[:3] - tvec_ref[:3])/np.linalg.norm(tvec_ref[:3])*100.
-
-    #tvec_error = np.sqrt((np.sum((tvec_est[:3]- tvec_ref[:3])**2))
-
-    #Rotation matrix error
-    rmat_error = rot_matrix_error(rmat_ref,rmat_est, method = 'angle')
-    #rmat_error = rot_matrix_error(rmat_ref,rmat_est)
-    return tvec_error, rmat_error
-
-
-
 
 
 def run_single_wrapper(args):
@@ -71,8 +57,8 @@ def run_single(cam, objectPoints, noise = 0, quant_error = False, plot = False, 
     #ippeCam2 = cam.clone_withPose(ippe_tvec2, ippe_rmat2)
 
     #Calculate errors
-    pnp_tvec_error, pnp_rmat_error = calc_estimated_pose_error(cam.get_tvec(), cam.R, pnpCam.get_tvec(), pnp_rmat)
-    ippe_tvec_error, ippe_rmat_error = calc_estimated_pose_error(cam.get_tvec(), cam.R, ippeCam.get_tvec(), ippe_rmat)
+    pnp_tvec_error, pnp_rmat_error = ef.calc_estimated_pose_error(cam.get_tvec(), cam.R, pnpCam.get_tvec(), pnp_rmat)
+    ippe_tvec_error, ippe_rmat_error = ef.calc_estimated_pose_error(cam.get_tvec(), cam.R, ippeCam.get_tvec(), ippe_rmat)
 
     if debug:
       # Print errors

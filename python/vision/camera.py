@@ -174,18 +174,17 @@ class Camera(object):
         plt.show()
 
     def plot_plane(self, plane):
-        # show Image
-        # plot projection
-        #plt.figure("Camera Projection")
-        corners = plane.get_corners()
-        img_corners = np.array(self.project(corners))
-        img_corners =np.c_[img_corners,img_corners[:,0]]
-        plt.plot(img_corners[0],img_corners[1])
-        #we add a key point to help us see orientation of the points
-#        plt.xlim(0,self.img_width)
-#        plt.ylim(0,self.img_height)
-#        plt.gca().invert_yaxis()
-#        plt.show()
+        if plane.type == 'rectangular':
+            corners = plane.get_corners()
+            img_corners = np.array(self.project(corners))
+            img_corners =np.c_[img_corners,img_corners[:,0]]
+            plt.plot(img_corners[0],img_corners[1])
+        elif plane.type == 'circular':
+            c = plane.circle
+            c_projected = c.project(self.homography_from_Rt())
+            c_projected.contour(grid_size=100)
+
+
 
 
     def factor(self):

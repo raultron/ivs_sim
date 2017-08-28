@@ -41,7 +41,7 @@ cam.set_t(cam_t[0], cam_t[1],  cam_t[2])
 cam.set_P()
 H_cam = cam.homography_from_Rt()
 
-c1 = Circle((0,0),r=0.05)
+c1 = Circle((0,0.8),r=0.05)
 print c1.calculate_center()
 #c1.contour()
 
@@ -51,8 +51,9 @@ print c2.calculate_center()
 
 
 c3 = c1.project(H_cam)
-c3.contour(grid_size=2000)
+c3.contour(grid_size=100)
 print c3.calculate_center()
+print c3.major_axis_length()
 
 point = np.array([0,0,0,1]).reshape(4,1)
 center_circle = cam.project(point)

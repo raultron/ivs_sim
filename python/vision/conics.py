@@ -23,6 +23,7 @@ class Conic(object):
     self.d = d
     self.e = e
     self.f = f
+    self.r = None
     update_conic_matrix()
     self.color = 'black'
 
@@ -36,20 +37,7 @@ class Conic(object):
 
 
 
-  def contour(self, grid_size = 10):
-    a = self.a
-    b = self.b
-    c = self.c
-    d = self.d
-    e = self.e
-    f = self.f
-    x = np.linspace(-grid_size, grid_size, 400)
-    y = np.linspace(-grid_size, grid_size, 400)
-    x, y = np.meshgrid(x, y)
-    #assert b**2 - 4*a*c < 0
-    plt.contour(x, y,(a*x**2 + b*x*y + c*y**2 + d*x + e*y + f), [0], colors='k')
-    plt.gcf().gca().set_aspect('equal', 'datalim')
-    plt.show()
+
 
 
 class Ellipse(Conic):
@@ -87,9 +75,38 @@ class Ellipse(Conic):
     e = self.e
     f = self.f
     #https://en.wikipedia.org/wiki/Matrix_representation_of_conic_sections
-    Xc = (b*e-2*c*d)/(4*a*c-b**2)
-    Yc = (d*b-2*a*e)/(4*a*c-b**2)
-    return Xc, Yc
+    xc = (b*e-2*c*d)/(4*a*c-b**2)
+    yc = (d*b-2*a*e)/(4*a*c-b**2)
+    return xc, yc
+
+  def major_axis_length(self):
+    #https://math.stackexchange.com/questions/616645/determining-the-major-minor-axes-of-an-ellipse-from-general-form
+    a = self.a
+    b = self.b
+    c = self.c
+    d = self.d
+    e = self.e
+    f = self.f
+    q = 64.*(f*(4*a*c-b**2)-a*e**2+b*d*e-c*d**2)/((4*a*c-b**2)**2)
+    rmax = 1./8*np.sqrt(np.abs(q)*np.sqrt(b**2+(a-c)**2) -2*q*(a+c))
+    return rmax
+
+  def contour(self, grid_size = 10):
+    a = self.a
+    b = self.b
+    c = self.c
+    d = self.d
+    e = self.e
+    f = self.f
+    ma = self.major_axis_length()
+    xc, yc = self.calculate_center()
+    x = np.linspace(-ma*2+xc, ma*2+xc, grid_size)
+    y = np.linspace(-ma*2+yc, ma*2+yc, grid_size)
+    x, y = np.meshgrid(x, y)
+    #assert b**2 - 4*a*c < 0
+    plt.contour(x, y,(a*x**2 + b*x*y + c*y**2 + d*x + e*y + f), [0], colors='k')
+    plt.gcf().gca().set_aspect('equal', 'datalim')
+    plt.show()
 
 
 
@@ -140,8 +157,8 @@ class Circle(Ellipse):
     d = self.d
     e = self.e
     f = self.f
-    x = np.linspace(-1000, 1000, 400)
-    y = np.linspace(-1000, 1000, 400)
+    x = np.linspace(-self.r*2, self.r*2, 100)
+    y = np.linspace(-self.r*2, self.r*2, 100)
     x, y = np.meshgrid(x, y)
     assert b**2 - 4*a*c < 0
     plt.contour(x, y,(a*x**2 + b*x*y + c*y**2 + d*x + e*y + f), [0], colors='k')
@@ -191,6 +208,7 @@ class Circle(Ellipse):
     projected_circle.d = Q[0,2]*2.
     projected_circle.e = Q[1,2]*2.
     projected_circle.Aq = Q
+    projected_circle.r = self.r
 
     return projected_circle
 

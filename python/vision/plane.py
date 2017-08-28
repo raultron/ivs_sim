@@ -21,6 +21,7 @@ class Plane(object):
         self.color = (1,0,0)
         self.angle = 0.
         self.R = np.eye(4)
+        self.type = 'rectangular'
 
     def clone(self):
         new_plane = Plane()
