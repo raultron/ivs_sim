@@ -201,7 +201,8 @@ def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, normalize = Fals
   else:
     smalles_singular_value = s[-2]
 
-  return np.sqrt(greatest_singular_value)/np.sqrt(smalles_singular_value)
+  return greatest_singular_value/smalles_singular_value
+  #return np.sqrt(greatest_singular_value)/np.sqrt(smalles_singular_value)
 
 def hom_3d_to_2d(pts):
     pts = pts[[0,1,3],:]
@@ -340,7 +341,7 @@ def evaluate_gradient(gradient, objectPoints, P, normalize = False):
   gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x4
 
   ## Limit
-  limit = 0.01
+  limit = 0.1
   gradient.dx1_eval = np.clip(gradient.dx1_eval, -limit, limit)
   gradient.dy1_eval = np.clip(gradient.dy1_eval, -limit, limit)
 

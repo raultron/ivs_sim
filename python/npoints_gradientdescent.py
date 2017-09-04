@@ -53,7 +53,7 @@ validation_plane.uniform()
 
 ## we create the gradient for the point distribution
 normalize= False
-n = 0.0000001 #condition number norm
+n = 0.0000000001 #condition number norm
 gradient = gd.create_gradient(metric='condition_number', n = n)
 
 
