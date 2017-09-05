@@ -19,6 +19,7 @@ The camera distance to the center of the plane is constant.
 """
 import pickle
 import sys
+sys.path.append("../")
 sys.path.append("../vision/")
 sys.path.append("../gdescent/")
 import error_functions as ef
@@ -35,10 +36,11 @@ import autograd.numpy as np
 import matplotlib.pyplot as plt
 
 
-DataSim = pickle.load( open( "icraSim5points_rotationY.p", "rb" ) )
+DataSim = pickle.load( open( "icraSim5points_rotationY_2.p", "rb" ) )
+#DataSim = pickle.load( open( "icraSim4points_rotationY.p", "rb" ) )
 
 
-
+number_of_points = 4
 ## Define a Display plane
 pl = CircularPlane()
 pl.random(n =number_of_points, r = 0.010, min_sep = 0.001)
@@ -53,7 +55,7 @@ ax_object = fig1.add_subplot(212)
 
 
 #START OF THE MAIN LOOP
-
+i = 0
 for DataSinglePose in DataSim:
     #Dictionary with all the important information for one pose
 #    DataSinglePose = {}
@@ -62,14 +64,14 @@ for DataSinglePose in DataSim:
 #    DataSinglePose['Iters'] = []
 #    DataSinglePose['ObjectPoints'] = []
 #    DataSinglePose['ImagePoints'] = []
-#    DataSinglePose['CondNumber'] = []      
+#    DataSinglePose['CondNumber'] = []
     hist = 8
-    angle = DataSinglePose['Angle']    
+    angle = DataSinglePose['Angle']
     mat_cond = np.mean(DataSinglePose['CondNumber'][-hist:],0)
     cam = DataSinglePose['Camera']
     ObjectPoints_list = DataSinglePose['ObjectPoints']
-    ImagePoints_list = DataSinglePose['ImagePoints'] 
-    
+    ImagePoints_list = DataSinglePose['ImagePoints']
+
     objectPoints_iter = np.mean(ObjectPoints_list[-hist:],0)
     imagePoints_iter = np.mean(ImagePoints_list[-hist:],0)
 
@@ -84,12 +86,12 @@ for DataSinglePose in DataSim:
     ax_image.cla()
     cam.plot_plane(pl)
     ax_image.plot(imagePoints_iter[0],imagePoints_iter[1],'.',color = 'blue',)
-      
+
     ax_image.set_xlim(0,cam.img_width)
     ax_image.set_ylim(0,cam.img_height)
     ax_image.invert_yaxis()
     ax_image.set_title('Image Points')
-      
+
     #PLOT OBJECT POINTS
     plt.sca(ax_object)
     if i==0:
@@ -103,10 +105,11 @@ for DataSinglePose in DataSim:
     pl.plot_plane()
     ax_object.set_title('Object Points')
     ax_object.set_xlim(-pl.radius,pl.radius)
-    ax_object.set_ylim(-pl.radius,pl.radius)       
+    ax_object.set_ylim(-pl.radius,pl.radius)
 
     plt.show()
     plt.pause(0.1)
-    
+
     print "Angle: ", angle
     print "Cond Numb: ", mat_cond
+    i=i+1

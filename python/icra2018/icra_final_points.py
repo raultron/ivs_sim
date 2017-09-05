@@ -34,7 +34,7 @@ import cv2
 import autograd.numpy as np
 import matplotlib.pyplot as plt
 
-number_of_points = 5
+number_of_points = 4
 if number_of_points == 4:
     import gdescent.hpoints_gradient as gd
 elif number_of_points == 5:
@@ -55,8 +55,8 @@ ax_object = fig1.add_subplot(212)
 
 ## we create the gradient for the point distribution
 normalize= False
-n = 0.0000000001 #condition number norm 4 points
-n = 0.001 #condition number norm 4 points
+n = 0.00000001 #condition number norm 4 points
+#n = 0.001 #condition number norm 4 points
 gradient = gd.create_gradient(metric='condition_number', n = n)
 
 
@@ -68,31 +68,47 @@ cam.set_width_heigth(640,480)
 
 #Define a set of angles and a distance
 r = 0.6
-angles = np.arange(10,91,1)
+angles = np.arange(10,91,20)
 
 objectPoints_start = pl.get_points()
 #Always the same starting points
 
 ##4 Points
 ##FOR X
-#objectPoints_start= np.array([[ 0.13125,  0.03675, -0.09975,  0.11025],
-# [ 0.02625, -0.00525,  0.01575,  0.06825],
-# [ 0.,       0.,       0.,       0.,     ],
-# [ 1.,       1.,       1.,       1.,     ]])
-# 
+objectPoints_start= np.array([[ 0.13125,  0.03675, -0.09975,  0.11025],
+ [ 0.02625, -0.00525,  0.01575,  0.06825],
+ [ 0.,       0.,       0.,       0.,     ],
+ [ 1.,       1.,       1.,       1.,     ]])
+
+x1  = 0.15*np.cos(np.deg2rad(45))
+y1  = 0.15*np.sin(np.deg2rad(45))
+
+objectPoints_start= np.array(
+[[ x1, -x1, -x1,  x1],
+ [ y1,  y1, -y1,  -y1],
+ [ 0.,       0.,       0.,       0.,     ],
+ [ 1.,       1.,       1.,       1.,     ]])
+
+
+#objectPoints_start= np.array(
+#[[ x1, -x1, -x1,  x1, 0.],
+# [ y1,  y1, -y1,  -y1, 0.],
+# [ 0.,       0.,       0.,       0.,  0.   ],
+# [ 1.,       1.,       1.,       1.,   1.  ]])
+#
 ##FOR Y
 #objectPoints_start= np.array([
 # [ 0.02625, -0.00525,  0.01575,  0.06825],
 # [ 0.13125,  0.03675,  -0.09975,  0.11025],
 # [ 0.,       0.,       0.,       0.,     ],
 # [ 1.,       1.,       1.,       1.,     ]])
-# 
-# 
+#
+#
 ##5 Points
-objectPoints_start= np.array([[ 0.0603547,  -0.10914491, -0.10565138, -0.10603402,  0.1063246, ],
- [ 0.0718151,   0.10289503, -0.10647904,  0.10609801, -0.1058068, ],
- [ 0.,          0.,          0.,          0.,          0.,        ],
- [ 1.,          1.,          1.,          1.,          1.,        ]])
+#objectPoints_start= np.array([[ 0.0603547,  -0.10914491, -0.10565138, -0.10603402,  0.1063246, ],
+# [ 0.0718151,   0.10289503, -0.10647904,  0.10609801, -0.1058068, ],
+# [ 0.,          0.,          0.,          0.,          0.,        ],
+# [ 1.,          1.,          1.,          1.,          1.,        ]])
 
 #START OF THE MAIN LOOP
 
@@ -101,13 +117,13 @@ DataSim = []
 
 for angle in angles:
     #Move the camera to the next pose
-    x = r*np.cos(np.deg2rad(angle))
-    y = 0
+    x = 0
+    y = r*np.cos(np.deg2rad(angle))
     z = r*np.sin(np.deg2rad(angle))
     cam.set_t(x, y, z)
     cam.set_R_mat(R_matrix_from_euler_t(0.0,0,0))
-    cam.look_at([0,0,0]) 
-    
+    cam.look_at([0,0,0])
+
     #Dictionary with all the important information for one pose
     DataSinglePose = {}
     DataSinglePose['Angle'] = angle
@@ -115,22 +131,22 @@ for angle in angles:
     DataSinglePose['Iters'] = []
     DataSinglePose['ObjectPoints'] = []
     DataSinglePose['ImagePoints'] = []
-    DataSinglePose['CondNumber'] = []      
-    
+    DataSinglePose['CondNumber'] = []
+
     objectPoints_iter = np.copy(objectPoints_start)
     imagePoints_iter = np.array(cam.project(objectPoints_iter, False))
-    
+
     gradient = gd.create_gradient(metric='condition_number', n = n)
-    for i in range(200):
+    for i in range(50):
         DataSinglePose['ObjectPoints'].append(objectPoints_iter)
         DataSinglePose['ImagePoints'].append(imagePoints_iter)
-        
+
         input_list = gd.extract_objectpoints_vars(objectPoints_iter)
         input_list.append(np.array(cam.P))
         mat_cond = gd.matrix_condition_number_autograd(*input_list, normalize = False)
-        
+
         DataSinglePose['CondNumber'].append(mat_cond)
-          
+
         #PLOT IMAGE POINTS
         plt.sca(ax_image)
         plt.ion()
@@ -141,13 +157,13 @@ for angle in angles:
         ax_image.cla()
         cam.plot_plane(pl)
         ax_image.plot(imagePoints_iter[0],imagePoints_iter[1],'.',color = 'blue',)
-          
+
         ax_image.set_xlim(0,cam.img_width)
         ax_image.set_ylim(0,cam.img_height)
         ax_image.invert_yaxis()
         ax_image.set_title('Image Points')
-        
-          
+
+
         #PLOT OBJECT POINTS
         plt.sca(ax_object)
         if i==0:
@@ -161,26 +177,28 @@ for angle in angles:
         pl.plot_plane()
         ax_object.set_title('Object Points')
         ax_object.set_xlim(-pl.radius,pl.radius)
-        ax_object.set_ylim(-pl.radius,pl.radius)       
+        ax_object.set_ylim(-pl.radius,pl.radius)
 
         plt.show()
         plt.pause(0.001)
-        
-        
-        
+
+
+
         ## GRADIENT DESCENT
-        
+
         objectPoints = np.copy(objectPoints_iter)
         gradient = gd.evaluate_gradient(gradient,objectPoints, np.array(cam.P), normalize)
-        
+
         objectPoints_iter = gd.update_points(gradient, objectPoints, limitx=0.15,limity=0.15)
         imagePoints_iter = np.array(cam.project(objectPoints_iter, False))
+        print "Iteration: ", i
+        print "Cond Numb: ", mat_cond
     #objectPoints_start = objectPoints_iter
-    #print "Iteration: ", i
+
     print "Angle: ", angle
-    print "Cond Numb: ", mat_cond
-    
+
+
     DataSim.append(DataSinglePose)
-  
+
 
 pickle.dump( DataSim, open( "icraSim5points_rotationY.p", "wb" ) )
