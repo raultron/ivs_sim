@@ -232,7 +232,7 @@ def matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):
 
 def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P, normalize = False):
   A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P, normalize)
-
+  
   U, s, V = np.linalg.svd(A,full_matrices=False)
 
   greatest_singular_value = s[0]
@@ -244,7 +244,7 @@ def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P, normalize 
 #    smalles_singular_value = s[-2]
   smallest_singular_value = s[-2]
 
-  return greatest_singular_value)/smallest_singular_value
+  return greatest_singular_value/smallest_singular_value
 
 def hom_3d_to_2d(pts):
     pts = pts[[0,1,3],:]
@@ -391,10 +391,10 @@ def evaluate_gradient(gradient, objectPoints, P, normalize = False):
   gradient.dy3_eval = gradient.dy3(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5, P, normalize)*gradient.n_y3
 
   gradient.dx4_eval = gradient.dx4(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5, P, normalize)*gradient.n_x4
-  gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5, P, normalize)*gradient.n_x4
+  gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5, P, normalize)*gradient.n_y4
 
   gradient.dx5_eval = gradient.dx5(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5, P, normalize)*gradient.n_x5
-  gradient.dy5_eval = gradient.dy5(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5, P, normalize)*gradient.n_x5
+  gradient.dy5_eval = gradient.dy5(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5, P, normalize)*gradient.n_y5
   
   ## Limit
   limit = 0.01

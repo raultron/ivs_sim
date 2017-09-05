@@ -5,7 +5,9 @@ Created on Fri Aug  4 11:52:11 2017
 
 @author: lracuna
 """
-from vision.camera import *
+import autograd.numpy as np
+from vision.rt_matrix import R_matrix_from_euler_t
+from vision.camera import Camera
 from vision.plane import Plane
 from vision.circular_plane import CircularPlane
 
@@ -36,16 +38,16 @@ cam.set_width_heigth(960,960)
 cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(180.0))
 cam.set_t(0.0,-0.0,0.5, frame='world')
 
-cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(140.0))
-cam.set_t(0.0,-1,1.0, frame='world')
-
-r = 0.5
-angle = 10
-x = r*np.cos(np.deg2rad(angle))
-z = r*np.sin(np.deg2rad(angle))
-cam.set_t(0, x,z)
-cam.set_R_mat(R_matrix_from_euler_t(0.0,0,0))
-cam.look_at([0,0,0])
+#cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(140.0))
+#cam.set_t(0.0,-1,1.0, frame='world')
+#
+#r = 0.5
+#angle = 10
+#x = r*np.cos(np.deg2rad(angle))
+#z = r*np.sin(np.deg2rad(angle))
+#cam.set_t(0, x,z)
+#cam.set_R_mat(R_matrix_from_euler_t(0.0,0,0))
+#cam.look_at([0,0,0])
 
 #cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(110.0))
 #cam.set_t(0.0,-0.3,0.1, frame='world')

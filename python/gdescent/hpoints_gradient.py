@@ -46,9 +46,7 @@ class Gradient(object):
     self.dx4_eval_old = 0
     self.dy4_eval_old = 0
 
-    self.n = 0.0001 #step in gradient descent
-    self.n_pos = 1.2 # for SuperSAB
-    self.n_neg = 0.5 # for SuperSAB
+    self.n = None #step in gradient descent
 
     self.n_x1 = self.n
     self.n_x2 = self.n
@@ -62,6 +60,8 @@ class Gradient(object):
 
   def set_n(self,n):
     self.n = n
+    self.n_pos = 0.00001*n # for SuperSAB
+    self.n_neg = 0.009*n # for SuperSAB
     self.n_x1 = n
     self.n_x2 = n
     self.n_x3 = n
@@ -341,10 +341,10 @@ def evaluate_gradient(gradient, objectPoints, P, normalize = False):
   gradient.dy3_eval = gradient.dy3(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y3
 
   gradient.dx4_eval = gradient.dx4(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x4
-  gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x4
+  gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y4
 
   ## Limit
-  limit = 0.01
+  limit = 0.1
   gradient.dx1_eval = np.clip(gradient.dx1_eval, -limit, limit)
   gradient.dy1_eval = np.clip(gradient.dy1_eval, -limit, limit)
 
@@ -370,11 +370,11 @@ def evaluate_gradient(gradient, objectPoints, P, normalize = False):
 
   return gradient
 
-def supersab(n, gradient_eval_current, gradient_eval_old, increment):
+def supersab(n, gradient_eval_current, gradient_eval_old, n_pos, n_neg):
   if np.sign(gradient_eval_current*gradient_eval_old) > 0:
-    n = n*n_pos
+    n = n + n_pos
   else:
-    n = n*n_neg
+    n = n - n_neg
   return n
 
 def update_points(gradient, objectPoints, limitx=0.15,limity=0.15):
