@@ -47,7 +47,8 @@ class Gradient(object):
     self.dy4_eval_old = 0
 
     self.n = 0.0001 #step in gradient descent
-    self.n_increment = 0.5*self.n #step increment for SuperSab
+    self.n_pos = 1.2 # for SuperSAB
+    self.n_neg = 0.5 # for SuperSAB
 
     self.n_x1 = self.n
     self.n_x2 = self.n
@@ -61,7 +62,6 @@ class Gradient(object):
 
   def set_n(self,n):
     self.n = n
-    self.n_increment = 20*self.n
     self.n_x1 = n
     self.n_x2 = n
     self.n_x3 = n
@@ -137,7 +137,7 @@ def calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P,normalize=False):
           ])
   return A
 
-
+# THIS FUNCTION DOESNT WORK WITH NORMALIZATION YET
 def volker_metric_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
   A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P)
 
@@ -164,6 +164,7 @@ def volker_metric_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
 
   return  metric
 
+# DONT USE PNORM
 def matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
     A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P)
     A = np.conjugate(A)
@@ -200,9 +201,9 @@ def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, normalize = Fals
 #    smalles_singular_value = s[-1]
 #  else:
 #    smalles_singular_value = s[-2]
-  smalles_singular_value = s[-2]
+  smallest_singular_value = s[-2]
 
-  return greatest_singular_value/smalles_singular_value
+  return greatest_singular_value/smallest_singular_value
   #return np.sqrt(greatest_singular_value)/np.sqrt(smalles_singular_value)
 
 def hom_3d_to_2d(pts):
@@ -246,6 +247,7 @@ def normalise_points(pts):
     dist = []
     pts = pts/pts[2,:]
     for i in finiteind:
+        #Replaced below for autograd
 #        pts[0,i] = pts[0,i]/pts[2,i]
 #        pts[1,i] = pts[1,i]/pts[2,i]
 #        pts[2,i] = 1;
@@ -356,24 +358,23 @@ def evaluate_gradient(gradient, objectPoints, P, normalize = False):
   gradient.dy4_eval = np.clip(gradient.dy4_eval, -limit, limit)
 
 
-  increment = gradient.n_increment
-  gradient.n_x1 = supersab(gradient.n_x1,gradient.dx1_eval,gradient.dx1_eval_old,increment)
-  gradient.n_x2 = supersab(gradient.n_x2,gradient.dx2_eval,gradient.dx2_eval_old,increment)
-  gradient.n_x3 = supersab(gradient.n_x3,gradient.dx3_eval,gradient.dx3_eval_old,increment)
-  gradient.n_x4 = supersab(gradient.n_x4,gradient.dx4_eval,gradient.dx4_eval_old,increment)
+  gradient.n_x1 = supersab(gradient.n_x1,gradient.dx1_eval,gradient.dx1_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_x2 = supersab(gradient.n_x2,gradient.dx2_eval,gradient.dx2_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_x3 = supersab(gradient.n_x3,gradient.dx3_eval,gradient.dx3_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_x4 = supersab(gradient.n_x4,gradient.dx4_eval,gradient.dx4_eval_old,gradient.n_pos,gradient.n_neg)
 
-  gradient.n_y1 = supersab(gradient.n_y1,gradient.dy1_eval,gradient.dy1_eval_old,increment)
-  gradient.n_y2 = supersab(gradient.n_y2,gradient.dy2_eval,gradient.dy2_eval_old,increment)
-  gradient.n_y3 = supersab(gradient.n_y3,gradient.dy3_eval,gradient.dy3_eval_old,increment)
-  gradient.n_y4 = supersab(gradient.n_y4,gradient.dy4_eval,gradient.dy4_eval_old,increment)
+  gradient.n_y1 = supersab(gradient.n_y1,gradient.dy1_eval,gradient.dy1_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_y2 = supersab(gradient.n_y2,gradient.dy2_eval,gradient.dy2_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_y3 = supersab(gradient.n_y3,gradient.dy3_eval,gradient.dy3_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_y4 = supersab(gradient.n_y4,gradient.dy4_eval,gradient.dy4_eval_old,gradient.n_pos,gradient.n_neg)
 
   return gradient
 
 def supersab(n, gradient_eval_current, gradient_eval_old, increment):
-  if np.sign(gradient_eval_current*gradient_eval_old) < 0:
-    n = n-increment
+  if np.sign(gradient_eval_current*gradient_eval_old) > 0:
+    n = n*n_pos
   else:
-    n = n+increment
+    n = n*n_neg
   return n
 
 def update_points(gradient, objectPoints, limitx=0.15,limity=0.15):

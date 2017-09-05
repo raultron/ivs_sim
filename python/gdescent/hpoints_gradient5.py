@@ -55,8 +55,8 @@ class Gradient:
     self.dy5_eval_old = 0
 
     self.n = 0.0001 #step in gradient descent
-    self.n_pos = 1.2
-    self.n_neg = 0.5
+    self.n_pos = 1.2  # for SuperSAB
+    self.n_neg = 0.5  # for SuperSAB
     
     self.n_x1 = self.n
     self.n_x2 = self.n
@@ -163,7 +163,7 @@ def calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P,normalize=False)
           ])
   return A
 
-
+# THIS FUNCTION DOESNT WORK WITH NORMALIZATION YET
 def volker_metric_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):
   A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P)
 
@@ -204,6 +204,7 @@ def volker_metric_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):
 
   return  metric
 
+# DONT USE PNORM
 def matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P):
     A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P)
     A = np.conjugate(A)
@@ -241,9 +242,9 @@ def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,P, normalize 
 #    smalles_singular_value = s[-1]
 #  else:
 #    smalles_singular_value = s[-2]
-  smalles_singular_value = s[-2]
+  smallest_singular_value = s[-2]
 
-  return np.sqrt(greatest_singular_value)/np.sqrt(smalles_singular_value)
+  return greatest_singular_value)/smallest_singular_value
 
 def hom_3d_to_2d(pts):
     pts = pts[[0,1,3],:]
@@ -286,6 +287,7 @@ def normalise_points(pts):
     dist = []
     pts = pts/pts[2,:]
     for i in finiteind:
+        #Replaced below for autograd
 #        pts[0,i] = pts[0,i]/pts[2,i]
 #        pts[1,i] = pts[1,i]/pts[2,i]
 #        pts[2,i] = 1;
