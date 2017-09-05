@@ -9,7 +9,7 @@ from scipy.linalg import expm, rq, det, inv
 import matplotlib.pyplot as plt
 
 from math import atan
-from vision.rt_matrix import rotation_matrix
+from rt_matrix import rotation_matrix
 import autograd.numpy as np
 
 

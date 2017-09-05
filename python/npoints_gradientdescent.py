@@ -37,7 +37,15 @@ cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(180.0))
 cam.set_t(0.0,-0.0,0.5, frame='world')
 
 cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(140.0))
-cam.set_t(0.0,-1,1.5, frame='world')
+cam.set_t(0.0,-1,1.0, frame='world')
+
+r = 0.5
+angle = 10
+x = r*np.cos(np.deg2rad(angle))
+z = r*np.sin(np.deg2rad(angle))
+cam.set_t(0, x,z)
+cam.set_R_mat(R_matrix_from_euler_t(0.0,0,0))
+cam.look_at([0,0,0])
 
 #cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(110.0))
 #cam.set_t(0.0,-0.3,0.1, frame='world')
@@ -53,7 +61,7 @@ validation_plane.uniform()
 
 ## we create the gradient for the point distribution
 normalize= False
-n = 0.0000000001 #condition number norm
+n = 0.000000001 #condition number norm
 gradient = gd.create_gradient(metric='condition_number', n = n)
 
 
@@ -343,7 +351,7 @@ for i in range(1000):
 #
 #
 #
-#  print "Iteration: ", i
+  print "Iteration: ", i
 #  print "Transfer Error: ", np.mean(transfer_error_loop)
 #  print "Mat cond:", mat_cond
 #  print "Mat cond normalized:", mat_cond_normalized
