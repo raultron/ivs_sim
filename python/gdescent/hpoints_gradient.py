@@ -59,9 +59,10 @@ class Gradient(object):
     self.n_y4 = self.n
 
   def set_n(self,n):
+    #n = 0.000001 #condition number norm 4 points
     self.n = n
-    self.n_pos = 0.00001*n # for SuperSAB
-    self.n_neg = 0.009*n # for SuperSAB
+    self.n_pos = 0.02*n # for SuperSAB
+    self.n_neg = 0.03*n # for SuperSAB
     self.n_x1 = n
     self.n_x2 = n
     self.n_x3 = n
@@ -201,7 +202,7 @@ def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, normalize = Fals
 #    smalles_singular_value = s[-1]
 #  else:
 #    smalles_singular_value = s[-2]
-  smallest_singular_value = s[-2]
+  smallest_singular_value = s[-1]
 
   return greatest_singular_value/smallest_singular_value
   #return np.sqrt(greatest_singular_value)/np.sqrt(smalles_singular_value)
@@ -344,7 +345,7 @@ def evaluate_gradient(gradient, objectPoints, P, normalize = False):
   gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y4
 
   ## Limit
-  limit = 0.1
+  limit = 0.01
   gradient.dx1_eval = np.clip(gradient.dx1_eval, -limit, limit)
   gradient.dy1_eval = np.clip(gradient.dy1_eval, -limit, limit)
 

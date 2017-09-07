@@ -251,9 +251,9 @@ class CircularPlane(object):
         plt.show()
 
     def plot_plane(self):
-        circle = plt.Circle(self.origin, self.radius, color = self.color, fill = False)
+        circle = plt.Circle(self.origin, self.radius, color = self.color, fill = False, linestyle='--')
         plt.gcf().gca().add_artist(circle)
-        plt.gcf().gca().set_aspect('equal', 'datalim')
+        #plt.gcf().gca().set_aspect('equal', 'datalim')
 
 
 

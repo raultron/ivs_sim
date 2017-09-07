@@ -59,8 +59,8 @@ class Circle(Conic):
     y = np.linspace(-5, 5, 400)
     x, y = np.meshgrid(x, y)
     assert b**2 - 4*a*c < 0
-    plt.contour(x, y,(a*x**2 + b*x*y + c*y**2 + d*x + e*y + f), [0], colors='k')
-    plt.gcf().gca().set_aspect('equal', 'datalim')
+    plt.contour(x, y,(a*x**2 + b*x*y + c*y**2 + d*x + e*y + f), [0], colors='r', linestyles = 'dashed')
+    #plt.gcf().gca().set_aspect('equal', 'datalim')
     plt.show()
 
 
