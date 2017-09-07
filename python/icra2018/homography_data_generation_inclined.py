@@ -178,7 +178,8 @@ for i in range(50):
   plt.pause(0.001)
   
   if calc_metrics:
-      #CONDITION NUMBER CALCULATION
+      #CONDITION NUMBER CALCULATION     
+  
       input_list = gd.extract_objectpoints_vars(new_objectPoints)
       input_list.append(np.array(cam.P))    
       mat_cond = gd.matrix_condition_number_autograd(*input_list, normalize = False)
@@ -407,9 +408,9 @@ for i in range(50):
   print "Iteration: ", i
   
   ## GRADIENT DESCENT
-  objectPoints = np.copy(new_objectPoints)
+  objectPoints = np.copy(new_objectPoints)  
   gradient = gd.evaluate_gradient(gradient,objectPoints, np.array(cam.P), normalize)
   new_objectPoints = gd.update_points(gradient, objectPoints, limitx=0.15,limity=0.15)
   new_imagePoints = np.array(cam.project(new_objectPoints, False))
 
-pickle.dump( DataOut, open( "icra_sim1_inclined.p", "wb" ) )
+pickle.dump( DataOut, open( "icra_sim1_inclined_test.p", "wb" ) )

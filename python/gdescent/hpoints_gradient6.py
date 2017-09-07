@@ -82,6 +82,8 @@ class Gradient:
 
     def set_n(self,n):
         self.n = n
+        self.n_pos = 0.02*n # for SuperSAB
+        self.n_neg = 0.03*n # for SuperSAB
         self.n_x1 = n
         self.n_x2 = n
         self.n_x3 = n

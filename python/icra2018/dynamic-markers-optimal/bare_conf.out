@@ -8,10 +8,12 @@
 \BOOKMARK [2][-]{subsection.2.6}{Homography estimation}{section.2}% 8
 \BOOKMARK [2][-]{subsection.2.7}{Control points configurations}{section.2}% 9
 \BOOKMARK [1][-]{section.3}{Optimal point configuration for homography estimation}{}% 10
-\BOOKMARK [2][-]{subsection.3.1}{Background and notation}{section.3}% 11
-\BOOKMARK [2][-]{subsection.3.2}{The matrix condition number}{section.3}% 12
-\BOOKMARK [2][-]{subsection.3.3}{Gradient descent approach for finding the optimal point configuration}{section.3}% 13
-\BOOKMARK [1][-]{section.4}{Simulations}{}% 14
-\BOOKMARK [2][-]{subsection.4.1}{Gradient descent results for homography estimation}{section.4}% 15
-\BOOKMARK [2][-]{subsection.4.2}{Gradient descent results for pose estimation}{section.4}% 16
-\BOOKMARK [1][-]{section.5}{Conclusions and future work}{}% 17
+\BOOKMARK [2][-]{subsection.3.1}{General point configuration for pose estimation}{section.3}% 11
+\BOOKMARK [2][-]{subsection.3.2}{Planar point configuration for pose estimation}{section.3}% 12
+\BOOKMARK [2][-]{subsection.3.3}{Background and notation}{section.3}% 13
+\BOOKMARK [2][-]{subsection.3.4}{The matrix condition number}{section.3}% 14
+\BOOKMARK [2][-]{subsection.3.5}{Gradient descent approach for finding the optimal point configuration}{section.3}% 15
+\BOOKMARK [1][-]{section.4}{Simulations}{}% 16
+\BOOKMARK [2][-]{subsection.4.1}{Gradient descent results for homography estimation}{section.4}% 17
+\BOOKMARK [1][-]{section.5}{Conclusions and future work}{}% 18
+\BOOKMARK [1][-]{section*.11}{References}{}% 19

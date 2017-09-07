@@ -202,7 +202,7 @@ def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, normalize = Fals
 #    smalles_singular_value = s[-1]
 #  else:
 #    smalles_singular_value = s[-2]
-  smallest_singular_value = s[-1]
+  smallest_singular_value = s[-2]
 
   return greatest_singular_value/smallest_singular_value
   #return np.sqrt(greatest_singular_value)/np.sqrt(smalles_singular_value)
@@ -397,8 +397,9 @@ def update_points(gradient, objectPoints, limitx=0.15,limity=0.15):
   if (circle):
       for i in range(op.shape[1]):
           distance = np.sqrt(op[0,i]**2+op[1,i]**2)
-          if distance > radius:
-              op[:3,i] = op[:3,i]*radius/distance
+          #if distance > radius:
+          op[:3,i] = op[:3,i]*radius/distance
+          #FIX THIS IS ONLY A TEST!!!!
   else:
       op[0,:] = np.clip(op[0,:], -limitx, limitx)
       op[1,:] = np.clip(op[1,:], -limity, limity)

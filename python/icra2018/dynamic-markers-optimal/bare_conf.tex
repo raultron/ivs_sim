@@ -67,12 +67,22 @@ Dynamic Markers: Optimal control point configurations for homography and pose es
 \pagestyle{empty}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-In this paper, we propose a gradient descent optimization method to find optimal configurations of control points for the tasks of homography estimation and subsequent planar pose estimation from a number of $n \geq 4$ noisy (3D-2D) point correspondences. We obtain optimal configurations (for the minimal number of four control points sets (also 5 and 6?) found) by minimizing the first order perturbed solution of the (condition number of the data matrix in the) direct linear transform (DLT) algorithm. This method guarantees points configurations which increases/maximizes the robustness of the DLT homography estimation (that minimize the sensitivity to noise) when noisy correspondences are present.
-(not only for the DLT transform but as well for other homography estimation methods). Furthermore, it is shown that this optimal control points configurations also increase the performance of state of the art pose estimation methods including the iterative minimization of the reprojection error which is the most accurate algorithm available. (Finally, looking at the statistics of the point configurations, we derive new rotation and scaling invariant coordinate normalizations $T(H)$ as a function of the homography itself. These results shed some light on the influence of the control model points on the accuracy of space resectioning methods, which has been an open problem in the literature so far.
+In this paper, we shed some light on the influence of control (model?) points on the accuracy of space resectioning methods, e.g. used by a fiducial marker for pose estimation. More precisely, we propose a gradient descent optimization method to find optimal configurations of control points for the tasks of homography estimation and subsequent planar pose estimation from a number of $n \geq 4$ noisy point correspondences. We obtain optimal configurations by minimizing the first order perturbed solution of the direct linear transform (DLT) algorithm which is equivalent to minimizing the condition number of the data matrix. This method guarantees points configurations which maximize the robustness of the DLT homography estimation.
+Furthermore, a statistical evaluation is presented verifying that this optimal control points configurations also increase the performance of very accurate state of the art homography (like ...) as well as pose estimation methods (like IPPE, ...) including the iterative minimization of the reprojection error which is the most accurate algorithm and serves as golden standard. Finally, we provide a tradeoff between optimal configuration against number of control points.
 \end{abstract}
+
+%(3D-2D)
+%(that minimize the sensitivity to noise)
+%(condition number of the data matrix in the)
+%(for the minimal number of four control points sets (also 5 and 6?) found)
+%These results shed some light on the influence of the control model points on the accuracy %of space resectioning methods, which has been an open problem in the literature so far.
+%(not only for the DLT transform but as well for other homography estimation methods).
+%(Finally, looking at the statistics of the point configurations, we derive new rotation and %scaling invariant coordinate normalizations $T(H)$ as a function of the homography itself.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{INTRODUCTION}
+
+\textcolor{red}{We need a figure that shows the geometry of the overall task and the movement of the points ...}
 
 %\subsection{Motivation}
 %Why?
@@ -315,14 +325,16 @@ In this paper we propose a simple approach to find optimal control points config
 \section{Optimal point configuration for homography estimation}
 \label{IdeaPointConfigSearch}
 
-We shortly summarize the \textit{golden standard} optimization methods for pose estimation: 
+Before we explain the optimization method for obtaining optimal point configurations, we shortly summarize the \textit{golden standard} optimization methods for
+pose estimation from general and planar point configurations. 
 
-General point configuration for pose estimation:
+\subsection{General point configuration for pose estimation}
 
-Given a 3D-2D point correspondence with i-th 3D point $P_i$ with world $W$ coordinates 
-$\mathbf{X}_i^{W} = [X_i^{W}, Y_i^{W}, Z_i^{W}]^T \in \mathbb{R}^3$ and its corresponding projection 
-$p_i$ onto a planar calibrated camera\footnote{Assuming the calibration matrix $\mathbf{K} \in \mathbb{R}^{3\times 3}$ to be known, the homogeneous image coordinates in pixel 
-$\overline{\mathbf{x}}'_i = [x'_i, y'_i, 1]^T$ can be transformed to homogeneous normalized image coordinates in metric units $\overline{\mathbf{x}}_i = \mathbf{K}^{-1}\overline{\mathbf{x}}'_i$.} with normalized image coordinates $\mathbf{x}_i = [x_i, y_i]^T \in \mathbb{R}^2$ the relation between these points is given by the relative pose $g = (\mathbf{R}, \mathbf{T}) \in SE(3)$ (Euclidean transformation) between world $W$ and camera $C$ frame $\mathbf{X}_i^{C} = \mathbf{R}\mathbf{X}_i^{W}+\mathbf{T}$
+Given a 3D-2D point correspondence of i-th 3D control point $p_i$ with world $W$ coordinates 
+$\mathbf{X}_i^{W} = [X_i^{W}, Y_i^{W}, Z_i^{W}]^T \in \mathbb{R}^3$ and its corresponding projection onto a planar calibrated camera\footnote{Assuming the calibration matrix $\mathbf{K} \in \mathbb{R}^{3\times 3}$ to be known, the homogeneous image coordinates in pixel 
+$\overline{\mathbf{x}}'_i = [x'_i, y'_i, 1]^T$ can be transformed to homogeneous normalized image coordinates in metric units 
+$\overline{\mathbf{x}}_i = \mathbf{K}^{-1}\overline{\mathbf{x}}'_i$.} with normalized image coordinates $\mathbf{x}_i = [x_i, y_i]^T \in \mathbb{R}^2$ the relation between these points is given by the relative pose\footnote{The rotation matrix is defined as: $\mathbf{R} = [\mathbf{r}_1, \mathbf{r}_2, \mathbf{r}_3] \in \mathbb{R}^{3 \times 3} |\,  \mathbf{R}^T\mathbf{R} = \mathbf{I},\, |\mathbf{R}|=1.$ } 
+$g = (\mathbf{R}, \mathbf{T})$ (Euclidean transformation) between world $W$ and camera $C$ frame $\mathbf{X}_i^{C} = \mathbf{R}\mathbf{X}_i^{W}+\mathbf{T}$
 followed by a projection $\pi$ whereas $\mathbf{x}_i = \pi(\mathbf{X}_i^{C}) = [X_i^{C}/Z_i^{C}, Y_i^{C}/Z_i^{C}]$.
 
 This leads to the relation:
@@ -340,12 +352,73 @@ which is a squared 2-norm. Minimizing the squared 2-norm of all points for the o
  (\hat{\mathbf{R}}, \hat{\mathbf{T}}) = \text{argmin}_{\mathbf{R}, \mathbf{T}} 
  \sum\limits_{i=1}^n |\!|\bm{\epsilon}_i|\!|_2^2\, , \quad n \geq 3 \,.
 \end{equation}
-Iterative gradient descent optimization of \eqref{Eq2} leads to the most accurate pose estimation results in the literature so far
-also for planar point configurations and is often used as the reference (refs?).
+Iterative gradient descent optimization of \eqref{Eq2} is the golden standard algorithm for pose estimation because it leads to the most accurate pose estimation results in the literature so far
+also for planar point configurations.
 
-Planar point configuration for pose estimation:
+\subsection{Planar point configuration for pose estimation}
 
-If the world coordinates are all on a plane 
+If the control points $\mathbf{X}_i^{W}$ are all on a plane $P$, we can define a 
+2D subspace in the 3D world with 
+coordinates\footnote{The corresponding homogeneous coordinates are 
+$\overline{\mathbf{X}}_i^{P} = [X_i^P, Y_i^P, 1]^T \in \mathbb{R}^3$.} 
+$\mathbf{X}_i^{P} = [X_i^P, Y_i^P]^T \in \mathbb{R}^2$.
+Plugging the planar constraint in equation \eqref{Eq1}, we reach at a homography mapping
+\begin{equation}
+ \mathbf{X}_i^{C} = Z_i^C\overline{\mathbf{x}}_i = \left[\mathbf{r}_1, \mathbf{r}_2, \mathbf{T} \right]\overline{\mathbf{X}}_i^{P}
+ = \mathbf{H}\overline{\mathbf{X}}_i^{P}\,.
+\end{equation}
+Eliminating $Z_i^C$ we get $\overline{\mathbf{x}}_i \times \mathbf{H}\overline{\mathbf{X}}_i^{P} = 0$, whereas
+each point correspondence $\{\mathbf{x}_i, \mathbf{X}_i^P\}$ produces two linearly independent equations
+\begin{equation}
+\mathbf{A}_i\mathbf{h} = 
+\begin{bmatrix}
+\mathbf{O} & -(\overline{\mathbf{X}}_i^P)^T & y_i(\overline{\mathbf{X}}_i^P)^T \\
+(\overline{\mathbf{X}}_i^P)^T & \mathbf{O} & x_i(\overline{\mathbf{X}}_i^P)^T 
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{r}_1 \\
+\mathbf{r}_2 \\
+\mathbf{T}
+\end{bmatrix}
+=\mathbf{0}\, ,
+\end{equation}
+with $\mathbf{h}=[\mathbf{r}_1^T, \mathbf{r}_2^T, \mathbf{T}^T]^T \in \mathbb{R}^{9}$ and $\mathbf{A}_i \in \mathbb{R}^{2 \times 9}$.
+Now, stacking all $\{\mathbf{A}_i\}$ as $\mathbf{A}=[\mathbf{A}_1^T, \dots, \mathbf{A}_n^T]^T \in \mathbb{R}^{2n \times 9}$ we arrive at $\mathbf{A}\mathbf{h}=\mathbf{0}$.
+Again, including additive noise $\bm{\epsilon}_i = [\epsilon_i, \zeta_i]^T$ on the error-free image coordinates $\mathbf{x}_i$ we get noisy matrices
+\begin{eqnarray}
+\tilde{\mathbf{A}}_i & = &
+\begin{bmatrix}
+\mathbf{O} & -(\overline{\mathbf{X}}_i^P)^T & \tilde{y}_i(\overline{\mathbf{X}}_i^P)^T \\
+(\overline{\mathbf{X}}_i^P)^T & \mathbf{O} & \tilde{x}_i(\overline{\mathbf{X}}_i^P)^T 
+\end{bmatrix} = 
+\mathbf{A}_i + \mathbf{E}_i \\
+& = &
+\begin{bmatrix}
+\mathbf{O} & -(\overline{\mathbf{X}}_i^P)^T & y_i(\overline{\mathbf{X}}_i^P)^T \\
+(\overline{\mathbf{X}}_i^P)^T & \mathbf{O} & x_i(\overline{\mathbf{X}}_i^P)^T 
+\end{bmatrix} +
+\begin{bmatrix}
+\mathbf{O} & \mathbf{O} & \zeta_i(\overline{\mathbf{X}}_i^P)^T \\
+\mathbf{O} & \mathbf{O} & \epsilon_i(\overline{\mathbf{X}}_i^P)^T 
+\end{bmatrix}\,.
+\end{eqnarray}
+Also, stacking all $\{\mathbf{E}_i\}$ as $\mathbf{E}=[\mathbf{E}_1^T, \dots, \mathbf{E}_n^T]^T \in \mathbb{R}^{2n \times 9}$ we arrive at solving
+the noisy homogeneous linear equation system 
+$\tilde{\mathbf{A}}\mathbf{h}=\mathbf{E}\mathbf{h}$ 
+which is solved by minimization of the algebraic error
+\begin{equation}
+\label{Eq5}
+ \hat{\mathbf{h}} = \text{argmin}_{\mathbf{h}} 
+ |\!|\tilde{\mathbf{A}}\mathbf{h}|\!|_2^2\, , \quad s.t. |\!|\mathbf{h}|\!|=1\,,\quad n \geq 4 \,.
+\end{equation} 
+
+The solution is given by the DLT algorithm applying a singular value decomposition (SVD) of 
+$\tilde{\mathbf{A}} = \tilde{\mathbf{U}}\tilde{\mathbf{S}}\tilde{\mathbf{V}}^T$,
+whereas $\hat{\mathbf{h}}=\tilde{\mathbf{v}}_9$ with $\tilde{\mathbf{v}}_9$ being the 
+right singular vector of $\tilde{\mathbf{A}}$, associated with the least singular value $\tilde{s}_9$.
+
+-mention normalization ...
+
 -homography 8 degrees of freedom, each point two constraints
 
 Here we answer: Why we use homography estimation as the basis?
@@ -392,19 +465,17 @@ Metrics for 3D rotatitons:\cite{Huynh2009}
 
 \subsection{Gradient descent results for homography estimation}
 
+%%%%%%%%%%%%%FRONTO PARALLEL CASE
+%245.71811pt
 \begin{figure}[t]
   \begin{center}
-    \showthe\columnwidth % Use this to determine the width of the figure.
     \includegraphics[width=\columnwidth]{img/image_control_points.pdf}
     \caption{\label{fig:homography_results} Movement of the points in image and object coordinates during gradient descent for the Fronto-Parallel configuration. The red dots mark the final point configuration.}
   \end{center}
 \end{figure}
 
-
-
 \begin{figure}[t]
   \begin{center}
-    \showthe\columnwidth % Use this to determine the width of the figure.
     \includegraphics[width=\columnwidth]{img/homography_fronto_parallel.pdf}
     \caption{\label{fig:homography_results} Evolution of the condition number and the homography reprojection error during gradient descent (Fronto-Parallel configuration).}
   \end{center}
@@ -412,7 +483,6 @@ Metrics for 3D rotatitons:\cite{Huynh2009}
 
 \begin{figure}[t]
   \begin{center}
-    \showthe\columnwidth % Use this to determine the width of the figure.
     \includegraphics[width=\columnwidth]{img/pose_together_fronto_parallel.pdf}
     \caption{\label{fig:homography_results} Evolution of the pose estimation during gradient descent (Fronto-Parallel configuration).}
   \end{center}
@@ -420,28 +490,23 @@ Metrics for 3D rotatitons:\cite{Huynh2009}
 
 \begin{figure}[t]
   \begin{center}
-    \showthe\columnwidth % Use this to determine the width of the figure.
     \includegraphics[width=\columnwidth]{img/pose_separate_fronto_parallel.pdf}
     \caption{\label{fig:homography_results} Evolution of the pose estimation during gradient descent for each algorithm including standard deviations (Fronto-Parallel configuration).}
   \end{center}
 \end{figure}
 
 
-
+%%%%%%%%%%%%%INCLINED CASE
 
 \begin{figure}[t]
   \begin{center}
-    \showthe\columnwidth % Use this to determine the width of the figure.
     \includegraphics[width=\columnwidth]{img/image_control_points_inclined.pdf}
     \caption{\label{fig:homography_results} Movement of the points in image and object coordinates during gradient descent for the inclined configuration. The red dots mark the final point configuration.}
   \end{center}
 \end{figure}
 
-
-
 \begin{figure}[t]
   \begin{center}
-    \showthe\columnwidth % Use this to determine the width of the figure.
     \includegraphics[width=\columnwidth]{img/homography_inclined.pdf}
     \caption{\label{fig:homography_results} Evolution of the condition number and the homography reprojection error during gradient descent (inclined configuration).}
   \end{center}
@@ -449,7 +514,6 @@ Metrics for 3D rotatitons:\cite{Huynh2009}
 
 \begin{figure}[t]
   \begin{center}
-    \showthe\columnwidth % Use this to determine the width of the figure.
     \includegraphics[width=\columnwidth]{img/pose_together_inclined.pdf}
     \caption{\label{fig:homography_results} Evolution of the pose estimation during gradient descent (inclined configuration).}
   \end{center}
@@ -457,59 +521,32 @@ Metrics for 3D rotatitons:\cite{Huynh2009}
 
 \begin{figure}[t]
   \begin{center}
-    \showthe\columnwidth % Use this to determine the width of the figure.
     \includegraphics[width=\columnwidth]{img/pose_separate_inclined.pdf}
     \caption{\label{fig:homography_results} Evolution of the pose estimation during gradient descent for each algorithm including standard deviations (inclined configuration).}
   \end{center}
 \end{figure}
 
 
+%EFFECT OF WELL-CONDITIONED VS ILL-CONDITIONED POINT CONFIGURATIONS
 
-- Use 4 points as the base for the errors
-- Compare different homography methods
-
-
-% \begin{figure}[htb]
-%      \centering
-%       \includegraphics[draft,width=0.5\textwidth]{draft.png}
-%       \caption{Matrix condition number (cost function) and Homography estimation error for different methods during the gradient search of the optimal 4-point configuration.}\label{A}
-% \end{figure}
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics[width=\columnwidth]{img/point_config_comp_homo.pdf}
+    \caption{\label{fig:homography_results} Well-conditioned point configurations in contrast to Ill-conditioned ones for Homography estimation.}
+  \end{center}
+\end{figure}
 
 
-- Show a typical run for:
-	- Fronto-parallell configuration
-	- Inclined view (30 degrees or similar)
-		
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics[width=\columnwidth]{img/point_config_comp_pose.pdf}
+    \caption{\label{fig:homography_results} Well-conditioned point configurations in contrast to Ill-conditioned ones for Pose estimation..}
+  \end{center}
+\end{figure}
+
+
+- TODO: Show different typical point configurations for 4,5,6,7 and 8 points
 	
-- Show different typical point configurations for 4,5,6,7 and 8 points
-
-% \begin{figure}[htb]
-%      \centering
-%       \includegraphics[draft,width=0.5\textwidth]{draft.png}
-%       \caption{A}\label{A}
-% \end{figure}
-
-- Compare different number of points:
-	- Average percentage of improvement versus initial random configuration
-	
-% \begin{figure}[htb]
-%      \centering
-%       \includegraphics[draft,width=0.5\textwidth]{Interesting-Image-for-the-reader.png}
-%       \caption{A}\label{A}
-% \end{figure}
-
-
-\subsection{Gradient descent results for pose estimation}
-Explain the motivation (why are we also interested in pose estimation, even when we are improving the A matrix of the DLT transform)
-
-
-- 4 points compared with different methods
-
-% \begin{figure}[htb]
-%      \centering
-%       \includegraphics[draft,width=0.5\textwidth]{Interesting-Image-for-the-reader.png}
-%       \caption{A}\label{A}
-% \end{figure}
 
 \section{Conclusions and future work}
 \label{Conc}
