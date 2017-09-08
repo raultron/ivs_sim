@@ -9,6 +9,9 @@ Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: IEEEabrv.bib
 Database file #2: bib_icra2018.bib
+Warning--I didn't find a database entry for "Stewart1998"
+Warning--I didn't find a database entry for "Hartley-97c"
+Warning--I didn't find a database entry for ""
 -- IEEEtran.bst version 1.11 (2003/04/02) by Michael Shell.
 -- http://www.ctan.org/tex-archive/macros/latex/contrib/supported/IEEEtran/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
@@ -16,7 +19,7 @@ Database file #2: bib_icra2018.bib
 Done.
 You've used 28 entries,
             3975 wiz_defined-function locations,
-            1309 strings with 18435 characters,
+            1313 strings with 18479 characters,
 and the built_in function-call counts, 24500 in all, are:
 = -- 2005
 > -- 532
@@ -55,3 +58,4 @@ warning$ -- 0
 while$ -- 128
 width$ -- 30
 write$ -- 297
+(There were 3 warnings)

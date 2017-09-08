@@ -205,16 +205,7 @@ def rot_matrix_error(R0, R1, method = 'unit_quaternion_product'):
         angle = np.linalg.norm(rot_vector)
 
         rot_error = np.rad2deg(angle)
-#        d = np.zeros(3)
-#        d[0] = E[1,2] - E[2,1]
-#        d[1] = E[2,0] - E[0,2]
-#        d[2] = E[0,1] - E[1,0]
-#
-#        dmag = sqrt(d[0]*d[0] + d[1]*d[1] + d[2]*d[2])
-#
-#        phi = np.rad2deg(asin(dmag/2))
-#
-#        rot_error = phi
+
 
     return rot_error
 
@@ -222,9 +213,6 @@ def calc_estimated_pose_error(tvec_ref, rmat_ref, tvec_est, rmat_est):
     # Translation error percentual
     tvec_error = np.linalg.norm(tvec_est[:3] - tvec_ref[:3])/np.linalg.norm(tvec_ref[:3])*100.
 
-    #tvec_error = np.sqrt((np.sum((tvec_est[:3]- tvec_ref[:3])**2))
-
     #Rotation matrix error
     rmat_error = rot_matrix_error(rmat_ref,rmat_est, method = 'angle')
-    #rmat_error = rot_matrix_error(rmat_ref,rmat_est)
     return tvec_error, rmat_error
