@@ -191,7 +191,7 @@ def matrix_pnorm_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P):
     #https://de.mathworks.com/help/symbolic/cond.html?requestedDomain=www.mathworks.com
     return np.linalg.norm(A)*np.linalg.norm(pinv)
 
-def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, normalize = False):
+def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, image_pts_measured, normalize = False):
   A = calculate_A_matrix_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, normalize)
 
   U, s, V = np.linalg.svd(A,full_matrices=False)
@@ -206,6 +206,67 @@ def matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, normalize = Fals
 
   return greatest_singular_value/smallest_singular_value
   #return np.sqrt(greatest_singular_value)/np.sqrt(smalles_singular_value)
+
+def repro_error_autograd(x1,y1,x2,y2,x3,y3,x4,y4,P, image_pts_measured, normalize = False):
+  X1 = np.array([[x1],[y1],[0.],[1.]]).reshape(4,1)
+  X2 = np.array([[x2],[y2],[0.],[1.]]).reshape(4,1)
+  X3 = np.array([[x3],[y3],[0.],[1.]]).reshape(4,1)
+  X4 = np.array([[x4],[y4],[0.],[1.]]).reshape(4,1)
+
+  U1 = np.array(np.dot(P,X1)).reshape(3,1)
+  U2 = np.array(np.dot(P,X2)).reshape(3,1)
+  U3 = np.array(np.dot(P,X3)).reshape(3,1)
+  U4 = np.array(np.dot(P,X4)).reshape(3,1)
+
+  U1 = U1/U1[2,0]
+  U2 = U2/U2[2,0]
+  U3 = U3/U3[2,0]
+  U4 = U4/U4[2,0]
+#
+#  u1_r = U1[0,0]/U1[2,0]
+#  v1_r = U1[1,0]/U1[2,0]
+#
+#  u2_r = U2[0,1]/U2[2,1]
+#  v2_r = U2[1,1]/U2[2,1]
+#
+#  u3_r = U3[0,2]/U3[2,2]
+#  v3_r = U3[1,2]/U3[2,2]
+#
+#  u4_r = U4[0,3]/U4[2,3]
+#  v4_r = U4[1,3]/U4[2,3]
+
+  object_pts = np.hstack([X1,X2,X3,X4])
+  image_pts_repro = np.hstack([U1,U2,U3,U4])
+
+  x = image_pts_measured[:2,:]-image_pts_repro[:2,:]
+  repro = np.sum(x**2)**(1./2)
+
+  return repro
+#  x1 = object_pts[0,0]/object_pts[2,0]
+#  y1 = object_pts[1,0]/object_pts[2,0]
+#
+#  x2 = object_pts[0,1]/object_pts[2,1]
+#  y2 = object_pts[1,1]/object_pts[2,1]
+#
+#  x3 = object_pts[0,2]/object_pts[2,2]
+#  y3 = object_pts[1,2]/object_pts[2,2]
+#
+#  x4 = object_pts[0,3]/object_pts[2,3]
+#  y4 = object_pts[1,3]/object_pts[2,3]
+#
+#
+#  u1_r = image_pts_repro[0,0]/image_pts_repro[2,0]
+#  v1_r = image_pts_repro[1,0]/image_pts_repro[2,0]
+#
+#  u2_r = image_pts_repro[0,1]/image_pts_repro[2,1]
+#  v2_r = image_pts_repro[1,1]/image_pts_repro[2,1]
+#
+#  u3_r = image_pts_repro[0,2]/image_pts_repro[2,2]
+#  v3_r = image_pts_repro[1,2]/image_pts_repro[2,2]
+#
+#  u4_r = image_pts_repro[0,3]/image_pts_repro[2,3]
+#  v4_r = image_pts_repro[1,3]/image_pts_repro[2,3]
+
 
 def hom_3d_to_2d(pts):
     pts = pts[[0,1,3],:]
@@ -284,6 +345,8 @@ def create_gradient(metric='condition_number', n = 0.000001):
     metric_function = matrix_pnorm_condition_number_autograd
   elif metric == 'volker_metric':
     metric_function = volker_metric_autograd
+  elif metric == 'repro_error':
+    metric_function = repro_error_autograd
 
   gradient = Gradient()
   gradient.set_n(n)
@@ -316,7 +379,7 @@ def extract_objectpoints_vars(objectPoints):
 
   return [x1,y1,x2,y2,x3,y3,x4,y4]
 
-def evaluate_gradient(gradient, objectPoints, P, normalize = False):
+def evaluate_gradient(gradient, objectPoints, P, image_pts_measured, normalize = False, ):
   x1,y1,x2,y2,x3,y3,x4,y4 = extract_objectpoints_vars(objectPoints)
 
   gradient.dx1_eval_old = gradient.dx1_eval
@@ -332,20 +395,20 @@ def evaluate_gradient(gradient, objectPoints, P, normalize = False):
   gradient.dy4_eval_old = gradient.dy4_eval
 
 
-  gradient.dx1_eval = gradient.dx1(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x1
-  gradient.dy1_eval = gradient.dy1(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y1
+  gradient.dx1_eval = gradient.dx1(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured, normalize)*gradient.n_x1
+  gradient.dy1_eval = gradient.dy1(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured, normalize)*gradient.n_y1
 
-  gradient.dx2_eval = gradient.dx2(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x2
-  gradient.dy2_eval = gradient.dy2(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y2
+  gradient.dx2_eval = gradient.dx2(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured, normalize )*gradient.n_x2
+  gradient.dy2_eval = gradient.dy2(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured, normalize)*gradient.n_y2
 
-  gradient.dx3_eval = gradient.dx3(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x3
-  gradient.dy3_eval = gradient.dy3(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y3
+  gradient.dx3_eval = gradient.dx3(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured, normalize)*gradient.n_x3
+  gradient.dy3_eval = gradient.dy3(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured, normalize)*gradient.n_y3
 
-  gradient.dx4_eval = gradient.dx4(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_x4
-  gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4, P, normalize)*gradient.n_y4
+  gradient.dx4_eval = gradient.dx4(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured, normalize)*gradient.n_x4
+  gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured ,normalize)*gradient.n_y4
 
   ## Limit
-  limit = 0.01
+  limit = 0.1
   gradient.dx1_eval = np.clip(gradient.dx1_eval, -limit, limit)
   gradient.dy1_eval = np.clip(gradient.dy1_eval, -limit, limit)
 
@@ -397,9 +460,9 @@ def update_points(gradient, objectPoints, limitx=0.15,limity=0.15):
   if (circle):
       for i in range(op.shape[1]):
           distance = np.sqrt(op[0,i]**2+op[1,i]**2)
-          #if distance > radius:
-          op[:3,i] = op[:3,i]*radius/distance
-          #FIX THIS IS ONLY A TEST!!!!
+          if distance > radius:
+              op[:3,i] = op[:3,i]*radius/distance
+
   else:
       op[0,:] = np.clip(op[0,:], -limitx, limitx)
       op[1,:] = np.clip(op[1,:], -limity, limity)

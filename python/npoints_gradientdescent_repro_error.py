@@ -17,6 +17,7 @@ from homographyHarker.homographyHarker import homographyHarker as hh
 from solve_ippe import pose_ippe_both, pose_ippe_best
 from solve_pnp import pose_pnp
 import cv2
+import matplotlib.pyplot as plt
 
 number_of_points = 4
 
@@ -36,21 +37,21 @@ cam.set_width_heigth(960,960)
 
 ## DEFINE CAMERA POSE LOOKING STRAIGTH DOWN INTO THE PLANE MODEL
 cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(180.0))
-cam.set_t(0.0,-0.0,0.5, frame='world')
+cam.set_t(0.0,-0.0,0.3, frame='world')
 
 #cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(140.0))
 #cam.set_t(0.0,-1,1.0, frame='world')
 #
-#r = 0.5
-#angle = 10
-#x = r*np.cos(np.deg2rad(angle))
-#z = r*np.sin(np.deg2rad(angle))
-#cam.set_t(0, x,z)
-#cam.set_R_mat(R_matrix_from_euler_t(0.0,0,0))
-#cam.look_at([0,0,0])
+r = 0.5
+angle = 10
+x = r*np.cos(np.deg2rad(angle))
+z = r*np.sin(np.deg2rad(angle))
+cam.set_t(0, x,z)
+cam.set_R_mat(R_matrix_from_euler_t(0.0,0,0))
+cam.look_at([0,0,0])
 
-#cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(110.0))
-#cam.set_t(0.0,-0.3,0.1, frame='world')
+cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(110.0))
+cam.set_t(0.0,-0.3,0.1, frame='world')
 
 ## Define a Display plane
 pl =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.3,0.3), n = (2,2))
@@ -58,12 +59,12 @@ pl = CircularPlane()
 pl.random(n =number_of_points, r = 0.01, min_sep = 0.01)
 
 
-objectPoints = pl.get_points()
+#objectPoints = pl.get_points()
 
-x1,y1,x2,y2,x3,y3,x4,y4 = gd.extract_objectpoints_vars(objectPoints)
-imagePoints_true = np.array(cam.project(objectPoints, False))
-imagePoints_measured = cam.addnoise_imagePoints(imagePoints_true, mean = 0, sd = 4)
-[repro, imagePoints_repro] =  gd.repro_error_autograd(x1,y1,x2,y2,x3,y3,x4,y4,cam.P, imagePoints_measured)
+#x1,y1,x2,y2,x3,y3,x4,y4 = gd.extract_objectpoints_vars(objectPoints)
+#imagePoints_true = np.array(cam.project(objectPoints, False))
+#imagePoints_measured = cam.addnoise_imagePoints(imagePoints_true, mean = 0, sd = 4)
+#[repro, imagePoints_repro] =  gd.repro_error_autograd(x1,y1,x2,y2,x3,y3,x4,y4,cam.P, imagePoints_measured)
 #%%
 
 
@@ -78,8 +79,8 @@ validation_plane.uniform()
 
 ## we create the gradient for the point distribution
 normalize= False
-n = 0.000000001 #condition number norm
-gradient = gd.create_gradient(metric='condition_number', n = n)
+n = 0.00001 #condition number norm
+gradient = gd.create_gradient(metric='repro_error', n = n)
 
 
 #normalize= True
@@ -151,6 +152,16 @@ for i in range(1000):
   objectPoints_list.append(new_objectPoints)
   objectPoints_historic = np.hstack([objectPoints_historic,new_objectPoints])
   imagePoints_list.append(new_imagePoints)
+  #Calculate the pose using solvepnp ITERATIVE
+  new_imagePoints_noisy = cam.addnoise_imagePoints(new_imagePoints, mean = 0, sd = 2)
+  pnp_tvec, pnp_rmat = pose_pnp(new_objectPoints, new_imagePoints_noisy, cam.K, False, cv2.SOLVEPNP_ITERATIVE,False)
+  pnpCam = cam.clone_withPose(pnp_tvec, pnp_rmat)
+
+  x1,y1,x2,y2,x3,y3,x4,y4 = gd.extract_objectpoints_vars(new_objectPoints)
+  repro =  gd.repro_error_autograd(x1,y1,x2,y2,x3,y3,x4,y4,pnpCam.P, new_imagePoints_noisy)
+  print "--------------------------------"
+  print "Repro Error: ", repro
+  print "--------------------------------"
 #
 #  input_list = gd.extract_objectpoints_vars(new_objectPoints)
 #  input_list.append(np.array(cam.P))
@@ -207,9 +218,10 @@ for i in range(1000):
 #    epnp_tvec_error_loop.append(epnp_tvec_error)
 #    epnp_rmat_error_loop.append(epnp_rmat_error)
 #
-#    pnp_tvec_error, pnp_rmat_error = ef.calc_estimated_pose_error(cam.get_tvec(), cam.R, pnpCam.get_tvec(), pnp_rmat)
-#    pnp_tvec_error_loop.append(pnp_tvec_error)
-#    pnp_rmat_error_loop.append(pnp_rmat_error)
+  pnp_tvec_error, pnp_rmat_error = ef.calc_estimated_pose_error(cam.get_tvec(), cam.R, pnpCam.get_tvec(), pnp_rmat)
+  print pnp_tvec_error
+    #pnp_tvec_error_loop.append(pnp_tvec_error)
+    #pnp_rmat_error_loop.append(pnp_rmat_error)
 #
 #
 #
@@ -382,7 +394,7 @@ for i in range(1000):
   ## GRADIENT DESCENT
 
   objectPoints = np.copy(new_objectPoints)
-  gradient = gd.evaluate_gradient(gradient,objectPoints, np.array(cam.P), normalize)
+  gradient = gd.evaluate_gradient(gradient,objectPoints, np.array(pnpCam.P), new_imagePoints_noisy, normalize)
 
   new_objectPoints = gd.update_points(gradient, objectPoints, limitx=0.15,limity=0.15)
   new_imagePoints = np.array(cam.project(new_objectPoints, False))
