@@ -9,53 +9,56 @@ Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: IEEEabrv.bib
 Database file #2: bib_icra2018.bib
-Warning--I didn't find a database entry for "Stewart1998"
-Warning--I didn't find a database entry for "Hartley-97c"
-Warning--I didn't find a database entry for ""
+Database file #3: volker.bib
 -- IEEEtran.bst version 1.11 (2003/04/02) by Michael Shell.
 -- http://www.ctan.org/tex-archive/macros/latex/contrib/supported/IEEEtran/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
+Warning--missing institution in Stewart1998
+Warning--missing publisher in Golub2013
+Warning--missing institution in Maclaurin2016
+Warning--empty journal in Rall1981
+Warning--empty journal in Tollenaere1990
 
 Done.
-You've used 28 entries,
+You've used 27 entries,
             3975 wiz_defined-function locations,
-            1313 strings with 18479 characters,
-and the built_in function-call counts, 24500 in all, are:
-= -- 2005
-> -- 532
-< -- 266
-+ -- 307
-- -- 73
-* -- 1173
-:= -- 3519
-add.period$ -- 56
-call.type$ -- 28
-change.case$ -- 29
-chr.to.int$ -- 651
-cite$ -- 28
-duplicate$ -- 1681
-empty$ -- 1925
-format.name$ -- 96
-if$ -- 5706
+            1275 strings with 17584 characters,
+and the built_in function-call counts, 12778 in all, are:
+= -- 943
+> -- 299
+< -- 34
++ -- 132
+- -- 62
+* -- 548
+:= -- 2110
+add.period$ -- 53
+call.type$ -- 27
+change.case$ -- 28
+chr.to.int$ -- 99
+cite$ -- 32
+duplicate$ -- 1084
+empty$ -- 1258
+format.name$ -- 80
+if$ -- 2868
 int.to.chr$ -- 0
-int.to.str$ -- 28
-missing$ -- 256
-newline$ -- 108
-num.names$ -- 28
-pop$ -- 567
+int.to.str$ -- 27
+missing$ -- 195
+newline$ -- 101
+num.names$ -- 27
+pop$ -- 563
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 1938
+skip$ -- 1013
 stack$ -- 0
-substring$ -- 1529
-swap$ -- 1459
-text.length$ -- 49
+substring$ -- 250
+swap$ -- 639
+text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 5
 type$ -- 0
-warning$ -- 0
-while$ -- 128
-width$ -- 30
-write$ -- 297
-(There were 3 warnings)
+warning$ -- 5
+while$ -- 31
+width$ -- 29
+write$ -- 232
+(There were 5 warnings)

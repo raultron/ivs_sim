@@ -8,6 +8,7 @@ Created on Fri Aug  4 11:52:11 2017
 import autograd.numpy as np
 import pickle
 import sys
+sys.path.append("../")
 sys.path.append("../vision/")
 sys.path.append("../gdescent/")
 from vision.camera_distribution import create_cam_distribution

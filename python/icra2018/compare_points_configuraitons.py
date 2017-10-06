@@ -6,6 +6,7 @@ Created on Thu Sep  7 22:45:23 2017
 """
 
 import sys
+sys.path.append("../")
 sys.path.append("../vision/")
 sys.path.append("../gdescent/")
 
@@ -19,8 +20,8 @@ from vision.plane import Plane
 from vision.circular_plane import CircularPlane
 
 mpl.pyplot.close("all")
-mpl.rc('font',**{'family':'serif','serif':['Times']})
-mpl.rc('text', usetex=True)
+#mpl.rc('font',**{'family':'serif','serif':['Times']})
+#mpl.rc('text', usetex=True)
 
 
 Din = pickle.load( open( "icra_sim1_inclined.p", "rb" ) )
@@ -37,15 +38,18 @@ inches_per_pt = 1.0/72.27               # Convert pt to inch
 fig_width = fig_width_pt*inches_per_pt  # width in inches
 fig_height = 10*inch_per_cent      # height in inches
 #fig_size =  [fig_width,fig_height]
-params = {'backend': 'ps',
-          'axes.labelsize': 8,
-          'text.fontsize': 8,
-          'legend.fontsize': 8,
-          'xtick.labelsize': 8,
-          'ytick.labelsize': 8,
-          'text.usetex': True,}
-#          'figure.figsize': fig_size}
-mpl.rcParams.update(params)
+#params = {'backend': 'PDF',
+#          'axes.labelsize': 8,
+#          'text.fontsize': 8,
+#          'legend.fontsize': 8,
+#          'xtick.labelsize': 8,
+#          'ytick.labelsize': 8,
+#          'text.usetex': True,}
+##          'figure.figsize': fig_size}
+#mpl.rcParams.update(params)
+mpl.rcParams['ps.useafm'] = True
+mpl.rcParams['pdf.use14corefonts'] = True
+mpl.rcParams['text.usetex'] = True
 #
 #
 
@@ -235,17 +239,18 @@ def remove_invalid_cond(data):
 [D6pIll,D6pWell] = pickle.load( open( "08.09.2017/icra_sim_illvsWell_6points.p", "rb" ) )
 [D7pIll,D7pWell] = pickle.load( open( "08.09.2017/icra_sim_illvsWell_7points.p", "rb" ) )
 [D8pIll,D8pWell] = pickle.load( open( "08.09.2017/icra_sim_illvsWell_8points.p", "rb" ) )
+[D9pIll,D10pIll,D11pIll,D12pIll,D13pIll,D14pIll,D15pIll,D16pIll] = pickle.load( open( "12.09.2017/icra_sim_ill_only_9-16points.p", "rb" ) )
 
 
 #CREATE FIGURES
 #figure for Homography error and condition numbers
-fig2 = plt.figure('Well conditioned Vs Ill conditioned configurations (Homography)',figsize=(fig_width,0.9*fig_width))
+fig2 = plt.figure('Well conditioned Vs Ill conditioned configurations (Homography)',figsize=(fig_width,0.7*fig_width))
 ax_cond = fig2.add_subplot(211)    
 ax_homo_error = fig2.add_subplot(212, sharex = ax_cond)
-ax_homo_error.set_xticks([4, 5, 6, 7, 8])
+ax_homo_error.set_xticks([4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
 
 #another figure for individual Pose errors
-fig3 = plt.figure('Well conditioned Vs Ill conditioned configurations (Pose)',figsize=(fig_width,1.3*fig_width))
+fig3 = plt.figure('Well conditioned Vs Ill conditioned configurations (Pose)',figsize=(fig_width,1.1*fig_width))
 ax_t_error_ippe = fig3.add_subplot(321)
 ax_r_error_ippe = fig3.add_subplot(322)
 ax_t_error_epnp = fig3.add_subplot(323, sharex = ax_t_error_ippe)
@@ -253,8 +258,8 @@ ax_r_error_epnp = fig3.add_subplot(324, sharex = ax_r_error_ippe)
 ax_t_error_pnp = fig3.add_subplot(325, sharex = ax_t_error_ippe)
 ax_r_error_pnp = fig3.add_subplot(3,2,6, sharex = ax_r_error_ippe)
 
-ax_t_error_pnp.set_xticks([4, 5, 6, 7, 8])
-ax_r_error_pnp.set_xticks([4, 5, 6, 7, 8])
+ax_t_error_pnp.set_xticks([4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+ax_r_error_pnp.set_xticks([4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
 
 #CONDITION NUMBER
 mean4Well = np.median((D4pWell.CondNumber))
@@ -268,18 +273,28 @@ mean5Ill = np.median((D5pIll.CondNumber))
 mean6Ill = np.median((D6pIll.CondNumber))
 mean7Ill = np.median((D7pIll.CondNumber))
 mean8Ill = np.median((D8pIll.CondNumber))
+mean9Ill = np.median((D9pIll.CondNumber))
+mean10Ill = np.median((D10pIll.CondNumber))
+mean11Ill = np.median((D11pIll.CondNumber))
+mean12Ill = np.median((D12pIll.CondNumber))
+mean13Ill = np.median((D13pIll.CondNumber))
+mean14Ill = np.median((D14pIll.CondNumber))
+mean15Ill = np.median((D15pIll.CondNumber))
+mean16Ill = np.median((D16pIll.CondNumber))
 
 t = np.arange(4,9)
-ax_cond.semilogy(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx', label = "Ill-Conditioned")
-ax_cond.semilogy(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-bx',label = "Well-Conditioned")
-
+ax_cond.semilogy(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-b|',label = "Well-Conditioned")
+t2 = np.arange(4,15)
+ax_cond.semilogy(t2,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill,
+                    mean9Ill,mean10Ill,mean11Ill,mean12Ill,mean13Ill,mean14Ill],'-r|', label = "Ill-Conditioned")
+ax_cond.axhline(y=mean8Well, color='black', linestyle=':')
 #percentage_improvement = (new - old)/old*100%
 
-per4 = (mean4Well)/mean4Ill*100
-per5 = (mean5Well)/mean5Ill*100
-per6 = (mean6Well)/mean6Ill*100
-per7 = (mean7Well)/mean7Ill*100
-per8 = (mean8Well)/mean8Ill*100
+#per4 = (mean4Well)/mean4Ill*100
+#per5 = (mean5Well)/mean5Ill*100
+#per6 = (mean6Well)/mean6Ill*100
+#per7 = (mean7Well)/mean7Ill*100
+#per8 = (mean8Well)/mean8Ill*100
 
 #ax_cond.plot(t,[per4, per5, per6, per7, per8],'-x')
 
@@ -295,10 +310,22 @@ mean5Ill = np.mean(remove_invalid(D5pIll.Homo_DLT_mean))
 mean6Ill = np.mean(remove_invalid(D6pIll.Homo_DLT_mean))
 mean7Ill = np.mean(remove_invalid(D7pIll.Homo_DLT_mean))
 mean8Ill = np.mean(remove_invalid(D8pIll.Homo_DLT_mean))
+mean9Ill = np.mean(remove_invalid(D9pIll.Homo_DLT_mean))
+mean10Ill = np.mean(remove_invalid(D10pIll.Homo_DLT_mean))
+mean11Ill = np.mean(remove_invalid(D11pIll.Homo_DLT_mean))
+mean12Ill = np.mean(remove_invalid(D12pIll.Homo_DLT_mean))
+mean13Ill = np.mean(remove_invalid(D13pIll.Homo_DLT_mean))
+mean14Ill = np.mean(remove_invalid(D14pIll.Homo_DLT_mean))
+mean15Ill = np.mean(remove_invalid(D15pIll.Homo_DLT_mean))
+mean16Ill = np.mean(remove_invalid(D16pIll.Homo_DLT_mean))
 
 
-ax_homo_error.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx', label = "Ill-Conditioned")
-ax_homo_error.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-bx',label = "Well-Conditioned")
+#ax_homo_error.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx', label = "Ill-Conditioned")
+ax_homo_error.plot(t2,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill,
+                    mean9Ill,mean10Ill,mean11Ill,mean12Ill,mean13Ill,mean14Ill],'-r|', label = "Ill-Conditioned")
+ax_homo_error.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-b|',label = "Well-Conditioned")
+ax_homo_error.axhline(y=mean4Well, color='black', linestyle='-.')
+ax_homo_error.axhline(y=mean8Well, color='black', linestyle=':')
 
 
 
@@ -307,7 +334,7 @@ ax_homo_error.set_title('Homography error')
 
 
 ax_homo_error.set_xlabel('number of points')
-ax_cond.legend(loc='upper rigth')
+#ax_cond.legend(loc='upper rigth')
 #ax_homo_error.legend(loc='upper rigth')
 
 plt.setp(ax_cond.get_xticklabels(), visible=False)
@@ -328,9 +355,22 @@ mean5Ill = np.mean(remove_invalid(D5pIll.ippe_tvec_error_mean))
 mean6Ill = np.mean(remove_invalid(D6pIll.ippe_tvec_error_mean))
 mean7Ill = np.mean(remove_invalid(D7pIll.ippe_tvec_error_mean))
 mean8Ill = np.mean(remove_invalid(D8pIll.ippe_tvec_error_mean))
+mean9Ill = np.mean(remove_invalid(D9pIll.ippe_tvec_error_mean))
+mean10Ill = np.mean(remove_invalid(D10pIll.ippe_tvec_error_mean))
+mean11Ill = np.mean(remove_invalid(D11pIll.ippe_tvec_error_mean))
+mean12Ill = np.mean(remove_invalid(D12pIll.ippe_tvec_error_mean))
+mean13Ill = np.mean(remove_invalid(D13pIll.ippe_tvec_error_mean))
+#mean14Ill = np.mean(remove_invalid(D14pIll.ippe_tvec_error_mean))
+#mean15Ill = np.mean(remove_invalid(D15pIll.ippe_tvec_error_mean))
+#mean16Ill = np.mean(remove_invalid(D16pIll.ippe_tvec_error_mean))
 
-Ill_cond, = ax_t_error_ippe.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx', label = "Ill-Conditioned")
-Well_cond, = ax_t_error_ippe.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-bx',label = "Well-Conditioned")
+
+#Ill_cond, = ax_t_error_ippe.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx', label = "Ill-Conditioned")
+Ill_cond, = ax_t_error_ippe.plot(t2,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill,
+                    mean9Ill,mean10Ill,mean11Ill,mean12Ill,mean13Ill,mean14Ill],'-r|', label = "Ill-Conditioned")
+Well_cond, = ax_t_error_ippe.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-b|',label = "Well-Conditioned")
+
+ax_t_error_ippe.axhline(y=mean4Well, color='black', linestyle='-.')
 
 #Rotation
 mean4Well = np.mean(remove_invalid(D4pWell.ippe_rmat_error_mean))
@@ -344,11 +384,21 @@ mean5Ill = np.mean(remove_invalid(D5pIll.ippe_rmat_error_mean))
 mean6Ill = np.mean(remove_invalid(D6pIll.ippe_rmat_error_mean))
 mean7Ill = np.mean(remove_invalid(D7pIll.ippe_rmat_error_mean))
 mean8Ill = np.mean(remove_invalid(D8pIll.ippe_rmat_error_mean))
+mean9Ill = np.mean(remove_invalid(D9pIll.ippe_rmat_error_mean))
+mean10Ill = np.mean(remove_invalid(D10pIll.ippe_rmat_error_mean))
+mean11Ill = np.mean(remove_invalid(D11pIll.ippe_rmat_error_mean))
+mean12Ill = np.mean(remove_invalid(D12pIll.ippe_rmat_error_mean))
+mean13Ill = np.mean(remove_invalid(D13pIll.ippe_rmat_error_mean))
+mean14Ill = np.mean(remove_invalid(D14pIll.ippe_rmat_error_mean))
+mean15Ill = np.mean(remove_invalid(D15pIll.ippe_rmat_error_mean))
+mean16Ill = np.mean(remove_invalid(D16pIll.ippe_rmat_error_mean))
 
-ax_r_error_ippe.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx')
-ax_r_error_ippe.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-bx')
+#ax_r_error_ippe.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx')
+ax_r_error_ippe.plot(t2,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill,
+                    mean9Ill,mean10Ill,mean11Ill,mean12Ill,mean13Ill,mean14Ill],'-r|', label = "Ill-Conditioned")
+ax_r_error_ippe.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-b|')
 
-
+ax_r_error_ippe.axhline(y=mean4Well, color='black', linestyle='-.')
 
 #EPnP
 #Translation
@@ -363,9 +413,20 @@ mean5Ill = np.mean(remove_invalid(D5pIll.epnp_tvec_error_mean))
 mean6Ill = np.mean(remove_invalid(D6pIll.epnp_tvec_error_mean))
 mean7Ill = np.mean(remove_invalid(D7pIll.epnp_tvec_error_mean))
 mean8Ill = np.mean(remove_invalid(D8pIll.epnp_tvec_error_mean))
+mean9Ill = np.mean(remove_invalid(D9pIll.epnp_tvec_error_mean))
+mean10Ill = np.mean(remove_invalid(D10pIll.epnp_tvec_error_mean))
+mean11Ill = np.mean(remove_invalid(D11pIll.epnp_tvec_error_mean))
+mean12Ill = np.mean(remove_invalid(D12pIll.epnp_tvec_error_mean))
+mean13Ill = np.mean(remove_invalid(D13pIll.epnp_tvec_error_mean))
+mean14Ill = np.mean(remove_invalid(D14pIll.epnp_tvec_error_mean))
+mean15Ill = np.mean(remove_invalid(D15pIll.epnp_tvec_error_mean))
+mean16Ill = np.mean(remove_invalid(D16pIll.epnp_tvec_error_mean))
 
-ax_t_error_epnp.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx')
-ax_t_error_epnp.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-bx')
+ax_t_error_epnp.plot(t2,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill,
+                    mean9Ill,mean10Ill,mean11Ill,mean12Ill,mean13Ill,mean14Ill],'-r|', label = "Ill-Conditioned")
+ax_t_error_epnp.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-b|')
+
+ax_t_error_epnp.axhline(y=mean4Well, color='black', linestyle='-.')
 
 #Rotation
 mean4Well = np.mean(remove_invalid(D4pWell.epnp_rmat_error_mean))
@@ -379,9 +440,22 @@ mean5Ill = np.mean(remove_invalid(D5pIll.epnp_rmat_error_mean))
 mean6Ill = np.mean(remove_invalid(D6pIll.epnp_rmat_error_mean))
 mean7Ill = np.mean(remove_invalid(D7pIll.epnp_rmat_error_mean))
 mean8Ill = np.mean(remove_invalid(D8pIll.epnp_rmat_error_mean))
+mean9Ill = np.mean(remove_invalid(D9pIll.epnp_rmat_error_mean))
+mean10Ill = np.mean(remove_invalid(D10pIll.epnp_rmat_error_mean))
+mean11Ill = np.mean(remove_invalid(D11pIll.epnp_rmat_error_mean))
+mean12Ill = np.mean(remove_invalid(D12pIll.epnp_rmat_error_mean))
+mean13Ill = np.mean(remove_invalid(D13pIll.epnp_rmat_error_mean))
+mean14Ill = np.mean(remove_invalid(D14pIll.epnp_rmat_error_mean))
+mean15Ill = np.mean(remove_invalid(D15pIll.epnp_rmat_error_mean))
+mean16Ill = np.mean(remove_invalid(D16pIll.epnp_rmat_error_mean))
 
-ax_r_error_epnp.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx')
-ax_r_error_epnp.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-bx')
+
+
+ax_r_error_epnp.plot(t2,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill,
+                    mean9Ill,mean10Ill,mean11Ill,mean12Ill,mean13Ill,mean14Ill],'-r|', label = "Ill-Conditioned")
+ax_r_error_epnp.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-b|')
+
+ax_r_error_epnp.axhline(y=mean4Well, color='black', linestyle='-.')
 
 #PnP
 #Translation
@@ -396,9 +470,20 @@ mean5Ill = np.mean(remove_invalid(D5pIll.pnp_tvec_error_mean))
 mean6Ill = np.mean(remove_invalid(D6pIll.pnp_tvec_error_mean))
 mean7Ill = np.mean(remove_invalid(D7pIll.pnp_tvec_error_mean))
 mean8Ill = np.mean(remove_invalid(D8pIll.pnp_tvec_error_mean))
+mean9Ill = np.mean(remove_invalid(D9pIll.pnp_tvec_error_mean))
+mean10Ill = np.mean(remove_invalid(D10pIll.pnp_tvec_error_mean))
+mean11Ill = np.mean(remove_invalid(D11pIll.pnp_tvec_error_mean))
+mean12Ill = np.mean(remove_invalid(D12pIll.pnp_tvec_error_mean))
+mean13Ill = np.mean(remove_invalid(D13pIll.pnp_tvec_error_mean))
+mean14Ill = np.mean(remove_invalid(D14pIll.pnp_tvec_error_mean))
+mean15Ill = np.mean(remove_invalid(D15pIll.pnp_tvec_error_mean))
+mean16Ill = np.mean(remove_invalid(D16pIll.pnp_tvec_error_mean))
 
-ax_t_error_pnp.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx')
-ax_t_error_pnp.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-bx')
+ax_t_error_pnp.plot(t2,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill,
+                    mean9Ill,mean10Ill,mean11Ill,mean12Ill,mean13Ill,mean14Ill],'-r|', label = "Ill-Conditioned")
+ax_t_error_pnp.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-b|')
+
+ax_t_error_pnp.axhline(y=mean4Well, color='black', linestyle='-.')
 
 #Rotation
 mean4Well = np.mean(remove_invalid(D4pWell.pnp_rmat_error_mean))
@@ -412,24 +497,37 @@ mean5Ill = np.mean(remove_invalid(D5pIll.pnp_rmat_error_mean))
 mean6Ill = np.mean(remove_invalid(D6pIll.pnp_rmat_error_mean))
 mean7Ill = np.mean(remove_invalid(D7pIll.pnp_rmat_error_mean))
 mean8Ill = np.mean(remove_invalid(D8pIll.pnp_rmat_error_mean))
+mean9Ill = np.mean(remove_invalid(D9pIll.pnp_rmat_error_mean))
+mean10Ill = np.mean(remove_invalid(D10pIll.pnp_rmat_error_mean))
+mean11Ill = np.mean(remove_invalid(D11pIll.pnp_rmat_error_mean))
+mean12Ill = np.mean(remove_invalid(D12pIll.pnp_rmat_error_mean))
+mean13Ill = np.mean(remove_invalid(D13pIll.pnp_rmat_error_mean))
+mean14Ill = np.mean(remove_invalid(D14pIll.pnp_rmat_error_mean))
+mean15Ill = np.mean(remove_invalid(D15pIll.pnp_rmat_error_mean))
+mean16Ill = np.mean(remove_invalid(D16pIll.pnp_rmat_error_mean))
 
-ax_r_error_pnp.plot(t,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill],'-rx')
-ax_r_error_pnp.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-bx')
 
-ax_t_error_ippe.set_title(r'\textbf{IPPE t error} (\%)')
-ax_r_error_ippe.set_title(r'\textbf{IPPE R error} ($^{\circ}$)')
+ax_r_error_pnp.plot(t2,[mean4Ill, mean5Ill, mean6Ill, mean7Ill, mean8Ill,
+                    mean9Ill,mean10Ill,mean11Ill,mean12Ill,mean13Ill,mean14Ill],'-r|', label = "Ill-Conditioned")
+ax_r_error_pnp.plot(t,[mean4Well, mean5Well, mean6Well, mean7Well, mean8Well],'-b|')
 
-ax_t_error_epnp.set_title(r'\textbf{EPnP t error} (\%)')
-ax_r_error_epnp.set_title(r'\textbf{EPnP R error} ($^{\circ}$)')
+ax_r_error_pnp.axhline(y=mean4Well, color='black', linestyle='-.')
 
-ax_t_error_pnp.set_title(r'\textbf{LM t error} (\%)')
-ax_r_error_pnp.set_title(r'\textbf{LM R error} ($^{\circ}$)')
+ax_t_error_ippe.set_title(r'\textbf{IPPE} $\mathbf{T}$ \textbf{error} (\%)')
+ax_r_error_ippe.set_title(r'\textbf{IPPE} $\mathbf{R}$ \textbf{error} ($^{\circ}$)')
+
+ax_t_error_epnp.set_title(r'\textbf{EPnP} $\mathbf{T}$ \textbf{error} (\%)')
+ax_r_error_epnp.set_title(r'\textbf{EPnP} $\mathbf{R}$ \textbf{error} ($^{\circ}$)')
+
+ax_t_error_pnp.set_title(r'\textbf{LM} $\mathbf{T}$ \textbf{error} (\%)')
+ax_r_error_pnp.set_title(r'\textbf{LM} $\mathbf{R}$ \textbf{error} ($^{\circ}$)')
 
 
 
 ax_t_error_pnp.set_xlabel('number of points')
 ax_r_error_pnp.set_xlabel('number of points')
 
+fig2.legend([Well_cond, Ill_cond], ['Well-Conditioned', 'Ill-Conditioned'], 'lower center',ncol=2)
 fig3.legend([Well_cond, Ill_cond], ['Well-Conditioned', 'Ill-Conditioned'], 'lower center',ncol=2)
 #ax_t_error_all.legend([lippe, lepnp, lpnp], ['IPPE', 'EPnP', 'OpenCV SolvePnP'])
 
@@ -440,8 +538,11 @@ plt.setp(ax_r_error_epnp.get_xticklabels(), visible=False)
 
 
 fig2.tight_layout()
+fig2.subplots_adjust(bottom=0.25)
 fig2.savefig('dynamic-markers-optimal/img/point_config_comp_homo.pdf')
+fig2.savefig('dynamic-markers-optimal/img/point_config_comp_homo.png', dpi=900)
 
 fig3.tight_layout()
-fig3.subplots_adjust(left=0.07, right=0.97, top=0.92, bottom=0.15)
+fig3.subplots_adjust(left=0.07, right=0.97, top=0.92, bottom=0.18)
 fig3.savefig('dynamic-markers-optimal/img/point_config_comp_pose.pdf')
+fig3.savefig('dynamic-markers-optimal/img/point_config_comp_pose.png', dpi=900)

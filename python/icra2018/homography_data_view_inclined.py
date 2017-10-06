@@ -19,8 +19,8 @@ from vision.plane import Plane
 from vision.circular_plane import CircularPlane
 
 mpl.pyplot.close("all")
-mpl.rc('font',**{'family':'serif','serif':['Times']})
-mpl.rc('text', usetex=True)
+#mpl.rc('font',**{'family':'serif','serif':['Times']})
+#mpl.rc('text', usetex=True)
 
 
 Din = pickle.load( open( "icra_sim1_inclined.p", "rb" ) )
@@ -37,15 +37,19 @@ inches_per_pt = 1.0/72.27               # Convert pt to inch
 fig_width = fig_width_pt*inches_per_pt  # width in inches
 fig_height = 10*inch_per_cent      # height in inches
 #fig_size =  [fig_width,fig_height]
-params = {'backend': 'ps',
+params = {'backend': 'PDF',
           'axes.labelsize': 8,
           'text.fontsize': 8,
           'legend.fontsize': 8,
           'xtick.labelsize': 8,
           'ytick.labelsize': 8,
-          'text.usetex': True,}
+          'text.usetex': True,
+          'ps.usedistiller': 'xpdf' }
 #          'figure.figsize': fig_size}
-mpl.rcParams.update(params)
+#mpl.rcParams.update(params)
+mpl.rcParams['ps.useafm'] = True
+mpl.rcParams['pdf.use14corefonts'] = True
+mpl.rcParams['text.usetex'] = True
 #
 #
 
@@ -56,7 +60,7 @@ mpl.rcParams.update(params)
 #define the plots
 #one Figure for image and object points
 #fig11 = plt.figure('Image Plane Coordinates')
-fig11 = plt.figure('Image Points Coordinates',figsize=(fig_width,0.6*fig_width))
+fig11 = plt.figure('Image Points Coordinates',figsize=(fig_width,0.5*fig_width))
 ax_image = fig11.add_subplot(121)
 ax_image.set_aspect('equal', 'datalim')
 
@@ -66,7 +70,7 @@ ax_object.set_aspect('equal', 'datalim')
 
 
 #another figure for Homography error and condition numbers
-fig2 = plt.figure('Effect of point configuration in homography estimation',figsize=(fig_width,1.2*fig_width))
+fig2 = plt.figure('Effect of point configuration in homography estimation',figsize=(fig_width,fig_width))
 ax_cond = fig2.add_subplot(211)    
 ax_homo_error = fig2.add_subplot(212, sharex = ax_cond)    
 
@@ -128,7 +132,9 @@ ax_object.set_ylim(-pl.radius-0.05,pl.radius+0.05)
 ax_object.locator_params(nbins=5, axis='x')
 ax_object.locator_params(nbins=5, axis='y')
 #ax_object.set_aspect('equal', 'datalim')
+fig11.subplots_adjust(left=0.09, right=0.94, wspace=0.35)
 fig11.savefig('dynamic-markers-optimal/img/image_control_points_inclined.pdf')
+fig11.savefig('dynamic-markers-optimal/img/image_control_points_inclined.png', dpi=900)
 #fig11.tight_layout()
 plt.show()
 plt.pause(0.001)
@@ -160,15 +166,15 @@ for i in t:
 
 plt.sca(ax_cond)
 ax_cond.cla()
-ax_cond.plot(Din['cond_number'],'-', label='Condition Number')
+ax_cond.plot(Din['cond_number'],'-', label=r'$c(\mathbf{A}(t))$')
 
 #PLOT HOMO DLT ERROR
 plt.sca(ax_homo_error)
 ax_homo_error.cla()
 mu = np.array(homo_dlt_error_mean)
 sigma = np.array(homo_dlt_error_std)
-ax_homo_error.plot(t,mu,'-g', label='mu')
-ax_homo_error.fill_between(t,mu+sigma, mu-sigma, facecolor='green', alpha=0.25, label='sigma')
+ax_homo_error.plot(t,mu,'-g', label=r'$\mu\left(HE\left(\hat{\mathbf{H}}(t)\right)\right)$')
+ax_homo_error.fill_between(t,mu+sigma, mu-sigma, facecolor='green', alpha=0.25, label=r'$\sigma\left(HE\left(\hat{\mathbf{H}}(t)\right)\right)$')
 ax_homo_error.set_ylim(0,50)
 
 
@@ -196,6 +202,7 @@ ax_homo_error.legend(loc='upper rigth')
 #ax_object.set_aspect('equal', 'datalim')
 fig2.tight_layout()
 fig2.savefig('dynamic-markers-optimal/img/homography_inclined.pdf')
+fig2.savefig('dynamic-markers-optimal/img/homography_inclined.png', dpi=900)
  
 plt.show()
 plt.pause(0.001)
@@ -245,11 +252,11 @@ for i in t:
 plt.sca(ax_t_error_ippe) 
 mu = np.array(ippe_tvec_error_mean)
 sigma = np.array(ippe_tvec_error_std)
-lippe, = ax_t_error_ippe.plot(t,mu,'b', label = 'mu')
-ax_t_error_ippe.fill_between(t,mu+sigma, mu-sigma, facecolor='blue', alpha=0.25, label = 'sigma')
+lippe, = ax_t_error_ippe.plot(t,mu,'b', label = r'$\mu$')
+ax_t_error_ippe.fill_between(t,mu+sigma, mu-sigma, facecolor='blue', alpha=0.25, label = r'$\sigma$')
 ax_t_error_ippe.set_ylim(0,20)
 
-ax_t_error_all.plot(t,mu,'-b', label = 'mu', lw=1)
+ax_t_error_all.plot(t,mu,'-b', label = r'$\mu$', lw=1)
 #ax_t_error_all.fill_between(t,mu+sigma, mu-sigma, facecolor='blue', alpha=0.25, label = 'sigma')
 
 ax_t_error_ippe.legend(loc='upper rigth')#, prop={'size': 10})
@@ -311,11 +318,11 @@ ax_r_error_all.plot(t,mu,'-r', lw=1)
 
 
 
-ax_t_error_ippe.set_title(r'\textbf{t error} (\%)')
-ax_r_error_ippe.set_title(r'\textbf{R error} ($^{\circ}$)')
+ax_t_error_ippe.set_title(r'$\mathbf{T}$ \textbf{error} (\%)')
+ax_r_error_ippe.set_title(r'$\mathbf{R}$ \textbf{error} ($^{\circ}$)')
 
-ax_t_error_all.set_title(r'\textbf{t error} (\%)')
-ax_r_error_all.set_title(r'\textbf{R error} ($^{\circ}$)')
+ax_t_error_all.set_title(r'$\mathbf{T}$ \textbf{error} (\%)')
+ax_r_error_all.set_title(r'$\mathbf{R}$ \textbf{error} ($^{\circ}$)')
 ax_t_error_all.set_ylabel(r'Percent')
 ax_r_error_all.set_ylabel(r'Angle (degrees)')
 ax_t_error_all.set_xlabel('Iterations')
@@ -333,8 +340,8 @@ ax_r_error_pnp.set_xlabel('Iterations')
 
 #fig3.legend((lippe, sippe), ('Line 1', 'Line 2'), 'lower center',ncol=2, mode="expand", borderaxespad=0.)
 
-fig3.legend([lippe, lepnp, lpnp], ['IPPE', 'EPnP', 'OpenCV SolvePnP'], 'lower center',ncol=3)
-ax_t_error_all.legend([lippe, lepnp, lpnp], ['IPPE', 'EPnP', 'OpenCV SolvePnP'])
+fig3.legend([lippe, lepnp, lpnp], ['IPPE', 'EPnP', 'LM'], 'lower center',ncol=3)
+ax_t_error_all.legend([lippe, lepnp, lpnp], ['IPPE', 'EPnP', 'LM'])
 #fig3.legend([lippe], ['IPPE'], 'lower center')
 
 #, 'lower center',ncol=2, mode="expand", borderaxespad=0.)
@@ -350,10 +357,13 @@ plt.setp(ax_r_error_epnp.get_xticklabels(), visible=False)
 
 
 fig3.tight_layout()
+fig3.subplots_adjust(bottom=0.20)
 fig3.savefig('dynamic-markers-optimal/img/pose_separate_inclined.pdf')
+fig3.savefig('dynamic-markers-optimal/img/pose_separate_inclined.png', dpi=900)
 
 fig4.tight_layout()
 fig4.savefig('dynamic-markers-optimal/img/pose_together_inclined.pdf')
+fig4.savefig('dynamic-markers-optimal/img/pose_together_inclined.png', dpi=900)
 
 #plt.tight_layout()    
 plt.show()

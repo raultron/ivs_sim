@@ -1,0 +1,136 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{#1}
+\csname url@rmstyle\endcsname
+\providecommand{\newblock}{\relax}
+\providecommand{\bibinfo}[2]{#2}
+\providecommand\BIBentrySTDinterwordspacing{\spaceskip=0pt\relax}
+\providecommand\BIBentryALTinterwordstretchfactor{4}
+\providecommand\BIBentryALTinterwordspacing{\spaceskip=\fontdimen2\font plus
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus
+  \fontdimen4\font\relax}
+\providecommand\BIBforeignlanguage[2]{{%
+\expandafter\ifx\csname l@#1\endcsname\relax
+\typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
+\typeout{** loaded for the language `#1'. Using the pattern for}%
+\typeout{** the default language instead.}%
+\else
+\language=\csname l@#1\endcsname
+\fi
+#2}}
+
+\bibitem{Hartley1997}
+R.~Hartley, ``{In defence of the 8-point algorithm},'' in \emph{Proc. of IEEE
+  Int. Conf. on Computer Vision}, 1997.
+
+\bibitem{Chen2009}
+P.~Chen and D.~Suter, ``{Error analysis in homography estimation by first order
+  approximation tools: A general technique},'' \emph{Journal of Mathematical
+  Imaging and Vision}, 2009.
+
+\bibitem{Marchand2016}
+E.~Marchand, H.~Uchiyama, and F.~Spindler, ``{Pose Estimation for Augmented
+  Reality: A Hands-On Survey},'' \emph{IEEE Trans. on Vis. and Comput.
+  Graphics}, 2016.
+
+\bibitem{Oberkampf1996}
+D.~Oberkampf, D.~F. DeMenthon, and L.~S. Davis, ``{Iterative Pose Estimation
+  Using Coplanar Feature Points},'' \emph{Computer Vision and Image
+  Understanding}, 1996.
+
+\bibitem{Lu2000}
+C.~P. Lu, G.~D. Hager, and E.~Mjolsness, ``{Fast and globally convergent pose
+  estimation from video images},'' \emph{IEEE Trans. Pattern Anal. Mach.
+  Intell.}, 2000.
+
+\bibitem{Garro2012}
+V.~Garro, F.~Crosilla, and A.~Fusiello, ``{Solving the PnP problem with
+  anisotropic orthogonal procrustes analysis},'' \emph{3DIMPVT}, 2012.
+
+\bibitem{Schweighofer2008}
+G.~Schweighofer and A.~Pinz, ``{Globally Optimal O(n) Solution to the PnP
+  Problem for General Camera Models},'' \emph{BMVC}, 2008.
+
+\bibitem{Lepetit2008}
+V.~Lepetit, F.~Moreno-Noguer, and P.~Fua, ``{EPnP: An accurate O(n) solution to
+  the PnP problem},'' \emph{International Journal of Computer Vision}, 2008.
+
+\bibitem{Hesch2011}
+J.~A. Hesch and S.~I. Roumeliotis, ``{A direct least-squares (DLS) method for
+  PnP},'' in \emph{IEEE Int. Conf. on Computer Vision}, 2011.
+
+\bibitem{Li2012}
+S.~Li, C.~Xu, and M.~Xie, ``{A robust O(n) solution to the perspective-n-point
+  problem},'' \emph{IEEE Trans. Pattern Anal. Mach. Intell.}, 2012.
+
+\bibitem{Zheng2013}
+Y.~Zheng, Y.~Kuang, S.~Sugimoto, K.~Astrom, and M.~Okutomi, ``{Revisiting the
+  PnP problem: A fast, general and optimal solution},'' in \emph{Proc. of the
+  IEEE Int. Conf. on Computer Vision}, 2013.
+
+\bibitem{Kneip2014}
+L.~Kneip, H.~Li, and Y.~Seo, ``{UPnP: An Optimal O(n) Solution to the Absolute
+  Pose Problem with Universal Applicability},'' in \emph{European Conference on
+  Computer Vision}, 2014.
+
+\bibitem{Nakano2015}
+G.~Nakano, ``{Globally Optimal DLS Method for PnP Problem with Cayley
+  parameterization},'' in \emph{BMVC}, 2015.
+
+\bibitem{Sturm2000}
+P.~Sturm, P.~Sturm, P.-b.~P. Estimation, I.~Conference, and P.~Sturm,
+  ``{Algorithms for Plane-Based Pose Estimation},'' \emph{IEEE Conf. on
+  Computer Vision and Pattern Recognition}, 2000.
+
+\bibitem{Zhang2000}
+Z.~Zhang, ``{A Flexible New Technique for Camera Calibration},'' \emph{IEEE
+  Trans. Pattern Anal. Mach. Intell.}, 2000.
+
+\bibitem{Schweighofer2006}
+G.~Schweighofer and A.~Pinz, ``{Robust pose estimation from a planar target},''
+  \emph{IEEE Trans. Pattern Anal. Mach. Intell.}, 2006.
+
+\bibitem{Collins2014}
+T.~Collins and A.~Bartoli, ``{Infinitesimal plane-based pose estimation},''
+  \emph{International Journal of Computer Vision}, 2014.
+
+\bibitem{RichardHartley2003}
+A.~Z. {Richard Hartley}, \emph{{Multiple View Geometry}}, 2nd~ed.\hskip 1em
+  plus 0.5em minus 0.4em\relax Cambridge University Press, 2004.
+
+\bibitem{Harker2005}
+M.~J. Harker and P.~L. O'Leary, ``{Computation of Homographies},'' in
+  \emph{BMVC}, 2005.
+
+\bibitem{Rangarajan2009}
+P.~Rangarajan and P.~Papamichalis, ``{Estimating homographies without
+  normalization},'' in \emph{Proc. of Int. Conf. on Image Processing}, 2009.
+
+\bibitem{Willert2010}
+V.~Willert, ``{Optical indoor positioning using a camera phone},'' in
+  \emph{Proc. of the 2010 int. conf. on indoor positioning and indoor
+  navigation}, 2010.
+
+\bibitem{Chung2014}
+D.~H.~S. Chung, M.~L. Parry, P.~A. Legg, I.~W. Griffiths, R.~S. Laramee, and
+  M.~Chen, ``{Visualizing multiple error-sensitivity fields for single camera
+  positioning},'' \emph{Computing and Visualization in Science}, 2014.
+
+\bibitem{Stewart1998}
+G.~W. Stewart, ``Perturbation theory for the singular value decomposition,''
+  Tech. Rep., 1998.
+
+\bibitem{Golub2013}
+G.~H. Golub and C.~F. {Van Loan}, \emph{{Matrix Computations}}, 4th~ed., 2013.
+
+\bibitem{Maclaurin2016}
+D.~Maclaurin, ``Modeling, inference and optimization with composable
+  differentiable procedures,'' Tech. Rep., 2016.
+
+\bibitem{Rall1981}
+L.~B. Rall, ``Automatic differentiation: Techniques and applications,'' 1981.
+
+\bibitem{Tollenaere1990}
+T.~Tollenaere, ``Supersab: fast adaptive back propagation with good scaling
+  properties,'' pp. Neural Networks 3(5), 561--573, 1990.
+
+\end{thebibliography}
