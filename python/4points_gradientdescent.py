@@ -36,6 +36,7 @@ pl.random(n =4, r = 0.01, min_sep = 0.01)
 ## CREATE A SET OF IMAGE POINTS FOR VALIDATION OF THE HOMOGRAPHY ESTIMATION
 validation_plane =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.3,0.3), n = (4,4))
 validation_plane.uniform()
+
 ## we create the gradient for the point distribution
 normalize= False
 n = 0.000001 #condition number norm

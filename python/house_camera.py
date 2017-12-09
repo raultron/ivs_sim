@@ -7,11 +7,9 @@ Created on Wed Apr  5 14:58:52 2017
 
 from vision.camera import Camera
 from vision.rt_matrix import *
-import numpy as np # TODO
+import numpy as np
 from matplotlib import pyplot as plt
-#======================
-print
-#======================
+
 #%%
 # load points
 points = np.loadtxt('house.p3d').T
