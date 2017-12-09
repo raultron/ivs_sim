@@ -6,11 +6,12 @@ Created on Fri May 12 11:04:45 2017
 @author: lracuna
 """
 import autograd.numpy as np
-from vision.rt_matrix import *
+from rt_matrix import *
 import matplotlib.pyplot as plt
-from vision.conic import Conic
+from conics import Conic
 
 class Circle(Conic):
+  #TODO Yue: There is already a Circle class in conics.py and in this class "project" method is not finish
   """ Class for representing a Circle on a plane on a center point and a radius."""
   def __init__(self, origin=(0.,0.), r = 0.1):
     self.origin = origin # Center of the circle
@@ -100,6 +101,8 @@ class Circle(Conic):
     Hinv = np.linalg.inv(H)
     self.Q = (Hinv.T)*self.Aq*Hinv
     return Q
+
+
 
 
 
