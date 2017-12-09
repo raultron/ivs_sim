@@ -269,24 +269,24 @@ class Camera(object):
       return H
 
       #%%
-#cam = Camera()
-
-##Test that projection matrix doesnt change rotation and translation
+# cam = Camera()
 #
-#cam.set_world_position(0,0,-2.5)
-#R1= cam.R
-#t1 = cam.t
-#Rt1 = cam.Rt
-#pos1 = cam.get_world_position()
-#cam.set_P()
-#R2 = cam.R
-#t2 = cam.t
-#Rt2 = cam.Rt
-#pos2 = cam.get_world_position()
-#print pos1-pos2
-#print R1 - R2
-#print t1 - t2
-#print Rt1 - Rt2
+# #Test that projection matrix doesnt change rotation and translation
+#
+# cam.set_world_position(0,0,-2.5)
+# R1= cam.R
+# t1 = cam.t
+# Rt1 = cam.Rt
+# pos1 = cam.get_world_position()
+# cam.set_P()
+# R2 = cam.R
+# t2 = cam.t
+# Rt2 = cam.Rt
+# pos2 = cam.get_world_position()
+# print pos1-pos2
+# print R1 - R2
+# print t1 - t2
+# print Rt1 - Rt2
 #
 #
 #print "------------------------------"
