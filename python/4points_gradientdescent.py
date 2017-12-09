@@ -36,7 +36,6 @@ pl.random(n =4, r = 0.01, min_sep = 0.01)
 ## CREATE A SET OF IMAGE POINTS FOR VALIDATION OF THE HOMOGRAPHY ESTIMATION
 validation_plane =  Plane(origin=np.array([0, 0, 0]), normal = np.array([0, 0, 1]), size=(0.3,0.3), n = (4,4))
 validation_plane.uniform()
-
 ## we create the gradient for the point distribution
 normalize= False
 n = 0.000001 #condition number norm
@@ -112,11 +111,14 @@ for i in range(200):
 
   input_list = gd.extract_objectpoints_vars(new_objectPoints)
   input_list.append(np.array(cam.P))
-
+  #TODO Yue: set parameter image_pts_measured as None and append it to input_list
+  input_list.append(None)
   mat_cond = gd.matrix_condition_number_autograd(*input_list, normalize = False)
 
   input_list = gd.extract_objectpoints_vars(new_objectPoints)
   input_list.append(np.array(cam.P))
+  #TODO Yue: set parameter image_pts_measured as None and append it to input_list
+  input_list.append(None)
   mat_cond_normalized = gd.matrix_condition_number_autograd(*input_list, normalize = True)
 
   cond_list.append(mat_cond)

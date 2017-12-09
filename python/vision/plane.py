@@ -6,7 +6,7 @@ Created on Fri May 12 11:04:45 2017
 @author: lracuna
 """
 import autograd.numpy as np
-from vision.rt_matrix import *
+from rt_matrix import *
 import matplotlib.pyplot as plt
 
 class Plane(object):

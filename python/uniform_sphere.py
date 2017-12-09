@@ -21,7 +21,9 @@ def uniform_sphere(theta_params = (0,360,10), phi_params = (0,90,10), r = 1., pl
   """
   
   space_theta = linspace(deg2rad(theta_params[0]), deg2rad(theta_params[1]), theta_params[2])
+  print space_theta
   space_phi = linspace(deg2rad(phi_params[0]), deg2rad(phi_params[1]), phi_params[2])
+  print space_phi
   theta, phi = meshgrid(space_theta,space_phi )
 
   x = r*cos(theta)*sin(phi)

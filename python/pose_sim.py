@@ -20,6 +20,7 @@ from vision.camera_distribution import plot3D, plot3D_cam
 from mayavi import mlab
 from solve_pnp import pose_pnp
 from solve_ippe import pose_ippe_both, pose_ippe_best
+from vision.circular_plane import CircularPlane
 
 def show_homo2d_normalization(imagePoints):
     imagePoints_normalized = homo2d.normalise2dpts(imagePoints)
@@ -110,6 +111,10 @@ def run_point_distribution_test(cam, objectPoints, plot=True):
     #Add Gaussian noise in pixel coordinates
     #imagePoints = addnoise_imagePoints(imagePoints, mean = 0, sd = 2)
 
+    ## Define a Display plane
+    pl = CircularPlane()
+    pl.random(n=4, r=0.01, min_sep=0.01)
+
     #Show projected points
     if plot:
       cam.plot_image(imagePoints, pl.get_color())
@@ -147,8 +152,8 @@ def run_point_distribution_test(cam, objectPoints, plot=True):
 
 
     #Calculate errors
-    pnp_tvec_error, pnp_rmat_error = calc_estimated_pose_error(cam.get_tvec(), cam.R, pnpCam.get_tvec(), pnp_rmat)
-    ippe_tvec_error, ippe_rmat_error = calc_estimated_pose_error(cam.get_tvec(), cam.R, ippeCam.get_tvec(), ippe_rmat)
+    pnp_tvec_error, pnp_rmat_error = ef.calc_estimated_pose_error(cam.get_tvec(), cam.R, pnpCam.get_tvec(), pnp_rmat)
+    ippe_tvec_error, ippe_rmat_error = ef.calc_estimated_pose_error(cam.get_tvec(), cam.R, ippeCam.get_tvec(), ippe_rmat)
 
     # Print errors
 
