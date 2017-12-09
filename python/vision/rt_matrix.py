@@ -36,6 +36,7 @@ def rotation_matrix_from_two_vectors(a,b):
                  [v[2], 0.0, -v[0]],
                  [-v[1], v[0], 0]]))
     R = np.eye(4)
+    #TODO Yue: Form wrong ??? https://gist.github.com/peteristhegreat/3b76d5169d7b9fc1e333
     R[:3,:3] = np.array(np.eye(3) + ssc + (ssc**2)*(1.0/(1.0+np.dot(a,b))))
     return R
 
