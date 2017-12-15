@@ -10,6 +10,7 @@ import pickle
 import sys
 sys.path.append("../vision/")
 sys.path.append("../gdescent/")
+sys.path.append("..")
 from vision.rt_matrix import R_matrix_from_euler_t
 from vision.camera import Camera
 from vision.plane import Plane
@@ -147,7 +148,7 @@ for i in range(40):
   DataOut['ObjectPoints'].append(new_objectPoints)
   DataOut['ImagePoints'].append(new_imagePoints)
   objectPoints_historic = np.hstack([objectPoints_historic,new_objectPoints])
- 
+
   
   #PLOT IMAGE POINTS
   plt.sca(ax_image)  
