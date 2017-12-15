@@ -78,7 +78,7 @@ def create_cam_distribution(cam = None, plane = None, deviation = 0, plot=False)
 
       #t_list.append(d*unit_rays)
 
-      xx, yy, zz = uniform_sphere((0,360), (0,80), d, 4,4, False)
+      xx, yy, zz = uniform_sphere((0,360,4), (0,80,4), d, False) # uniform_sphere((0,360), (0,80), d, 4,4, False)
 
       sphere_points = np.array([xx.ravel(),yy.ravel(), zz.ravel()], dtype=np.float32)
 
