@@ -4,16 +4,19 @@ Created on Wed Aug 16 16:38:35 2017
 
 @author: racuna
 """
-
+#======================================================================
+import sys
+sys.path.append("..")
+#======================================================================
 import matplotlib.pyplot as plt
 import autograd.numpy as np
 from mayavi import mlab
 from numpy import random, cos, sin, sqrt, pi, linspace, deg2rad, meshgrid
 from mpl_toolkits.mplot3d import Axes3D
 
-from vision.camera import Camera
-from vision.plane import Plane
-from Rt_matrix_from_euler_t import R_matrix_from_euler_t
+from camera import Camera
+from plane import Plane
+import Rt_matrix_from_euler_t as Rt_matrix_from_euler_t
 
 
 def uniform_sphere(theta_params = (0,360,10), phi_params = (0,90,10), r = 1., plot = False):
@@ -100,7 +103,7 @@ def create_cam_distribution(cam = None, plane_size = (0.3,0.3), theta_params = (
   for t in t_space.T:
     cam = cam.clone()
     cam.set_t(-t[0], -t[1],-t[2])
-    cam.set_R_mat(R_matrix_from_euler_t(0.0,0,0))
+    cam.set_R_mat(Rt_matrix_from_euler_t.R_matrix_from_euler_t(0.0,0,0))
     cam.look_at([0,0,0])
 
     plane.set_origin(np.array([0, 0, 0]))
@@ -121,4 +124,3 @@ def create_cam_distribution(cam = None, plane_size = (0.3,0.3), theta_params = (
     plot3D(cams, planes)
 
   return cams
-  

@@ -5,6 +5,9 @@ Created on Fri Aug  4 11:52:11 2017
 
 @author: lracuna
 """
+# Yue： add import sys ; sys.path.append("..")
+import sys
+sys.path.append("..")
 from vision.camera import *
 from vision.plane import Plane
 import autograd.numpy as np

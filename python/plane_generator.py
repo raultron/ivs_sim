@@ -12,17 +12,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mayavi import mlab
 import cv2
-
+# import  qgis.core
+from PyQt4 import QtCore, QtGui, uic
 
 #%% Create a camera
 
 cam = Camera()
 ## Test matrix functions
 cam.set_K(794,781,640,480)
-cam.set_R(1.0,  0.0,  0.0, deg2rad(175.0))
+cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(175.0))
 
-cam_world = transpose(array([0.0,0.0,0.6,1]))
-cam_t = dot(cam.R,-cam_world)
+cam_world = np.transpose(np.array([0.0,0.0,0.6,1]))
+cam_t = np.dot(cam.R,-cam_world)
 
 cam.set_t(cam_t[0], cam_t[1],  cam_t[2])
 cam.set_P()
@@ -48,9 +49,9 @@ s1.set_pixel_pitch(0.04)
 red = (1,0,0)
 s1.set_color(red)
 s1.update()
-s1.rotate_z(pi/2.0)
-s1.rotate_x(pi/12.0)
-s1.rotate_y(pi/4.0)
+s1.rotate_z(np.pi/2.0)
+s1.rotate_x(np.pi/12.0)
+s1.rotate_y(np.pi/4.0)
 
 #s1.rotate_x(pi/2.0)
 
@@ -62,9 +63,9 @@ s2.set_pixel_pitch(0.04)
 green = (0,1,0)
 s2.set_color(green)
 s2.update()
-s2.rotate_z(pi/2.0)
-s2.rotate_x(pi/12.0)
-s2.rotate_y(-pi/4.0)
+s2.rotate_z(np.pi/2.0)
+s2.rotate_x(np.pi/12.0)
+s2.rotate_y(-np.pi/4.0)
 
 
 s3.set_origin(np.array([0.0, 0.0, 0]))
@@ -74,15 +75,15 @@ yellow = (1,1,0)
 s3.set_color(yellow)
 s3.update()
 #s3.rotate_z(pi/2.0)
-s3.rotate_x(pi/14.1)
-s3.rotate_y(pi/10.0)
+s3.rotate_x(np.pi/14.1)
+s3.rotate_y(np.pi/10.0)
 
 
 
 #%% Project screen points in image
-cam_points1 = array(cam.project(s1.get_points()))
-cam_points2 = array(cam.project(s2.get_points()))
-cam_points3 = array(cam.project(s3.get_points()))
+cam_points1 = np.array(cam.project(s1.get_points()))
+cam_points2 = np.array(cam.project(s2.get_points()))
+cam_points3 = np.array(cam.project(s3.get_points()))
 
 
 #%% plot
@@ -102,28 +103,28 @@ plt.show()
 #%% Configure 3D plot
 
 # camera in world
-cam_world = -dot(transpose(cam.R[:3,:3]), cam.t[:3])[:,3]
+cam_world = -np.dot(np.transpose(cam.R[:3,:3]), cam.t[:3])[:,3]
 
 #Camera axis
-cam_axis_x = transpose(array([1,0,0,1]))
-cam_axis_y = transpose(array([0,1,0,1]))
-cam_axis_z = transpose(array([0,0,1,1]))
+cam_axis_x = np.transpose(np.array([1,0,0,1]))
+cam_axis_y = np.transpose(np.array([0,1,0,1]))
+cam_axis_z = np.transpose(np.array([0,0,1,1]))
 
-cam_axis_x = dot(transpose(cam.R), cam_axis_x)
-cam_axis_y = dot(transpose(cam.R), cam_axis_y)
-cam_axis_z = dot(transpose(cam.R), cam_axis_z)
+cam_axis_x = np.dot(np.transpose(cam.R), cam_axis_x)
+cam_axis_y = np.dot(np.transpose(cam.R), cam_axis_y)
+cam_axis_z = np.dot(np.transpose(cam.R), cam_axis_z)
 
  
 #%% Opencv camera calibration
 
-objp1 = transpose(s1.get_points_basis()[:3,:])
-imgp1 = transpose(cam_points1[:2,:])
+objp1 = np.transpose(s1.get_points_basis()[:3,:])
+imgp1 = np.transpose(cam_points1[:2,:])
 
-objp2 = transpose(s2.get_points_basis()[:3,:])
-imgp2 = transpose(cam_points2[:2,:])
+objp2 = np.transpose(s2.get_points_basis()[:3,:])
+imgp2 = np.transpose(cam_points2[:2,:])
 
-objp3 = transpose(s3.get_points_basis()[:3,:])
-imgp3 = transpose(cam_points3[:2,:])
+objp3 = np.transpose(s3.get_points_basis()[:3,:])
+imgp3 = np.transpose(cam_points3[:2,:])
 
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space

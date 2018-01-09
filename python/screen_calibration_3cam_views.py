@@ -37,7 +37,7 @@ red = (1,0,0)
 s1.set_color(red)
 s1.curvature_radius = 1.800
 s1.update()
-s1.rotate_x(deg2rad(-190.))
+s1.rotate_x(np.deg2rad(-190.))
 
 #s1.rotate_y(deg2rad(-15.))
 
@@ -48,9 +48,9 @@ s1.rotate_x(deg2rad(-190.))
 cam_positions = []
 cam_orientations = []
 
-cam_positions.append(-array([0., 0., 0.4, 1]).T)
-cam_positions.append(-array([0., -0.1, 0.7, 1]).T)
-cam_positions.append(-array([0., 0.1, 0.7, 1]).T)
+cam_positions.append(-np.array([0., 0., 0.4, 1]).T)
+cam_positions.append(-np.array([0., -0.1, 0.7, 1]).T)
+cam_positions.append(-np.array([0., 0.1, 0.7, 1]).T)
 
 
 
@@ -60,26 +60,29 @@ cam_positions.append(-array([0., 0.1, 0.7, 1]).T)
 
 #%% Project screen points in image
 
-cam.set_world_position(-0.05, -0.05, -0.45)
-cam.rotate_x(deg2rad(+10.))
-cam.rotate_y(deg2rad(-5.))
-cam.rotate_z(deg2rad(-5.))
+# cam.set_world_position(-0.05, -0.05, -0.45)
+cam.set_t(-0.05, -0.05, -0.45,'world')
+cam.rotate_x(np.deg2rad(+10.))
+cam.rotate_y(np.deg2rad(-5.))
+cam.rotate_z(np.deg2rad(-5.))
 cam.set_P()
-cam_points1 = array(cam.project(s1.get_points()))
+cam_points1 = np.array(cam.project(s1.get_points()))
 
 
 #%%
-cam.set_world_position(-0.2, -0.05, -0.4)
-cam.rotate_y(deg2rad(-20.))
+# cam.set_world_position(-0.2, -0.05, -0.4)
+cam.set_t(-0.2, -0.05, -0.4,'world')
+cam.rotate_y(np.deg2rad(-20.))
 cam.set_P()
-cam_points2 = array(cam.project(s1.get_points()))
+cam_points2 = np.array(cam.project(s1.get_points()))
 
 
 #%%
-cam.set_world_position(0.2, -0.05, -0.5)
-cam.rotate_y(deg2rad(+40.))
+# cam.set_world_position(0.2, -0.05, -0.5)
+cam.set_t(0.2, -0.05, -0.5,'world')
+cam.rotate_y(np.deg2rad(+40.))
 cam.set_P()
-cam_points3 = array(cam.project(s1.get_points()))
+cam_points3 = np.array(cam.project(s1.get_points()))
 
 
 
@@ -113,14 +116,14 @@ plt.show()
 
 #%% Opencv camera calibration
 
-objp1 = transpose(s1.get_points_basis()[:3,:])
-imgp1 = transpose(cam_points1[:2,:])
+objp1 = np.transpose(s1.get_points_basis()[:3,:])
+imgp1 = np.transpose(cam_points1[:2,:])
 
-objp2 = transpose(s1.get_points_basis()[:3,:])
-imgp2 = transpose(cam_points2[:2,:])
+objp2 = np.transpose(s1.get_points_basis()[:3,:])
+imgp2 = np.transpose(cam_points2[:2,:])
 
-objp3 = transpose(s1.get_points_basis()[:3,:])
-imgp3 = transpose(cam_points3[:2,:])
+objp3 = np.transpose(s1.get_points_basis()[:3,:])
+imgp3 = np.transpose(cam_points3[:2,:])
 
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space

@@ -150,12 +150,16 @@ class DataSimOut(object):
     self.ImagePoints.append(new_imagePoints)
     #CONDITION NUMBER CALCULATION
     input_list = gd.extract_objectpoints_vars(new_objectPoints)
-    input_list.append(np.array(cam.P))    
+    input_list.append(np.array(cam.P))
+    # TODO Yue: set parameter image_pts_measured as None and append it to input_list
+    input_list.append(None)
     mat_cond = gd.matrix_condition_number_autograd(*input_list, normalize = False)
    
     #CONDITION NUMBER WITH A NORMALIZED CALCULATION
     input_list = gd.extract_objectpoints_vars(new_objectPoints)
     input_list.append(np.array(cam.P))
+    # TODO Yue: set parameter image_pts_measured as None and append it to input_list
+    input_list.append(None)
     mat_cond_normalized = gd.matrix_condition_number_autograd(*input_list, normalize = True)
   
     self.CondNumber.append(mat_cond)

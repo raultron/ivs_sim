@@ -21,6 +21,7 @@ import pickle
 import sys
 sys.path.append("../vision/")
 sys.path.append("../gdescent/")
+sys.path.append("..")
 import error_functions as ef
 from vision.camera import Camera
 from vision.plane import Plane
@@ -125,6 +126,8 @@ for angle in angles:
 
         input_list = gd.extract_objectpoints_vars(objectPoints_iter)
         input_list.append(np.array(cam.P))
+        # TODO Yue: set parameter image_pts_measured as None and append it to input_list
+        input_list.append(None)
         mat_cond = gd.matrix_condition_number_autograd(*input_list, normalize = False)
 
         DataSinglePose['CondNumber'].append(mat_cond)

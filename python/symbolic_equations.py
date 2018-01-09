@@ -17,27 +17,8 @@ init_printing(use_unicode=True)
 
 
 
-class SymbGradient:
-  d_x1 = None
-  d_y1 = None
-  d_x2 = None
-  d_y2 = None
-  d_x3 = None
-  d_y3 = None
-  d_x4 = None
-  d_y4 = None
 
-  d_x1_eval = None
-  d_y1_eval = None
 
-  d_x2_eval = None
-  d_y2_eval = None
-
-  d_x3_eval = None
-  d_y3_eval = None
-
-  d_x4_eval = None
-  d_y4_eval = None
 
 
 def projection_matrix_symb():

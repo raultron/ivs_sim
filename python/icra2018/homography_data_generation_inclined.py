@@ -10,6 +10,7 @@ import pickle
 import sys
 sys.path.append("../vision/")
 sys.path.append("../gdescent/")
+sys.path.append("..")
 from vision.rt_matrix import R_matrix_from_euler_t
 from vision.camera import Camera
 from vision.plane import Plane

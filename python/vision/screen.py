@@ -5,12 +5,12 @@ Created on Fri May 12 11:04:45 2017
 
 @author: lracuna
 """
-from vision.plane import Plane
-from vision.rt_matrix import *
+from plane import Plane
+from rt_matrix import *
 import numpy as np
 class Screen(Plane):
     """ Class for representing a 3D LCD screen"""
-    def __init__(self, width = 0.5184, height = 0.324, diagonal_size = 0.61, pixel_pitch = 0.270, resolution = (1920.1200), aspect_ratio = (16,10), curvature_radius=4.0):
+    def __init__(self, width = 0.5184, height = 0.324, diagonal_size = 0.61, pixel_pitch = 0.270, resolution = (1920,1200), aspect_ratio = (16,10), curvature_radius=4.0):
         #In meters
         self.width = width
         self.height = height
@@ -23,9 +23,9 @@ class Screen(Plane):
         self.aspect_ratio = aspect_ratio    
         #curvature radius in meters | a value of 0.0 means a plane
         self.curvature_radius = curvature_radius
-        
-        Plane.__init__(self,grid_size=(1,2), grid_step = pixel_pitch/1000)
-        
+        # TODO Yue: Plane dont have attribute grid_size and grid_step
+        # Plane.__init__(self,grid_size=(1,2), grid_step = pixel_pitch/1000)
+
             
         
         
@@ -83,26 +83,26 @@ class Screen(Plane):
         self.zz = zz
 
 
+
+# r = 2.0
+# screen_size = 2.0
 #
-#r = 2.0
-#screen_size = 2.0
+# grid_size = screen_size
+# grid_step = 0.01
+# x_range = range(int(round(grid_size/grid_step)))
+# x = array(x_range).astype(np.float32)*grid_step - (x_range[-1]*grid_step/2.)
+# teta = np.arccos((x)/(r/2.0))
+# y = cy - r*np.sin(teta)
+# plt.plot(x,y)
+# plt.xlim(-2,2)
+# plt.ylim(0,4)
 #
-#grid_size = screen_size
-#grid_step = 0.01
-#x_range = range(int(round(grid_size/grid_step)))
-#x = array(x_range).astype(np.float32)*grid_step - (x_range[-1]*grid_step/2.)
-#teta = np.arccos((x)/(r/2.0))
-#y = cy - r*np.sin(teta)
-#plt.plot(x,y)
-#plt.xlim(-2,2)
-#plt.ylim(0,4)
+# plt.figure()
+# s1 = Screen()
+# s1.grid_size = (1.5,2.0)
+# s1.curvature_radius = 2.0
 #
-#plt.figure()
-#s1 = Screen()
-#s1.grid_size = (1.5,2.0)
-#s1.curvature_radius = 2.0
-#
-#s1.update_curved()
-#plt.plot(s1.xx[0,:], s1.zz[0,:])
-#plt.xlim(-2,2)
-#plt.ylim(0,4)
+# s1.update_curved()
+# plt.plot(s1.xx[0,:], s1.zz[0,:])
+# plt.xlim(-2,2)
+# plt.ylim(0,4)

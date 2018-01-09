@@ -36,6 +36,7 @@ def rotation_matrix_from_two_vectors(a,b):
                  [v[2], 0.0, -v[0]],
                  [-v[1], v[0], 0]]))
     R = np.eye(4)
+    #TODO Yue: Form wrong ??? https://gist.github.com/peteristhegreat/3b76d5169d7b9fc1e333
     R[:3,:3] = np.array(np.eye(3) + ssc + (ssc**2)*(1.0/(1.0+np.dot(a,b))))
     return R
 
@@ -110,16 +111,28 @@ def rot_matrix_error(R0, R1, method = 'unit_quaternion_product'):
 
 def R_matrix_from_euler_t(alpha,beta,gamma):
   R = np.eye(4, dtype=np.float32)
+  # R[0,0]=cos(alpha)*cos(gamma)-cos(beta)*sin(alpha)*sin(gamma)
+  # R[1,0]=cos(gamma)*sin(alpha)+cos(alpha)*cos(beta)*sin(gamma)
+  # R[2,0]=sin(beta)*sin(gamma)
+  #
+  # R[0,1]=-cos(beta)*cos(gamma)*sin(alpha)-cos(alpha)*sin(gamma)
+  # R[1,1]=cos(alpha)*cos(beta)*cos(gamma)-sin(alpha)*sin(gamma)
+  # R[2,1]=cos(gamma)*sin(beta)
+  #
+  # R[0,2]=sin(alpha)*sin(beta)
+  # R[1,2]=-cos(alpha)*sin(beta)
+  # R[2,2]=cos(beta)
+  #  TODO Wrong sequenz
   R[0,0]=cos(alpha)*cos(gamma)-cos(beta)*sin(alpha)*sin(gamma)
-  R[1,0]=cos(gamma)*sin(alpha)+cos(alpha)*cos(beta)*sin(gamma)
-  R[2,0]=sin(beta)*sin(gamma)
+  R[0,1]=cos(gamma)*sin(alpha)+cos(alpha)*cos(beta)*sin(gamma)
+  R[0,2]=sin(beta)*sin(gamma)
 
-  R[0,1]=-cos(beta)*cos(gamma)*sin(alpha)-cos(alpha)*sin(gamma)
+  R[1,0]=-cos(beta)*cos(gamma)*sin(alpha)-cos(alpha)*sin(gamma)
   R[1,1]=cos(alpha)*cos(beta)*cos(gamma)-sin(alpha)*sin(gamma)
-  R[2,1]=cos(gamma)*sin(beta)
+  R[1,2]=cos(gamma)*sin(beta)
 
-  R[0,2]=sin(alpha)*sin(beta)
-  R[1,2]=-cos(alpha)*sin(beta)
+  R[2,0]=sin(alpha)*sin(beta)
+  R[2,1]=-cos(alpha)*sin(beta)
   R[2,2]=cos(beta)
 
   return R

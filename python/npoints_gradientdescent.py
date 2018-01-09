@@ -10,6 +10,7 @@ from vision.rt_matrix import R_matrix_from_euler_t
 from vision.camera import Camera
 from vision.plane import Plane
 from vision.circular_plane import CircularPlane
+import matplotlib.pyplot as plt
 
 import error_functions as ef
 from ippe import homo2d
@@ -63,7 +64,7 @@ objectPoints = pl.get_points()
 x1,y1,x2,y2,x3,y3,x4,y4 = gd.extract_objectpoints_vars(objectPoints)
 imagePoints_true = np.array(cam.project(objectPoints, False))
 imagePoints_measured = cam.addnoise_imagePoints(imagePoints_true, mean = 0, sd = 4)
-[repro, imagePoints_repro] =  gd.repro_error_autograd(x1,y1,x2,y2,x3,y3,x4,y4,cam.P, imagePoints_measured)
+repro =  gd.repro_error_autograd(x1,y1,x2,y2,x3,y3,x4,y4,cam.P, imagePoints_measured)
 #%%
 
 

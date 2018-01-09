@@ -6,8 +6,8 @@ Created on Fri May 12 11:04:45 2017
 @author: lracuna
 """
 import autograd.numpy as np
-from vision.rt_matrix import *
-from vision.conics import Circle
+from rt_matrix import *
+from conics import Circle
 import matplotlib.pyplot as plt
 
 class CircularPlane(object):
@@ -55,8 +55,8 @@ class CircularPlane(object):
 
     def random(self, n = 4, r = 0.05, min_sep = 0.01):
         """
-        n: ammount of features on the plane
-        r: radius of each feature (not inluding white borders for detection)
+        n: amount of features on the plane
+        r: radius of each feature (not including white borders for detection)
         min_sep: minimum distance from the border of the circle to assure detection
         """
 
@@ -83,7 +83,6 @@ class CircularPlane(object):
         # center the grid
         x_pos = x_pos - x_pos[-1]/2.
         y_pos = y_pos - y_pos[-1]/2.
-
         #we create a boolean array
         # True means available
         available_grid = np.ones((grid_size_RxR, grid_size_RxR), dtype=bool)

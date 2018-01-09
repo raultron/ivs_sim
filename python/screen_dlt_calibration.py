@@ -4,9 +4,9 @@ Created on Wed May 10 11:15:22 2017
 
 @author: lracuna
 """
-from camera import *
-from plane import Plane
-from screen import Screen
+from vision.camera import Camera
+from vision.plane import Plane
+from vision.screen import Screen
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,7 +37,7 @@ red = (1,0,0)
 s1.set_color(red)
 s1.curvature_radius = 1.800
 s1.update()
-s1.rotate_x(deg2rad(-190.))
+s1.rotate_x(np.deg2rad(-190.))
 
 #s1.rotate_y(deg2rad(-15.))
 
@@ -46,12 +46,13 @@ s1.rotate_x(deg2rad(-190.))
 
 #%% Project screen points in image
 
-cam.set_world_position(-0.05, -0.05, -0.45)
-cam.rotate_x(deg2rad(+10.))
-cam.rotate_y(deg2rad(-5.))
-cam.rotate_z(deg2rad(-5.))
+# cam.set_world_position(-0.05, -0.05, -0.45)
+cam.set_t(-0.05, -0.05, -0.45,'world')
+cam.rotate_x(np.deg2rad(+10.))
+cam.rotate_y(np.deg2rad(-5.))
+cam.rotate_z(np.deg2rad(-5.))
 cam.set_P()
-cam_points1 = array(cam.project(s1.get_points()))
+cam_points1 = np.array(cam.project(s1.get_points()))
 
 
 
@@ -70,8 +71,8 @@ plt.show()
 
 #%% Opencv camera calibration
 
-objp1 = transpose(s1.get_points_basis()[:3,:])
-imgp1 = transpose(cam_points1[:2,:])
+objp1 = np.transpose(s1.get_points_basis()[:3,:])
+imgp1 = np.transpose(cam_points1[:2,:])
 
 
 
@@ -82,8 +83,8 @@ imgp1 = transpose(cam_points1[:2,:])
 # [Xi,Yi,Zi] point i in world coordinates (meters)
 # [ui, vi] projection of point i in image plane (pixels) 
 n = len(objp1)
-A = empty(shape=[2*n,12])
-b = zeros(shape=[2*n,1])
+A = np.empty(shape=[2*n,12])
+b = np.zeros(shape=[2*n,1])
 for i in range(n):
     Xi = objp1[i][0]
     Yi = objp1[i][1]
@@ -91,11 +92,11 @@ for i in range(n):
     ui = imgp1[i][0]
     vi = imgp1[i][1]
     
-    A[(i*2)] =   array([Xi, Yi, Zi, 1, 0, 0, 0, 0, -ui*Xi, -ui*Yi, -ui*Zi, -ui])
-    A[(i*2)+1] = array([0, 0, 0, 0, Xi, Yi, Zi, 1, -vi*Xi, -vi*Yi, -vi*Zi, -vi])
+    A[(i*2)] =   np.array([Xi, Yi, Zi, 1, 0, 0, 0, 0, -ui*Xi, -ui*Yi, -ui*Zi, -ui])
+    A[(i*2)+1] = np.array([0, 0, 0, 0, Xi, Yi, Zi, 1, -vi*Xi, -vi*Yi, -vi*Zi, -vi])
 
 
-U, s, Vh = np.linalg.svd(dot(transpose(A),A), full_matrices=False)
+U, s, Vh = np.linalg.svd(np.dot(np.transpose(A),A), full_matrices=False)
 V = Vh.T
 #m, _, _, _ = np.linalg.lstsq(dot(transpose(A),A), b)
 #%%
