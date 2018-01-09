@@ -12,7 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mayavi import mlab
 import cv2
-
+# import  qgis.core
+from PyQt4 import QtCore, QtGui, uic
 
 #%% Create a camera
 

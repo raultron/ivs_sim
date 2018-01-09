@@ -215,8 +215,13 @@ class Camera(object):
         """ rotate camera around a given axis in world coordinates"""
         R = rotation_matrix(axis, angle)
         self.Rt = np.dot(R, self.Rt)
+        # TODO if rotate camera around a given axis in CAMERA coordinate, please use following Rt
+        # newR = np.dot(R,self.R)
+        # self.Rt = np.dot(self.t, newR)
         self.R[:3,:3] = self.Rt[:3,:3]
         self.t[:3,3] = self.Rt[:3,3]
+        #TODO DO NOT forget to set new P
+        self.set_P()
 
     def rotate_x(self,angle):
         self.rotate(np.array([1,0,0],dtype=np.float32), angle)
