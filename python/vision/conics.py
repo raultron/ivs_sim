@@ -104,7 +104,7 @@ class Ellipse(Conic):
     y = np.linspace(-ma*2+yc, ma*2+yc, grid_size)
     x, y = np.meshgrid(x, y)
     #assert b**2 - 4*a*c < 0
-    plt.contour(x, y,(a*x**2 + b*x*y + c*y**2 + d*x + e*y + f), [0], colors='k', linestyles = 'dashed')
+    plt.contour(x, y,(a*x**2 + b*x*y + c*y**2 + d*x + e*y + f), [0], colors='grey', linestyles = 'dashed')
     plt.gcf().gca().set_aspect('equal', 'datalim')
     plt.show()
 

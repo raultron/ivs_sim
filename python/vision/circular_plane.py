@@ -188,7 +188,7 @@ class CircularPlane(object):
 
 #from vision.circular_plane import CircularPlane
 #cp = CircularPlane()
-#cp.random(n=60)
+#cp.random(n=4)
 #cp.plot_points()
 #cp.plot_plane()
 
