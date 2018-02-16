@@ -6,7 +6,6 @@ Created on Fri Aug  4 11:52:11 2017
 @author: lracuna
 """
 import sys
-sys.path.append("../")
 sys.path.append("../vision/")
 sys.path.append("../gdescent/")
 
@@ -18,11 +17,11 @@ import matplotlib as mpl
 from vision.camera import Camera
 from vision.plane import Plane
 from vision.circular_plane import CircularPlane
-from matplotlib import rc
 
-Din = pickle.load( open( "icra_sim1_frontoparallel.p", "rb" ) )
+Din = pickle.load( open( "icra_sim1_inclined.p", "rb" ) )
 cam = Din["Camera"]
 pl = Din['Plane']
+
 
 fig_width_pt = 245.71811  # Get this from LaTeX using \showthe\columnwidth
 inch_per_cent = 0.393701
@@ -57,8 +56,7 @@ In order to switch to Type 1 I had to throw in these lines:"""
 mpl.rcParams['ps.useafm'] = True
 mpl.rcParams['pdf.use14corefonts'] = True
 mpl.rcParams['text.usetex'] = True
-#
-#
+
 
 
 
@@ -77,9 +75,11 @@ ax_object.set_aspect('equal', 'datalim')
 
 
 #Homography error and condition numbers
-fig2 = plt.figure('Effect of point configuration in homography estimation',figsize=(fig_width,0.8*fig_width))
-ax_cond = fig2.add_subplot(211)
-ax_homo_error = fig2.add_subplot(212, sharex = ax_cond)
+fig2 = plt.figure('Effect of point configuration in homography estimation',figsize=(fig_width,1.5*fig_width))
+ax_cond = fig2.add_subplot(411)
+ax_homo_error = fig2.add_subplot(412, sharex = ax_cond)
+ax_t_error_all = fig2.add_subplot(413, sharex = ax_cond)
+ax_r_error_all = fig2.add_subplot(414, sharex = ax_cond)
 
 #Individual Pose errors
 fig3 = plt.figure('Effect of point configuration in Pose estimation (Detailed)',figsize=(fig_width,fig_width))
@@ -91,10 +91,9 @@ ax_t_error_pnp = fig3.add_subplot(325, sharex = ax_t_error_ippe)
 ax_r_error_pnp = fig3.add_subplot(3,2,6, sharex = ax_r_error_ippe)
 
 #Condensated Pose errors
-fig4 = plt.figure('Effect of point configuration in Pose estimation (Grouped)',figsize=(fig_width,1.1*fig_width))
-ax_cond_pose = fig4.add_subplot(311)
-ax_t_error_all = fig4.add_subplot(312)
-ax_r_error_all = fig4.add_subplot(313)
+#fig4 = plt.figure('Effect of point configuration in Pose estimation (Grouped)',figsize=(fig_width,fig_width))
+#ax_t_error_all = fig4.add_subplot(211)
+#ax_r_error_all = fig4.add_subplot(212)
 
 
 #%%
@@ -149,8 +148,8 @@ ax_object.locator_params(nbins=5, axis='y')
 #ax_object.set_aspect('equal', 'datalim')
 
 fig1.subplots_adjust(left=0.09, right=0.94, wspace=0.35)
-fig1.savefig('dynamic-markers-optimal/img/image_control_points.pdf')
-#fig1.savefig('dynamic-markers-optimal/img/image_control_points.png', dpi=900)
+fig1.savefig('dynamic-markers-optimal/img/image_control_points_inclined.pdf')
+#fig1.savefig('dynamic-markers-optimal/img/image_control_points_inclined.png', dpi=900)
 #fig1.tight_layout()
 plt.show()
 plt.pause(0.001)
@@ -184,8 +183,6 @@ plt.sca(ax_cond)
 ax_cond.cla()
 ax_cond.plot(Din['cond_number'],'-', label=r'$c(\mathbf{A}(t))$')
 
-ax_cond_pose.plot(Din['cond_number'],'-', label=r'$c(\mathbf{A}(t))$')
-
 #PLOT HOMO DLT ERROR
 plt.sca(ax_homo_error)
 ax_homo_error.cla()
@@ -209,7 +206,7 @@ ax_cond.set_title('Evolution of Condition number')
 ax_homo_error.set_title('Homography error $HE$')
 
 #ax_cond.set_xlabel('Iterations')
-ax_homo_error.set_xlabel('Iterations')
+#ax_homo_error.set_xlabel('Iterations')
 ax_cond.legend(loc='upper rigth')
 ax_homo_error.legend(loc='upper rigth')
 
@@ -217,13 +214,7 @@ ax_homo_error.legend(loc='upper rigth')
 #ax_cond.locator_params(nbins=5, axis='y')
 
 
-#ax_object.set_aspect('equal', 'datalim')
-fig2.tight_layout()
-fig2.savefig('dynamic-markers-optimal/img/homography_fronto_parallel.pdf')
-#fig2.savefig('dynamic-markers-optimal/img/homography_fronto_parallel.png', dpi=900)
 
-plt.show()
-plt.pause(0.001)
 
 #%%
 ##################################
@@ -270,11 +261,11 @@ for i in t:
 plt.sca(ax_t_error_ippe)
 mu = np.array(ippe_tvec_error_mean)
 sigma = np.array(ippe_tvec_error_std)
-lippe, = ax_t_error_ippe.plot(t,mu,'b', label = '$\mu$')
-ax_t_error_ippe.fill_between(t,mu+sigma, mu-sigma, facecolor='blue', alpha=0.25, label = '$\sigma$')
-ax_t_error_ippe.set_ylim(0,20)
+lippe, = ax_t_error_ippe.plot(t,mu,'b', label = r'$\mu$')
+ax_t_error_ippe.fill_between(t,mu+sigma, mu-sigma, facecolor='blue', alpha=0.25, label = r'$\sigma$')
+ax_t_error_ippe.set_ylim(0,15)
 
-ax_t_error_all.plot(t,mu,'-b', label = 'mu', lw=1)
+ax_t_error_all.plot(t,mu,'-b', label = r'$\mu$', lw=1)
 #ax_t_error_all.fill_between(t,mu+sigma, mu-sigma, facecolor='blue', alpha=0.25, label = 'sigma')
 
 ax_t_error_ippe.legend(loc='upper rigth')#, prop={'size': 10})
@@ -285,7 +276,8 @@ mu = np.array(ippe_rmat_error_mean)
 sigma = np.array(ippe_rmat_error_std)
 ax_r_error_ippe.plot(t,mu)
 ax_r_error_ippe.fill_between(t,mu+sigma, mu-sigma, facecolor='blue', alpha=0.25)
-ax_r_error_ippe.set_ylim(0,35)
+ax_r_error_ippe.set_ylim(0,60)
+
 
 ax_r_error_all.plot(t,mu,'-b', lw=1)
 #ax_r_error_all.fill_between(t,mu+sigma, mu-sigma, facecolor='blue', alpha=0.1)
@@ -296,9 +288,10 @@ mu = np.array(epnp_tvec_error_mean)
 sigma = np.array(epnp_tvec_error_std)
 lepnp, = ax_t_error_epnp.plot(t,mu,'g')
 ax_t_error_epnp.fill_between(t,mu+sigma, mu-sigma, facecolor='green', alpha=0.25)
-ax_t_error_epnp.set_ylim(0,20)
+ax_t_error_epnp.set_ylim(0,15)#cam.img_height)
 
 ax_t_error_all.plot(t,mu,'-g', lw=1)
+ax_t_error_all.set_ylim(0,15)
 #ax_t_error_all.fill_between(t,mu+sigma, mu-sigma, facecolor='green', alpha=0.1)
 
 plt.sca(ax_r_error_epnp)
@@ -306,7 +299,8 @@ mu = np.array(epnp_rmat_error_mean)
 sigma = np.array(epnp_rmat_error_std)
 ax_r_error_epnp.plot(t,mu,'g')
 ax_r_error_epnp.fill_between(t,mu+sigma, mu-sigma, facecolor='green', alpha=0.25)
-ax_r_error_epnp.set_ylim(0,35)
+ax_r_error_epnp.set_ylim(0,60)
+
 
 ax_r_error_all.plot(t,mu,'-g', lw=1)
 #ax_r_error_all.fill_between(t,mu+sigma, mu-sigma, facecolor='green', alpha=0.1)
@@ -317,7 +311,7 @@ mu = np.array(pnp_tvec_error_mean)
 sigma = np.array(pnp_tvec_error_std)
 lpnp, = ax_t_error_pnp.plot(t,mu,'r')
 ax_t_error_pnp.fill_between(t,mu+sigma, mu-sigma, facecolor='red', alpha=0.25)
-ax_t_error_pnp.set_ylim(0,20)
+ax_t_error_pnp.set_ylim(0,15)
 
 ax_t_error_all.plot(t,mu,'-r', lw=1)
 #ax_t_error_all.fill_between(t,mu+sigma, mu-sigma, facecolor='red', alpha=0.1)
@@ -328,7 +322,7 @@ mu = np.array(pnp_rmat_error_mean)
 sigma = np.array(pnp_rmat_error_std)
 ax_r_error_pnp.plot(t,mu,'r')
 ax_r_error_pnp.fill_between(t,mu+sigma, mu-sigma, facecolor='red', alpha=0.25)
-ax_r_error_pnp.set_ylim(0,35)
+ax_r_error_pnp.set_ylim(0,60)
 
 ax_r_error_all.plot(t,mu,'-r', lw=1)
 #ax_r_error_all.fill_between(t,mu+sigma, mu-sigma, facecolor='red', alpha=0.1)
@@ -336,7 +330,7 @@ ax_r_error_all.plot(t,mu,'-r', lw=1)
 #Figure Titles
 
 
-ax_cond_pose.set_title('Evolution of Condition number')
+
 ax_t_error_ippe.set_title(r'$\mathbf{T}$ error (\%)')
 ax_r_error_ippe.set_title(r'$\mathbf{R}$ error ($^{\circ}$)')
 
@@ -367,24 +361,30 @@ ax_t_error_all.legend([lippe, lepnp, lpnp], ['IPPE', 'EPnP', 'LM'])
 
 #plt.figlegend( lines, labels, loc = 'lower center', ncol=1, labelspacing=0. )
 
-plt.setp(ax_homo_error.get_xticklabels(), visible=False)
-plt.setp(ax_cond.get_xticklabels(), visible=False)
+#plt.setp(ax_homo_error.get_xticklabels(), visible=False)
+#plt.setp(ax_cond.get_xticklabels(), visible=False)
 plt.setp(ax_t_error_ippe.get_xticklabels(), visible=False)
 plt.setp(ax_r_error_ippe.get_xticklabels(), visible=False)
 plt.setp(ax_t_error_epnp.get_xticklabels(), visible=False)
 plt.setp(ax_r_error_epnp.get_xticklabels(), visible=False)
 
 
+#ax_object.set_aspect('equal', 'datalim')
+fig2.tight_layout()
+fig2.savefig('dynamic-markers-optimal/img/homography_pose_inclined.pdf')
+#fig2.savefig('dynamic-markers-optimal/img/homography_inclined.png', dpi=900)
+
+plt.show()
+plt.pause(0.001)
+
 fig3.tight_layout()
 fig3.subplots_adjust(bottom=0.20)
-fig3.savefig('dynamic-markers-optimal/img/pose_separate_fronto_parallel.pdf')
-#fig3.savefig('dynamic-markers-optimal/img/pose_separate_fronto_parallel.png', dpi=900)
+fig3.savefig('dynamic-markers-optimal/img/pose_separate_inclined.pdf')
+#fig3.savefig('dynamic-markers-optimal/img/pose_separate_inclined.png', dpi=900)
 
-fig4.tight_layout()
-fig4.savefig('dynamic-markers-optimal/img/pose_together_fronto_parallel.pdf')
-#fig4.savefig('dynamic-markers-optimal/img/pose_together_fronto_parallel.png', dpi=900)
-
-
+#fig4.tight_layout()
+#fig4.savefig('dynamic-markers-optimal/img/pose_together_inclined.pdf')
+ #fig4.savefig('dynamic-markers-optimal/img/pose_together_inclined.png', dpi=900)
 
 #plt.tight_layout()
 plt.show()
