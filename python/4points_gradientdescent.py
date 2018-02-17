@@ -8,8 +8,8 @@ Created on Fri Aug  4 11:52:11 2017
 from vision.camera import *
 from vision.plane import Plane
 from vision.circular_plane import CircularPlane
+import vision.error_functions as ef
 import gdescent.hpoints_gradient as gd
-import error_functions as ef
 from ippe import homo2d
 from homographyHarker.homographyHarker import homographyHarker as hh
 from solve_ippe import pose_ippe_both, pose_ippe_best
@@ -83,12 +83,6 @@ ax_t_error_pnp = fig3.add_subplot(325)
 ax_r_error_pnp = fig3.add_subplot(326)
 
 
-
-
-
-
-
-
 imagePoints_des = np.array(cam.project(objectPoints_des, False))
 objectPoints_list = []
 imagePoints_list = []
@@ -112,11 +106,13 @@ for i in range(200):
 
   input_list = gd.extract_objectpoints_vars(new_objectPoints)
   input_list.append(np.array(cam.P))
+  input_list.append(None)
 
   mat_cond = gd.matrix_condition_number_autograd(*input_list, normalize = False)
 
   input_list = gd.extract_objectpoints_vars(new_objectPoints)
   input_list.append(np.array(cam.P))
+  input_list.append(None)
   mat_cond_normalized = gd.matrix_condition_number_autograd(*input_list, normalize = True)
 
   cond_list.append(mat_cond)

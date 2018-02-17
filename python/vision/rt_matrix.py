@@ -36,6 +36,7 @@ def rotation_matrix_from_two_vectors(a,b):
                  [v[2], 0.0, -v[0]],
                  [-v[1], v[0], 0]]))
     R = np.eye(4)
+    #TODO Yue: Form wrong ??? https://gist.github.com/peteristhegreat/3b76d5169d7b9fc1e333
     R[:3,:3] = np.array(np.eye(3) + ssc + (ssc**2)*(1.0/(1.0+np.dot(a,b))))
     return R
 
@@ -107,8 +108,21 @@ def rot_matrix_error(R0, R1, method = 'unit_quaternion_product'):
     return rot_error
 
 
+#TODO MAYBE USE the TF package directly
+#http://docs.ros.org/kinetic/api/tf/html/c++/classtf_1_1Matrix3x3.html#a9219cc537dd0a0dd8370959e5300c277
+
 
 def R_matrix_from_euler_t(alpha,beta,gamma):
+  """
+  A=BCD. Z -> X -> Z
+  1. the first rotation is by an angle phi about the z-axis using D,
+  2. the second rotation is by an angle theta in [0,pi] about the former x-axis (now x^') using C, and
+  3. the third rotation is by an angle psi about the former z-axis (now z^') using B.
+  :param alpha:
+  :param beta:
+  :param gamma:
+  :return:
+  """
   R = np.eye(4, dtype=np.float32)
   R[0,0]=cos(alpha)*cos(gamma)-cos(beta)*sin(alpha)*sin(gamma)
   R[1,0]=cos(gamma)*sin(alpha)+cos(alpha)*cos(beta)*sin(gamma)
@@ -124,6 +138,28 @@ def R_matrix_from_euler_t(alpha,beta,gamma):
 
   return R
 
+def R_matrix_from_euler_zyx(alpha,beta,gamma):
+  """
+  author: Yue Hu
+  A=BCD. Z -> Y -> X
+  :param alpha:
+  :param beta:
+  :param gamma:
+  :return:
+  """
+  R = np.eye(4, dtype=np.float32)
+  R[0,0] = cos(beta) * cos(alpha)
+  R[1,0] = sin(gamma) * sin(beta) * cos(alpha) - cos(gamma) * sin(alpha)
+  R[2,0] = cos(gamma) * sin(beta) * cos(alpha) + sin(gamma) * sin(alpha)
 
+  R[0,1] = cos(beta) * sin(alpha)
+  R[1,1] = sin(gamma) * sin(beta) * sin(alpha) + cos(gamma) * cos(alpha)
+  R[2,1] = cos(gamma) * sin(beta) * sin(alpha) - sin(gamma) * cos(alpha)
+
+  R[0,2] = -sin(beta)
+  R[1,2] = sin(gamma) * cos(beta)
+  R[2,2] = cos(gamma) * cos(beta)
+
+  return R
 
 

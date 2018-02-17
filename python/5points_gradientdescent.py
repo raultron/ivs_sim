@@ -7,8 +7,8 @@ Created on Fri Aug  4 11:52:11 2017
 """
 from vision.camera import *
 from vision.plane import Plane
+import vision.error_functions as ef
 import gdescent.hpoints_gradient5 as gd5
-import error_functions as ef
 from ippe import homo2d
 
 
@@ -35,20 +35,16 @@ validation_plane.uniform()
 
 
 
-## we create the gradient for the point distribution
 
+
+## we create the gradient for the point distribution
+normalize= False
+n = 0.000001 #condition number norm
 gradient = gd5.create_gradient(metric='condition_number')
 #gradient = gd5.create_gradient(metric='volker_metric')
 #gradient = gd5.create_gradient(metric='pnorm_condition_number')
 
-
-
-
 objectPoints_des = pl.get_points()
-
-# we now replace the first 4 points with the border positions
-pl.uniform()
-#objectPoints_des[:,0:4] = pl.get_points()
 
 
 alpha=0.2
@@ -65,7 +61,7 @@ for i in range(1000):
   gradient = gd5.evaluate_gradient(gradient,objectPoints, np.array(cam.P))
   #gradient = gd5.normalize_gradient(gradient)
 
-  new_objectPoints = gd5.update_points(alpha, gradient, objectPoints)#, limit = 3)
+  new_objectPoints = gd5.update_points(gradient, objectPoints)#, limit = 3)
   new_imagePoints = np.array(cam.project(new_objectPoints, False))
 
 
@@ -109,18 +105,18 @@ for i in range(1000):
 
   Hnoisy,A_t_ref,H_t = homo2d.homography2d(Xo,Xi)
 
-  Aideal_norm = ef.calculate_A_matrix()
+  Aideal_norm = ef.calculate_A_matrix(Xo,Xi)
 
   x1,y1,x2,y2,x3,y3,x4,y4,x5,y5 = gd5.extract_objectpoints_vars(new_objectPoints)
   mat_cond_autrograd = gd5.matrix_condition_number_autograd(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,np.array(cam.P))
 
 
-  volkerMetric = ef.volker_metric(Aideal)
+  #volkerMetric = ef.volker_metric(Aideal)
 
-  mat_cond = ef.get_matrix_pnorm_condition_number(Aideal)
+  #mat_cond = ef.get_matrix_pnorm_condition_number(Aideal)
   #mat_cond = get_matrix_conditioning_number(Aideal)
 
-  condition_number_list.append()
+  #condition_number_list.append()
 
 
 
@@ -161,7 +157,7 @@ for i in range(1000):
   print "Iteration: ", i
   print "Mat cond Autograd: ", mat_cond_autrograd
   print "Mat cond:", mat_cond
-  print "Volker Metric:", volkerMetric
+  #print "Volker Metric:", volkerMetric
   print "dx1,dy1 :", gradient.dx1_eval,gradient.dy1_eval
   print "dx2,dy2 :", gradient.dx2_eval,gradient.dy2_eval
   print "dx3,dy3 :", gradient.dx3_eval,gradient.dy3_eval

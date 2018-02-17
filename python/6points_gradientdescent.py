@@ -53,7 +53,7 @@ for i in range(1000):
   objectPoints = np.copy(new_objectPoints)
   gradient = gd6.evaluate_gradient(gradient,objectPoints, np.array(cam.P))
 
-  new_objectPoints = gd6.update_points(alpha, gradient, objectPoints, limitx = 100,limity=100)#limitx = 0.15,limity=0.10)
+  new_objectPoints = gd6.update_points(gradient, objectPoints)#limitx = 0.15,limity=0.10)
   new_imagePoints = np.array(cam.project(new_objectPoints, False))
 
   objectPoints_list.append(new_objectPoints)

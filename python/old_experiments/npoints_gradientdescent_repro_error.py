@@ -145,7 +145,7 @@ new_objectPoints = objectPoints_des
 new_imagePoints = np.array(cam.project(new_objectPoints, False))
 homography_iters = 1
 
-for i in range(1000):
+for i in range(100):
 #  Xo = np.copy(new_objectPoints[[0,1,3],:]) #without the z coordinate (plane)
 #  Xi = np.copy(new_imagePoints)
 #  Aideal = ef.calculate_A_matrix(Xo, Xi)

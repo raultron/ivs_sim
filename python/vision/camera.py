@@ -78,7 +78,6 @@ class Camera(object):
         self.img_width = width
         self.img_height = heigth
 
-
     def update_Rt(self):
         self.Rt = np.dot(self.t,self.R)
         self.set_P()
@@ -134,12 +133,9 @@ class Camera(object):
             imagePoints[:2,:] = imagePoints[:2,:] + gaussian_noise
         return imagePoints
 
-
     def get_tvec(self):
         tvec = self.t[:,3]
         return tvec
-
-
 
     def get_world_position(self):
         t = np.dot(inv(self.Rt), np.array([0,0,0,1]))
@@ -184,9 +180,6 @@ class Camera(object):
             c_projected = c.project(self.homography_from_Rt())
             c_projected.contour(grid_size=100)
 
-
-
-
     def factor(self):
         """  Factorize the camera matrix into K,R,t as P = K[R|t]. """
         # factor first 3*3 part
@@ -210,6 +203,15 @@ class Camera(object):
         Rt = np.identity(4);
         Rt[:3,3] = np.array([x,y,z])
         self.P = np.dot(self.K, self.Rt)
+        
+    def rotate_camera(self, axis, angle):
+        """ rotate camera around a given axis in CAMERA coordinate, please use following Rt"""
+        R = rotation_matrix(axis, angle)
+        newR = np.dot(R,self.R)
+        self.Rt = np.dot(self.t, newR)
+        self.R[:3,:3] = self.Rt[:3,:3]
+        self.t[:3,3] = self.Rt[:3,3]
+        self.set_P()
 
     def rotate(self, axis, angle):
         """ rotate camera around a given axis in world coordinates"""
@@ -217,6 +219,8 @@ class Camera(object):
         self.Rt = np.dot(R, self.Rt)
         self.R[:3,:3] = self.Rt[:3,:3]
         self.t[:3,3] = self.Rt[:3,3]
+        # DO NOT forget to set new P
+        self.set_P()
 
     def rotate_x(self,angle):
         self.rotate(np.array([1,0,0],dtype=np.float32), angle)

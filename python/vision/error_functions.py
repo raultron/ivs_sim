@@ -59,8 +59,6 @@ def algebraic_distance(Xo,Xi,H):
   Xo = np.copy(Xo)
   Xi = np.copy(Xi)
   H = np.copy(H)
-#  a = np.cross(Xi,np.dot(H,Xo))
-#  return a[0]**2 + a[1]**2
   Xio = np.dot(H,Xo)
   return (Xio[0]*Xi[2]-Xi[0]*Xio[2])**2 + (Xi[1]*Xio[2] - Xi[2]*Xio[1])**2
 

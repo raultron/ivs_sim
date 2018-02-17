@@ -24,7 +24,7 @@ class Screen(Plane):
         #curvature radius in meters | a value of 0.0 means a plane
         self.curvature_radius = curvature_radius
         
-        Plane.__init__(self,grid_size=(1,2), grid_step = pixel_pitch/1000)
+        Plane.__init__(self)
         
             
         
