@@ -9,7 +9,7 @@ from vision.camera import *
 from vision.plane import Plane
 import autograd.numpy as np
 from autograd import grad
-from error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix
+from vision.error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix
 
 class Gradient(object):
   def __init__(self):
@@ -407,19 +407,7 @@ def evaluate_gradient(gradient, objectPoints, P, image_pts_measured, normalize =
   gradient.dx4_eval = gradient.dx4(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured, normalize)*gradient.n_x4
   gradient.dy4_eval = gradient.dy4(x1,y1,x2,y2,x3,y3,x4,y4, P, image_pts_measured ,normalize)*gradient.n_y4
 
-  ## Limit
-  limit = 0.1
-  gradient.dx1_eval = np.clip(gradient.dx1_eval, -limit, limit)
-  gradient.dy1_eval = np.clip(gradient.dy1_eval, -limit, limit)
-
-  gradient.dx2_eval = np.clip(gradient.dx2_eval, -limit, limit)
-  gradient.dy2_eval = np.clip(gradient.dy2_eval, -limit, limit)
-
-  gradient.dx3_eval = np.clip(gradient.dx3_eval, -limit, limit)
-  gradient.dy3_eval = np.clip(gradient.dy3_eval, -limit, limit)
-
-  gradient.dx4_eval = np.clip(gradient.dx4_eval, -limit, limit)
-  gradient.dy4_eval = np.clip(gradient.dy4_eval, -limit, limit)
+  
 
 
   gradient.n_x1 = supersab(gradient.n_x1,gradient.dx1_eval,gradient.dx1_eval_old,gradient.n_pos,gradient.n_neg)
@@ -431,6 +419,20 @@ def evaluate_gradient(gradient, objectPoints, P, image_pts_measured, normalize =
   gradient.n_y2 = supersab(gradient.n_y2,gradient.dy2_eval,gradient.dy2_eval_old,gradient.n_pos,gradient.n_neg)
   gradient.n_y3 = supersab(gradient.n_y3,gradient.dy3_eval,gradient.dy3_eval_old,gradient.n_pos,gradient.n_neg)
   gradient.n_y4 = supersab(gradient.n_y4,gradient.dy4_eval,gradient.dy4_eval_old,gradient.n_pos,gradient.n_neg)
+  
+  ## Limit
+  limit = 1
+  gradient.dx1_eval = np.clip(gradient.dx1_eval, -limit, limit)
+  gradient.dy1_eval = np.clip(gradient.dy1_eval, -limit, limit)
+
+  gradient.dx2_eval = np.clip(gradient.dx2_eval, -limit, limit)
+  gradient.dy2_eval = np.clip(gradient.dy2_eval, -limit, limit)
+
+  gradient.dx3_eval = np.clip(gradient.dx3_eval, -limit, limit)
+  gradient.dy3_eval = np.clip(gradient.dy3_eval, -limit, limit)
+
+  gradient.dx4_eval = np.clip(gradient.dx4_eval, -limit, limit)
+  gradient.dy4_eval = np.clip(gradient.dy4_eval, -limit, limit)
 
   return gradient
 
