@@ -16,7 +16,7 @@ def validation_points_error(Xi, Xo, Hestimated):
     return sum/Xo.shape[1]
 
 def homography_matrix_error(Htrue, Hestimated):
-    return np.sqrt(np.sum(np.abs(Htrue - Hestimated)**2))
+    return np.sqrt(np.sum((Htrue - Hestimated)**2))
 
 def h_norm2d(x):
   #Normalize points
