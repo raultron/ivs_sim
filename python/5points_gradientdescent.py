@@ -156,7 +156,7 @@ for i in range(1000):
 
   print "Iteration: ", i
   print "Mat cond Autograd: ", mat_cond_autrograd
-  print "Mat cond:", mat_cond
+  #print "Mat cond:", mat_cond
   #print "Volker Metric:", volkerMetric
   print "dx1,dy1 :", gradient.dx1_eval,gradient.dy1_eval
   print "dx2,dy2 :", gradient.dx2_eval,gradient.dy2_eval

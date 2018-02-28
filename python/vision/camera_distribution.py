@@ -13,7 +13,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from vision.camera import Camera
 from vision.plane import Plane
-from Rt_matrix_from_euler_t import R_matrix_from_euler_t
+from vision.rt_matrix import R_matrix_from_euler_t
 
 
 def uniform_sphere(theta_params = (0,360,10), phi_params = (0,90,10), r = 1., plot = False):

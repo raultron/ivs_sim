@@ -9,7 +9,7 @@ from vision.camera import *
 from vision.plane import Plane
 import autograd.numpy as np
 from autograd import grad
-from error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix
+from vision.error_functions import geometric_distance_points, get_matrix_conditioning_number, volker_metric,calculate_A_matrix
 
 class Gradient:
   def __init__(self):
