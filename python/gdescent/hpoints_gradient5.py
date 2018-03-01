@@ -55,8 +55,8 @@ class Gradient:
     self.dy5_eval_old = 0
 
     self.n = 0.0001 #step in gradient descent
-    self.n_pos = 1.2  # for SuperSAB
-    self.n_neg = 0.5  # for SuperSAB
+    self.n_pos = 0.02*self.n # for SuperSAB
+    self.n_neg = 0.03*self.n # for SuperSAB
     
     self.n_x1 = self.n
     self.n_x2 = self.n
@@ -72,6 +72,8 @@ class Gradient:
 
   def set_n(self,n):
     self.n = n
+    self.n_pos = 2*n # for SuperSAB
+    self.n_neg = 0.1*n # for SuperSAB
     self.n_x1 = n
     self.n_x2 = n
     self.n_x3 = n
@@ -396,8 +398,20 @@ def evaluate_gradient(gradient, objectPoints, P, normalize = False):
   gradient.dx5_eval = gradient.dx5(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5, P, normalize)*gradient.n_x5
   gradient.dy5_eval = gradient.dy5(x1,y1,x2,y2,x3,y3,x4,y4,x5,y5, P, normalize)*gradient.n_y5
   
+  gradient.n_x1 = supersab(gradient.n_x1,gradient.dx1_eval,gradient.dx1_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_x2 = supersab(gradient.n_x2,gradient.dx2_eval,gradient.dx2_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_x3 = supersab(gradient.n_x3,gradient.dx3_eval,gradient.dx3_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_x4 = supersab(gradient.n_x4,gradient.dx4_eval,gradient.dx4_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_x5 = supersab(gradient.n_x5,gradient.dx5_eval,gradient.dx5_eval_old,gradient.n_pos,gradient.n_neg)
+
+  gradient.n_y1 = supersab(gradient.n_y1,gradient.dy1_eval,gradient.dy1_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_y2 = supersab(gradient.n_y2,gradient.dy2_eval,gradient.dy2_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_y3 = supersab(gradient.n_y3,gradient.dy3_eval,gradient.dy3_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_y4 = supersab(gradient.n_y4,gradient.dy4_eval,gradient.dy4_eval_old,gradient.n_pos,gradient.n_neg)
+  gradient.n_y5 = supersab(gradient.n_y5,gradient.dy5_eval,gradient.dy5_eval_old,gradient.n_pos,gradient.n_neg)
+  
   ## Limit
-  limit = 0.01
+  limit = 0.05
   gradient.dx1_eval = np.clip(gradient.dx1_eval, -limit, limit)
   gradient.dy1_eval = np.clip(gradient.dy1_eval, -limit, limit)
 
@@ -413,23 +427,11 @@ def evaluate_gradient(gradient, objectPoints, P, normalize = False):
   gradient.dx5_eval = np.clip(gradient.dx5_eval, -limit, limit)
   gradient.dy5_eval = np.clip(gradient.dy5_eval, -limit, limit)
 
-  gradient.n_x1 = supersab(gradient.n_x1,gradient.dx1_eval,gradient.dx1_eval_old,gradient.n_pos,gradient.n_neg)
-  gradient.n_x2 = supersab(gradient.n_x2,gradient.dx2_eval,gradient.dx2_eval_old,gradient.n_pos,gradient.n_neg)
-  gradient.n_x3 = supersab(gradient.n_x3,gradient.dx3_eval,gradient.dx3_eval_old,gradient.n_pos,gradient.n_neg)
-  gradient.n_x4 = supersab(gradient.n_x4,gradient.dx4_eval,gradient.dx4_eval_old,gradient.n_pos,gradient.n_neg)
-  gradient.n_x5 = supersab(gradient.n_x5,gradient.dx5_eval,gradient.dx5_eval_old,gradient.n_pos,gradient.n_neg)
-
-  gradient.n_y1 = supersab(gradient.n_y1,gradient.dy1_eval,gradient.dy1_eval_old,gradient.n_pos,gradient.n_neg)
-  gradient.n_y2 = supersab(gradient.n_y2,gradient.dy2_eval,gradient.dy2_eval_old,gradient.n_pos,gradient.n_neg)
-  gradient.n_y3 = supersab(gradient.n_y3,gradient.dy3_eval,gradient.dy3_eval_old,gradient.n_pos,gradient.n_neg)
-  gradient.n_y4 = supersab(gradient.n_y4,gradient.dy4_eval,gradient.dy4_eval_old,gradient.n_pos,gradient.n_neg)
-  gradient.n_y5 = supersab(gradient.n_y5,gradient.dy5_eval,gradient.dy5_eval_old,gradient.n_pos,gradient.n_neg)
-
   return gradient
 
 def supersab(n, gradient_eval_current, gradient_eval_old, n_pos,n_neg):
   if np.sign(gradient_eval_current*gradient_eval_old) > 0:
-    n = n*n_pos
+    n = n+n_pos
   else:
     n = n*n_neg
   return n

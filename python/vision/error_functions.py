@@ -149,6 +149,12 @@ def get_matrix_pnorm_condition_number(M):
     return np.linalg.norm(M,2)*np.linalg.norm(np.linalg.pinv(M),2)
 
 
+def condition_number(A):
+  U, s, V = np.linalg.svd(A,full_matrices=False)
+  greatest_singular_value = s[0]
+  smallest_singular_value = s[-2]
+  return greatest_singular_value/smallest_singular_value
+
 def rot_matrix_error(R0, R1, method = 'unit_quaternion_product'):
     """ R0, R1 are 3x3 or 4x4 homogeneous Rotation matrixes
         returns: the value of the error depending on the method """
@@ -214,3 +220,78 @@ def calc_estimated_pose_error(tvec_ref, rmat_ref, tvec_est, rmat_est):
     #Rotation matrix error
     rmat_error = rot_matrix_error(rmat_ref,rmat_est, method = 'angle')
     return tvec_error, rmat_error
+
+def low_upper_bound_homography_error(cam, ObjectPoints):
+  """ 
+  param cam: 
+  Camera object, has the current pose of the camera and the camera intrinsics.
+  
+  param ObjectPoints:
+  Set of 4 different object points in 3D homogeneous coordinates (4x4)
+  
+  """
+  
+  # We dont care about the Z coordinate
+  Xo = ObjectPoints[[0,1,3],:]
+  
+  # Lets project the points using the simulated camera
+  imagePoints = np.array(cam.project(ObjectPoints, False)) 
+  
+  # Calculate the A matrix of the homography
+  A_true = ef.calculate_A_matrix(Xo, imagePoints)
+  
+  A_noisy_list = []
+  H_noisy_list = []
+  
+  A_noisy_norm_list = []
+  H_noisy_norm_list = []
+  for i in range(1000):
+    imagePoints_noisy = cam.addnoise_imagePoints(imagePoints, mean = 0, sd = 4)
+    A_noisy = ef.calculate_A_matrix(Xo, imagePoints_noisy) 
+    
+    #DLT TRANSFORM    
+    Xi = imagePoints_noisy
+    Hnoisy_dlt,_,_ = homo2d.homography2d(Xo,Xi)
+    Hnoisy_dlt = Hnoisy_dlt/Hnoisy_dlt[2,2]
+    
+    A_noisy_list.append(A_noisy)
+    H_noisy_list.append(Hnoisy_dlt)
+    
+    # WE calculate norms
+    A_noisy_norm_list.append(np.linalg.norm(A_noisy))
+    H_noisy_norm_list.append(np.linalg.norm(Hnoisy_dlt))
+  
+  A_noise_mean = np.mean(A_noisy_norm_list, axis=0)
+  H_noisy_mean = np.mean(H_noisy_norm_list, axis=0)
+  
+  i_max = A_noisy_norm_list.index(max(A_noisy_norm_list))
+  A_noise_mean = A_noisy_list[i_max]
+  H_noisy_mean = H_noisy_list[i_max]
+  
+  # TRUE VALUE OF HOMOGRAPHY OBTAINED FROM CAMERA PARAMETERS
+  H_true = cam.homography_from_Rt()
+  
+  H_noisy_norm = np.linalg.norm(H_noisy_mean)
+  H_true_norm = np.linalg.norm(H_true)
+  A_noisy_norm = np.linalg.norm(A_noise_mean)
+  A_true_norm = np.linalg.norm(A_true)
+  
+  cond = condition_number(A_true)
+  
+  rel_error = np.linalg.norm(H_true-H_noisy_mean)/H_true_norm
+  Upper = cond*(np.linalg.norm(A_true-A_noise_mean))/A_true_norm
+  
+  
+  
+  
+  
+  e1 = np.dot(A_true,H_true.reshape(9,1))
+  e2 = np.dot(A_noise_mean,H_noisy_mean.reshape(9,1))
+  
+  lower = np.linalg.norm(e1-e2)/(H_noisy_norm*A_noisy_norm)
+  
+  return rel_error, lower, Upper
+  
+  
+def lower_bound_homography_error(cam, ObjectPoints):
+  pass
