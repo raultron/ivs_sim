@@ -12,8 +12,8 @@ import vision.error_functions as ef
 import gdescent.hpoints_gradient as gd
 from ippe import homo2d
 from homographyHarker.homographyHarker import homographyHarker as hh
-from solve_ippe import pose_ippe_both, pose_ippe_best
-from solve_pnp import pose_pnp
+from vision.solve_ippe import pose_ippe_both, pose_ippe_best
+from vision.solve_pnp import pose_pnp
 import cv2
 
 ## CREATE A SIMULATED CAMERA
