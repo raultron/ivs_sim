@@ -7,13 +7,11 @@ Created on Wed Aug 16 16:38:35 2017
 
 import matplotlib.pyplot as plt
 import autograd.numpy as np
-from mayavi import mlab
-from numpy import random, cos, sin, sqrt, pi, linspace, deg2rad, meshgrid
-from mpl_toolkits.mplot3d import Axes3D
 
 from vision.camera import Camera
 from vision.plane import Plane
 from vision.rt_matrix import R_matrix_from_euler_t
+from vision.plot_tools import plot3D
 
 
 def uniform_sphere(theta_params = (0,360,10), phi_params = (0,90,10), r = 1., plot = False):
@@ -39,40 +37,6 @@ def uniform_sphere(theta_params = (0,360,10), phi_params = (0,90,10), r = 1., pl
     plt.show()
 
   return x, y, z
-  
-def plot3D_cam(cam, axis_scale = 0.2):
-    
-    #Coordinate Frame of real camera
-    #Camera axis
-    cam_axis_x = np.array([1,0,0,1]).T
-    cam_axis_y = np.array([0,1,0,1]).T
-    cam_axis_z = np.array([0,0,1,1]).T
-
-    cam_axis_x = np.dot(cam.R.T, cam_axis_x)
-    cam_axis_y = np.dot(cam.R.T, cam_axis_y)
-    cam_axis_z = np.dot(cam.R.T, cam_axis_z)
-
-    cam_world = cam.get_world_position()
-
-    mlab.quiver3d(cam_world[0], cam_world[1], cam_world[2], cam_axis_x[0], cam_axis_x[1], cam_axis_x[2], line_width=3, scale_factor=axis_scale, color=(1-axis_scale,0,0))
-    mlab.quiver3d(cam_world[0], cam_world[1], cam_world[2], cam_axis_y[0], cam_axis_y[1], cam_axis_y[2], line_width=3, scale_factor=axis_scale, color=(0,1-axis_scale,0))
-    mlab.quiver3d(cam_world[0], cam_world[1], cam_world[2], cam_axis_z[0], cam_axis_z[1], cam_axis_z[2], line_width=3, scale_factor=axis_scale, color=(0,0,1-axis_scale))
-
-
-def plot3D(cams, planes):
-    #mlab.figure(figure=None, bgcolor=(0.1,0.5,0.5), fgcolor=None, engine=None, size=(400, 350))
-    axis_scale = 0.05
-    for cam in cams:
-        plot3D_cam(cam, axis_scale)
-        #axis_scale = axis_scale - 0.1
-
-    for plane in planes:
-        #Plot plane points in 3D
-        plane_points = plane.get_points()
-        mlab.points3d(plane_points[0], plane_points[1], plane_points[2], scale_factor=0.05, color = plane.get_color())
-        mlab.points3d(plane_points[0,0], plane_points[1,0], plane_points[2,0], scale_factor=0.05, color = (0.,0.,1.))
-
-    mlab.show()
 
 def create_cam_distribution(cam = None, plane_size = (0.3,0.3), theta_params = (0,360,10), phi_params =  (0,70,5), r_params = (0.25,1.0,4), plot=False):
   if cam == None:
@@ -93,7 +57,7 @@ def create_cam_distribution(cam = None, plane_size = (0.3,0.3), theta_params = (
   for d in d_space:
       xx, yy, zz = uniform_sphere(theta_params, phi_params, d, False)
       sphere_points = np.array([xx.ravel(),yy.ravel(), zz.ravel()], dtype=np.float32)
-      t_list.append(sphere_points)      
+      t_list.append(sphere_points)
   t_space = np.hstack(t_list)
 
   cams = []
@@ -107,7 +71,7 @@ def create_cam_distribution(cam = None, plane_size = (0.3,0.3), theta_params = (
     plane.uniform()
     objectPoints = plane.get_points()
     imagePoints = cam.project(objectPoints)
-    
+
     #if plot:
     #  cam.plot_image(imagePoints)
     if ((imagePoints[0,:]<cam.img_width) & (imagePoints[0,:]>0)).all():
@@ -121,4 +85,9 @@ def create_cam_distribution(cam = None, plane_size = (0.3,0.3), theta_params = (
     plot3D(cams, planes)
 
   return cams
-  
+
+if __name__ == "__main__":
+    # Test the defined class
+    create_cam_distribution(None, plane_size=(0.3, 0.3),
+                            theta_params=(0, 360, 10), phi_params=(0, 70, 5),
+                            r_params=(0.25, 1.0, 4), plot=True)
