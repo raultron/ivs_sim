@@ -81,12 +81,12 @@ if __name__ == "__main__":
     from vision.plot_tools import plot3D
 
     cam = Camera()
-    cam.set_K(fx=100, fy=100, cx=640, cy=480)
+    cam.set_K(fx=1000, fy=1000, cx=640, cy=480)
     cam.set_width_heigth(1280, 960)
 
     """ Initial camera pose looking stratight down into the plane model """
     cam.set_R_axisAngle(1.0,  0.0,  0.0, np.deg2rad(180))
-    cam.set_t(0.0, 0.0, 1.5, frame='world')
+    cam.set_t(0.0, 0.0, 0.7, frame='world')
 
     """ Screen for the control points """
     # 10x10 grid on a squared screen of 1920x1920 with a pixel pitch of 0.270
@@ -94,11 +94,14 @@ if __name__ == "__main__":
 
     sc = Screen(width=10,height=10, pixel_pitch= 192*0.270)
     sc.update()
-    fiducial_points = sc.get_points() # If you want to check the points
+    X = sc.get_points() # If you want to check the points
+    """ Show image """
+    x = cam.project(X)
+    cam.plot_image(x)
+
     """ Plot camera axis and plane """
     cams = [cam]
     planes = [sc]
     plot3D(cams, planes)
 
-    """ Show image """
-    sc.plot_points()
+
