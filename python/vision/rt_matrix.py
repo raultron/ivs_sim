@@ -46,11 +46,11 @@ def rot_matrix_error(R0, R1, method = 'unit_quaternion_product'):
 
     if ((R0.shape != (4,4)) and (R0.shape != (3,3))):
         print ("Error in the R0 input rotation matrix shape, must be 3x3 or 4x4")
-        print R0
+        print (R0)
         return -1
     if ((R1.shape != (4,4)) and (R1.shape != (3,3))):
         print ("Error in the R1 input rotation matrix shape, must be 3x3 or 4x4")
-        print R1
+        print (R1)
         return -1
 
     if R0.shape == (3,3):

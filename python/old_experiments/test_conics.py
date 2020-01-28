@@ -26,7 +26,7 @@ from uniform_sphere import uniform_sphere
 
 ## CREATE A SIMULATED CAMERA
 cam = Camera()
-fx = fy =  800
+fx = fy =  1
 cx = 640
 cy = 480
 cam.set_K(fx,fy,cx,cy)
@@ -34,27 +34,27 @@ cam.img_width = 1280
 cam.img_height = 960
 
 ## DEFINE CAMERA POSE LOOKING STRAIGTH DOWN INTO THE PLANE MODEL
-cam.set_R_axisAngle(1.0, 0.0,  0.0, np.deg2rad(130.0))
+cam.set_R_axisAngle(0.0, 1.0,  0.0, np.deg2rad(110.0))
 cam_world = np.array([0.0,0.0,1,1]).T
 cam_t = np.dot(cam.R,-cam_world)
 cam.set_t(cam_t[0], cam_t[1],  cam_t[2])
 cam.set_P()
 H_cam = cam.homography_from_Rt()
 
-c1 = Circle((0,0.8),r=0.05)
-print c1.calculate_center()
-#c1.contour()
+c1 = Circle((0,0),r=0.05)
+print (c1.calculate_center())
+c1.contour()
 
 c2 = Ellipse((0,0))
-print c2.calculate_center()
-#c2.contour()
+print (c2.calculate_center())
+c2.contour(grid_size=100)
 
 
 c3 = c1.project(H_cam)
 c3.contour(grid_size=100)
-print c3.calculate_center()
-print c3.major_axis_length()
+print (c3.calculate_center())
+#print c3.major_axis_length()
 
-point = np.array([0,0,0,1]).reshape(4,1)
+point = np.array([0.,0.,0.,1.]).reshape(4,1)
 center_circle = cam.project(point)
-print center_circle
+print (center_circle)

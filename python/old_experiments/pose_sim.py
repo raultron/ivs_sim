@@ -15,7 +15,8 @@ from ippe import homo2d
 
 from vision.camera import Camera
 from vision.plane import Plane
-from vision.camera_distribution import plot3D, plot3D_cam
+#from vision.camera_distribution import plot3D, plot3D_cam
+from vision.plot_tools import plot3D, plot3D_cam
 
 from mayavi import mlab
 from solve_pnp import pose_pnp
@@ -137,12 +138,12 @@ def run_point_distribution_test(cam, objectPoints, plot=True):
     ippeCam1 = cam.clone_withPose(ippe_tvec1, ippe_rmat1)
     ippeCam2 = cam.clone_withPose(ippe_tvec2, ippe_rmat2)
 
-    print "--------------------------------------------------"
-    print ippe_tvec1
-    print ippe_tvec2
-    print pnp_tvec
-    print cam.get_tvec()
-    print "--------------------------------------------------"
+    print ("--------------------------------------------------")
+    print (ippe_tvec1)
+    print (ippe_tvec2)
+    print (pnp_tvec)
+    print (cam.get_tvec())
+    print ("--------------------------------------------------")
 
 
 
