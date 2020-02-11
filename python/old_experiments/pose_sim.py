@@ -10,7 +10,7 @@ import numpy as np
 import cv2
 
 import matplotlib.pyplot as plt
-import error_functions as ef
+import vision.error_functions as ef
 from ippe import homo2d
 
 from vision.camera import Camera
@@ -19,8 +19,8 @@ from vision.plane import Plane
 from vision.plot_tools import plot3D, plot3D_cam
 
 from mayavi import mlab
-from solve_pnp import pose_pnp
-from solve_ippe import pose_ippe_both, pose_ippe_best
+from vision.solve_pnp import pose_pnp
+from vision.solve_ippe import pose_ippe_both, pose_ippe_best
 
 def show_homo2d_normalization(imagePoints):
     imagePoints_normalized = homo2d.normalise2dpts(imagePoints)

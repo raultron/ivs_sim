@@ -12,11 +12,11 @@ class Camera(object):
     """ Class for representing pin-hole cameras. """
     def __init__(self):
         """ Initialize P = K[R|t] camera model. """
-        self.P = np.eye(3,4)
-        self.K = np.eye(3, dtype=np.float32) # calibration matrix
-        self.R = np.eye(4, dtype=np.float32) # rotation
-        self.t = np.eye(4, dtype=np.float32) # translation
-        self.Rt = np.eye(4, dtype=np.float32)
+        self.P = np.mat(np.eye(3,4))
+        self.K = np.mat(np.eye(3, dtype=np.float32))  # calibration matrix
+        self.R = np.mat(np.eye(3, dtype=np.float32)) # rotation
+        self.t = np.mat(np.zeros(4)).T # translation in homogenoues coordinates
+        self.Rt = np.mat(np.eye(4, dtype=np.float32)) # translation and displacement in homgeneous coordinates
         self.fx = 1.
         self.fy = 1.
         self.cx = 0.
@@ -65,8 +65,8 @@ class Camera(object):
         self.cx = cx
         self.cy = cy
         self.K = np.mat([[fx, 0, cx],
-                      [0,fy,cy],
-                      [0,0,1.]], dtype=np.float32)
+                         [0,fy,cy],
+                         [0,0,1.]], dtype=np.float32)
         self.set_P()
 
     def set_width_heigth(self,width, heigth):
@@ -74,7 +74,14 @@ class Camera(object):
         self.img_height = heigth
 
     def update_Rt(self):
-        self.Rt = np.dot(self.t,self.R)
+        #self.Rt = np.dot(self.t,self.R)
+        
+        self.Rt = np.mat(np.eye(4, dtype=np.float32))
+        self.Rt[:3,:3] = self.R
+        self.Rt[:,3] = self.t
+        
+        #self.Rt  = self.R
+        #self.Rt[:3,3] = self.t[:3,3]
         self.set_P()
 
     def set_R_axisAngle(self,x,y,z, alpha):
@@ -87,25 +94,25 @@ class Camera(object):
 
         #Build the skew symetric
         a_skew = np.mat([[0,-a[2],a[1]], [a[2], 0, -a[0]], [-a[1], a[0], 0]])
-        R = np.eye(4)
+        R = np.mat(np.eye(4, dtype=np.float32))
         R[:3,:3] = expm(a_skew*alpha)
         self.R = R
         self.update_Rt()
 
     def set_R_mat(self,R):
-        self.R = R
+        self.R = np.mat(R[:3,:3])
         self.update_Rt()
 
 
     def set_t(self, x,y,z, frame = 'camera'):
         #self.t = array([[x],[y],[z]])
-        self.t = np.eye(4)
+        self.t = np.mat(np.zeros(4)).T 
         if frame=='world':
-          cam_world = np.array([x,y,z,1]).T
-          cam_t = np.dot(self.R,-cam_world)
-          self.t[:3,3] = cam_t[:3]
+          cam_world = np.mat(np.array([x,y,z,1])).T
+          cam_t = self.R*(-cam_world)
+          self.t = cam_t
         else:
-          self.t[:3,3] = np.array([x,y,z])
+          self.t = np.mat(np.array([x,y,z,1])).T
         self.update_Rt()
 
     def get_normalized_pixel_coordinates(self, X):
@@ -144,7 +151,7 @@ class Camera(object):
         for i in range(x.shape[1]):
           x[:,i] /= x[2,i]
         if(quant_error):
-            x = np.around(x, decimals=0)
+          x = np.around(x, decimals=0)
         return x
 
     def project_circle(self, circle):
@@ -158,10 +165,11 @@ class Camera(object):
         plt.figure("Camera Projection")
         plt.plot(imgpoints[0],imgpoints[1],'.',color = points_color)
         #we add a key point to help us see orientation of the points
-        plt.plot(imgpoints[0,0],imgpoints[1,0],'.',color = 'blue')
+        #plt.plot(imgpoints[0,0],imgpoints[1,0],'.',color = 'blue')
         plt.xlim(0,self.img_width)
         plt.ylim(0,self.img_height)
         plt.gca().invert_yaxis()
+        plt.gcf().gca().set_aspect('equal')
         plt.show()
 
     def plot_plane(self, plane):
@@ -241,8 +249,7 @@ class Camera(object):
       R = np.array([[xaxis[0], yaxis[0], zaxis[0], 0],
                    [xaxis[1], yaxis[1], zaxis[1], 0],
                    [xaxis[2], yaxis[2], zaxis[1], 0],
-                   [       0,        0,        0, 1]]
-          )
+                   [       0,        0,        0, 1]] )
 
       R = np.array([[xaxis[0], xaxis[1], xaxis[2], 0],
                    [yaxis[0], yaxis[1], yaxis[2], 0],
@@ -253,12 +260,14 @@ class Camera(object):
       t = np.eye(4, dtype=np.float32) # translation
       t[:3,3] = -eye
 
-      self.R = R
+      #self.R = R
 
 
-      self.Rt = np.dot(R,t)
-      self.t = np.eye(4, dtype=np.float32)
-      self.t[:3,3] = self.Rt[:3,3]
+      Rt = np.dot(R,t)
+      t = np.eye(4, dtype=np.float32)
+      self.R = np.mat(R[:3,:3])
+      t[:3] = self.Rt[:3,3]
+      self.update_Rt()
 
     def homography_from_Rt(self):
       rt_reduced = self.Rt[:3,[0,1,3]]

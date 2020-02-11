@@ -11,7 +11,7 @@ from vision.camera import Camera
 from vision.plane import Plane
 from vision.circular_plane import CircularPlane
 
-import error_functions as ef
+import vision.error_functions as ef
 from ippe import homo2d
 from homographyHarker.homographyHarker import homographyHarker as hh
 from solve_ippe import pose_ippe_both, pose_ippe_best
