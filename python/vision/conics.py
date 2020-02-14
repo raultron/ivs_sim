@@ -43,7 +43,7 @@ class Conic(object):
 
 class Ellipse(Conic):
 
-  def __init__(self, center=(0.,0.), semi_major_axis = 2., semi_minor_axis = 1., angle = 90.):
+  def __init__(self, center=(0.,0.), semi_major_axis = 1., semi_minor_axis = 1., angle = 90.):
     self.center = center # Center of the circle
     a = semi_major_axis
     b = semi_minor_axis
@@ -215,9 +215,9 @@ class Circle(Ellipse):
     xo = self.center[0]
     yo = self.center[1]
     r = self.r
-    self.Aq = np.mat([[1, 0, -xo],
-                     [0, 1, -yo],
-                     [-xo, -yo, xo**2+yo**2-r**2]])
+    self.Aq = np.mat([[1., 0., -xo],
+                     [0., 1., -yo],
+                     [-xo, -yo, xo*xo+yo*yo-r*r]])
 
     self.a = self.Aq[0,0]
     self.c = self.Aq[1,1]

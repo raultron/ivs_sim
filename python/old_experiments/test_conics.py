@@ -28,10 +28,10 @@ from uniform_sphere import uniform_sphere
 cam = Camera()
 #cam.set_K(fx = 1000,fy = 1000,cx = 640,cy = 480)
 #cam.set_width_heigth(1280,960)
-w = 1280
-h = 960
-fx = 1800
-fy = 1800
+w = 320*2
+h = 240*2
+fx = 700
+fy = 700
 
 cam.set_K(fx = fx,fy = fy,cx = w/2.,cy = h/2.)
 cam.set_width_heigth(w,h)
@@ -39,13 +39,50 @@ cam.set_width_heigth(w,h)
 ## DEFINE CAMERA POSE LOOKING STRAIGTH DOWN INTO THE PLANE MODEL
 # Initial camera pose looking stratight down into the center of in different orientations plane model """
 
-cam.set_t(0, 0,2)
-cam.set_R_mat(R_matrix_from_euler_t(0.0,0,0))
+cam.set_t(0., 0.,1.)
+cam.set_R_mat(R_matrix_from_euler_t(np.deg2rad(45),0,0))
 
 
-cam.look_at([0,0,0])
+
+#%%
+# Rodriguez
+from scipy.linalg import norm
+
+theta_in = np.deg2rad(45);
+rvec = np.mat(np.array([1.,0.,0.]))*theta_in
+
+theta = norm(rvec)
+r = rvec/theta
+
+rx = r[0,0]
+ry = r[0,1]
+rz = r[0,2]
+
+temp_mat = np.mat(np.array([[0, -rz,  ry],
+                [rz, 0 , -rx],
+                [-ry, rx,  0]]))
 
 
+
+rrt = np.mat(np.array([[ rx*rx, rx*ry, rx*rz], [rx*ry, ry*ry, ry*rz], [rx*rz, ry*rz, rz*rz] ]))
+
+#R = np.cos(theta)*np.mat(np.eye(3)) + (1-np.cos(theta))*r.T*r + np.sin(theta)*temp_mat
+R = np.cos(theta)*np.mat(np.eye(3)) + (1-np.cos(theta))*rrt + np.sin(theta)*temp_mat
+
+
+
+
+
+
+
+
+#%%
+
+cam.set_R_mat(R)
+
+
+
+#cam.look_at([0,0,0])
 
 cam.set_P()
 
@@ -54,13 +91,16 @@ R= np.mat(cam.R[:3,:3])
 t = np.mat(cam.t[:3].reshape(3,1))
 Rt = cam.Rt
 
+
+#%%
+
 H_cam = cam.homography_from_Rt()
 
-c1 = Circle((0,0.1),r=0.05)
+c1 = Circle((0,0),r=0.1)
 c1.contour()
 print (c1.calculate_center())
 
-c2 = Circle((2*0.05+ 0.05,0),r=0.05)
+c2 = Circle((0.4,0),r=0.05)
 
 #c2 = Ellipse((0,0))
 #c2.contour(grid_size=100)

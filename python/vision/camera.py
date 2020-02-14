@@ -13,10 +13,10 @@ class Camera(object):
     def __init__(self):
         """ Initialize P = K[R|t] camera model. """
         self.P = np.mat(np.eye(3,4))
-        self.K = np.mat(np.eye(3, dtype=np.float32))  # calibration matrix
-        self.R = np.mat(np.eye(3, dtype=np.float32)) # rotation
+        self.K = np.mat(np.eye(3, dtype=np.float64))  # calibration matrix
+        self.R = np.mat(np.eye(3, dtype=np.float64)) # rotation
         self.t = np.mat(np.zeros(4)).T # translation in homogenoues coordinates
-        self.Rt = np.mat(np.eye(4, dtype=np.float32)) # translation and displacement in homgeneous coordinates
+        self.Rt = np.mat(np.eye(4, dtype=np.float64)) # translation and displacement in homgeneous coordinates
         self.fx = 1.
         self.fy = 1.
         self.cx = 0.
@@ -66,7 +66,7 @@ class Camera(object):
         self.cy = cy
         self.K = np.mat([[fx, 0, cx],
                          [0,fy,cy],
-                         [0,0,1.]], dtype=np.float32)
+                         [0,0,1.]], dtype=np.float64)
         self.set_P()
 
     def set_width_heigth(self,width, heigth):
@@ -76,7 +76,7 @@ class Camera(object):
     def update_Rt(self):
         #self.Rt = np.dot(self.t,self.R)
         
-        self.Rt = np.mat(np.eye(4, dtype=np.float32))
+        self.Rt = np.mat(np.eye(4, dtype=np.float64))
         self.Rt[:3,:3] = self.R
         self.Rt[:,3] = self.t
         
